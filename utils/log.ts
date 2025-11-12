@@ -11,9 +11,8 @@ async function getLogTraceObjectFromHeaders() {
   const globalLogFields: TraceObject = {};
   if (traceHeader && !Array.isArray(traceHeader)) {
     const [trace] = traceHeader.split("/");
-    globalLogFields[
-      "logging.googleapis.com/trace"
-    ] = `projects/${GCP_PROJECT_ID}/traces/${trace}`;
+    globalLogFields["logging.googleapis.com/trace"] =
+      `projects/${GCP_PROJECT_ID}/traces/${trace}`;
   }
   return globalLogFields;
 }
@@ -21,7 +20,7 @@ async function getLogTraceObjectFromHeaders() {
 function logServerSideError(
   error: unknown,
   errorMessage: string,
-  traceObject?: TraceObject
+  traceObject?: TraceObject,
 ) {
   const stack = error instanceof Error ? error.stack : "No stack available";
   const debugError =
@@ -41,7 +40,7 @@ function logServerSideError(
         error: debugError,
       },
       ...(traceObject ?? {}),
-    })
+    }),
   );
 }
 

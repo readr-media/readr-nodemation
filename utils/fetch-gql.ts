@@ -6,12 +6,12 @@ import { logServerSideError, type TraceObject } from "./log";
 
 export default async function queryGraphQL<
   TResult,
-  TVariables extends OperationVariables
+  TVariables extends OperationVariables,
 >(
   query: TypedDocumentNode<TResult, TVariables>,
   variables?: TVariables,
   traceObject?: TraceObject,
-  errorMessage?: string
+  errorMessage?: string,
 ): Promise<TResult | null> {
   try {
     const { data, errors: gqlErrors } = await getClient().query({
@@ -32,7 +32,7 @@ export default async function queryGraphQL<
     logServerSideError(
       error,
       errorMessage || fallbackErrorMessage,
-      traceObject
+      traceObject,
     );
     return null;
   }
@@ -40,12 +40,12 @@ export default async function queryGraphQL<
 
 export async function mutateGraphQL<
   TResult,
-  TVariables extends OperationVariables
+  TVariables extends OperationVariables,
 >(
   mutation: TypedDocumentNode<TResult, TVariables>,
   variables?: TVariables,
   traceObject?: TraceObject,
-  errorMessage?: string
+  errorMessage?: string,
 ): Promise<TResult | null> {
   try {
     const { data, errors: gqlErrors } = await getClient().mutate({
@@ -61,12 +61,12 @@ export async function mutateGraphQL<
       {
         mutation,
         variables,
-      }
+      },
     )}`;
     logServerSideError(
       error,
       errorMessage || fallbackErrorMessage,
-      traceObject
+      traceObject,
     );
     return null;
   }

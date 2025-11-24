@@ -1,12 +1,23 @@
 import "@xyflow/react/dist/style.css";
 import { Background, Controls, ReactFlow } from "@xyflow/react";
+import { useCallback } from "react";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 
 const FlowEditor = () => {
-  const { nodes, edges } = useNodesStore();
+  const { nodes, edges, onNodesChange, onEdgeChange, onConnect } =
+    useNodesStore();
+  const handleNodeChange = useCallback(onNodesChange, []);
+  const handleEdgeChange = useCallback(onEdgeChange, []);
+
   return (
-    <div style={{ height: "100%", width: "100%" }}>
-      <ReactFlow nodes={nodes} edges={edges}>
+    <div className="size-full">
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={handleNodeChange}
+        onEdgesChange={handleEdgeChange}
+        onConnect={onConnect}
+      >
         <Background />
         <Controls />
       </ReactFlow>

@@ -15,6 +15,11 @@ const config: Config = {
         gray: {
           600: "#a09d92",
         },
+        module: {
+          border: "#e8e7e2",
+          placeholder: "#a09d92",
+          text: "#4c463c",
+        },
         red: {
           100: "#FFF5F2",
           300: "#FFDDD4",

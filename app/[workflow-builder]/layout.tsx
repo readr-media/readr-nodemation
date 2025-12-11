@@ -4,10 +4,10 @@ import NodeSettingSidebar from "./components/node-setting-sidebar";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <ModuleSideBar />
       <main>
-        <SidebarTrigger />
+        <SidebarTrigger triggerVariant="floating" />
         {children}
       </main>
       <NodeSettingSidebar />

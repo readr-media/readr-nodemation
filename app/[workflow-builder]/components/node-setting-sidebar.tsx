@@ -4,11 +4,14 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarHeader,
+  SidebarTrigger,
 } from "@/components/ui/sidebar";
 
 const NodeSettingSidebar = () => (
   <Sidebar side="right">
-    <SidebarHeader />
+    <SidebarHeader className="flex justify-end">
+      <SidebarTrigger aria-label="Close node settings" />
+    </SidebarHeader>
     <SidebarContent>
       <SidebarGroup />
       <SidebarGroup />

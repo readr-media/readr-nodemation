@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { cva, type VariantProps } from "class-variance-authority"
-import { PanelLeftIcon } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
@@ -253,12 +253,60 @@ function Sidebar({
   )
 }
 
+type SidebarTriggerProps = React.ComponentProps<typeof Button> & {
+  triggerVariant?: "default" | "floating"
+}
+
 function SidebarTrigger({
   className,
   onClick,
+  triggerVariant = "default",
   ...props
-}: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar } = useSidebar()
+}: SidebarTriggerProps) {
+  const { toggleSidebar, state, isMobile, openMobile } = useSidebar()
+  const isCollapsed = state === "collapsed"
+
+  if (triggerVariant === "floating") {
+    if (isMobile || !isCollapsed) {
+      return null
+    }
+
+    return (
+      <Button
+        data-sidebar="trigger"
+        data-slot="sidebar-trigger"
+        variant="ghost"
+        size="icon"
+        className={cn(
+          "fixed right-0 top-1/2 z-30 flex h-24 w-12 -translate-y-1/2 items-center justify-center rounded-bl-[12px] rounded-tl-[12px] border border-module-border border-r-0 bg-white p-[2px] text-module-text shadow-[0px_10px_15px_-3px_rgba(0,0,0,0.1),0px_4px_6px_-4px_rgba(0,0,0,0.1)] transition-[box-shadow,border-color]",
+          className
+        )}
+        onClick={(event) => {
+          onClick?.(event)
+          toggleSidebar()
+        }}
+        {...props}
+      >
+        <ChevronLeft className="size-5" />
+        <span className="sr-only">Open sidebar</span>
+      </Button>
+    )
+  }
+
+  const Icon = isMobile
+    ? openMobile
+      ? ChevronRight
+      : ChevronLeft
+    : isCollapsed
+      ? ChevronLeft
+      : ChevronRight
+  const label = isMobile
+    ? openMobile
+      ? "Close sidebar"
+      : "Open sidebar"
+    : isCollapsed
+      ? "Open sidebar"
+      : "Close sidebar"
 
   return (
     <Button
@@ -273,8 +321,8 @@ function SidebarTrigger({
       }}
       {...props}
     >
-      <PanelLeftIcon />
-      <span className="sr-only">Toggle Sidebar</span>
+      <Icon className="size-5" />
+      <span className="sr-only">{label}</span>
     </Button>
   )
 }

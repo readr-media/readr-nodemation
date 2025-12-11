@@ -23,6 +23,8 @@ const config: Config = {
           title: "#2a2822",
           muted: "#6e6b5e",
           hover: "#d4d3cc",
+          heading: "#4a4842",
+          iconBg: "#f5f5f1",
         },
         red: {
           100: "#FFF5F2",

@@ -75,6 +75,13 @@ jobs:
                 "required": ["score", "summary", "issues", "suggestions", "approved"]
               }
             }
+          tool_choice: |
+            {
+              "type": "function",
+              "function": {
+                "name": "code_review"
+              }
+            }
 
       - name: Comment on PR
         uses: actions/github-script@v7

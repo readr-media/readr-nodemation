@@ -18,22 +18,19 @@ jobs:
           git fetch origin pull/${{ github.event.pull_request.number }}/head:pr-head
 
       - name: Get PR diff
-        id: diff
         run: |
           git diff origin/${{ github.base_ref }}...pr-head > pr.diff
-          base64 -w 0 pr.diff > pr.diff.b64
-          echo "diff_b64_file=pr.diff.b64" >> $GITHUB_OUTPUT
+          echo "DIFF_FILE=$PWD/pr.diff" >> $GITHUB_ENV
 
       - name: AI Code Review
         id: review
         uses: actions/github-script@v7
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          DIFF_B64_FILE: ${{ steps.diff.outputs.diff_b64_file }}
         with:
           script: |
             const fs = require('node:fs');
-            const diffFile = process.env.DIFF_B64_FILE;
+            const diffFile = process.env.DIFF_FILE;
             const apiKey = process.env.GEMINI_API_KEY;
 
             if (!apiKey) {
@@ -46,15 +43,9 @@ jobs:
               return;
             }
 
-            const diffBase64 = fs.readFileSync(diffFile, 'utf8').trim();
-            if (!diffBase64) {
-              core.setFailed('Diff is empty. Add code changes before requesting AI review.');
-              return;
-            }
-
-            const diff = Buffer.from(diffBase64, 'base64').toString('utf8').trim();
+            const diff = fs.readFileSync(diffFile, 'utf8').trim();
             if (!diff) {
-              core.setFailed('Decoded diff is empty.');
+              core.setFailed('Diff is empty. Add code changes before requesting AI review.');
               return;
             }
 

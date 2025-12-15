@@ -43,10 +43,27 @@ jobs:
               return;
             }
 
-            const diff = fs.readFileSync(diffFile, 'utf8').trim();
+            const MAX_DIFF_CHARS = 120_000;
+            const HEAD_CHARS = 90_000;
+            const TAIL_CHARS = 20_000;
+
+            let diff = fs.readFileSync(diffFile, 'utf8').trim();
             if (!diff) {
               core.setFailed('Diff is empty. Add code changes before requesting AI review.');
               return;
+            }
+
+            if (diff.length > MAX_DIFF_CHARS) {
+              const head = diff.slice(0, HEAD_CHARS);
+              const tail = diff.slice(-TAIL_CHARS);
+              const notice = [
+                `Diff 長度 (${diff.length} chars) 超過上限 ${MAX_DIFF_CHARS}，已截取前 ${HEAD_CHARS} 與後 ${TAIL_CHARS} chars。`,
+                '請在建議中提及是否需人工檢查被截斷的部分。',
+                '',
+                '--- 截斷開始 ---',
+                ''
+              ].join('\n');
+              diff = `${notice}${head}\n\n...截斷...\n\n${tail}`;
             }
 
             const systemPrompt = [
@@ -91,7 +108,7 @@ jobs:
                 temperature: 0.2,
                 responseMimeType: 'application/json',
                 responseSchema,
-                maxOutputTokens: 1024
+                maxOutputTokens: 3072
               }
             };
 
@@ -111,13 +128,24 @@ jobs:
             }
 
             const data = await response.json();
-            const content = data?.candidates?.[0]?.content?.parts
+            const candidate = data?.candidates?.[0];
+            const finishReason = candidate?.finishReason;
+            const content = candidate?.content?.parts
               ?.map((part) => part.text ?? '')
               .join('')
               .trim();
 
             if (!content) {
-              core.setFailed(`Gemini API returned an empty response: ${JSON.stringify(data)}`);
+              const promptTokens = data?.usageMetadata?.promptTokenCount;
+              const totalTokens = data?.usageMetadata?.totalTokenCount;
+              if (finishReason === 'MAX_TOKENS') {
+                core.setFailed(
+                  `Gemini API hit the max token limit (prompt tokens: ${promptTokens}, total tokens: ${totalTokens}). ` +
+                    'Try reducing the diff size or rerunning the workflow.'
+                );
+              } else {
+                core.setFailed(`Gemini API returned an empty response: ${JSON.stringify(data)}`);
+              }
               return;
             }
 

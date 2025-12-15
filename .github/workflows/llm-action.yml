@@ -26,7 +26,10 @@ jobs:
         uses: appleboy/llm-action@v1
         with:
           base_url: https://generativelanguage.googleapis.com/v1beta/openai
-          api_key: ${{ secrets.GEMINI_API_KEY }}
+          headers: |
+            {
+              "x-goog-api-key": "${{ secrets.GEMINI_API_KEY }}"
+            }
           model: gemini-2.5-pro
           system_prompt: |
             你是一位資深的程式碼審查專家。請根據以下標準審查程式碼：

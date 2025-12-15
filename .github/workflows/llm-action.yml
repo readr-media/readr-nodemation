@@ -1,8 +1,8 @@
 name: AI Code Review
 
 on:
-  pull_request_target:
-    types: [labeled]
+  pull_request:
+    types: [opened, synchronize, labeled]
 
 jobs:
   code-review:

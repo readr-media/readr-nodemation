@@ -2,7 +2,7 @@ name: AI Code Review
 
 on:
   pull_request_target:
-    types: [opened, synchronize, labeled]
+    types: [labeled]
 
 jobs:
   code-review:
@@ -16,7 +16,7 @@ jobs:
       - name: Get PR diff
         id: diff
         run: |
-          DIFF=$(git diff origin/${{ github.base_ref }}...HEAD)
+          DIFF=$(git diff origin/${{ github.base_ref }}...HEAD | base64 -w 0)
           echo "diff<<EOF" >> $GITHUB_OUTPUT
           echo "$DIFF" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -36,7 +36,8 @@ jobs:
             4. 最佳實踐建議
             5. 請務必嚴格依照 tool_schema 輸出，且不要包含任何多餘文字。
           input_prompt: |
-            請審查以下 Pull Request 的程式碼變更：
+            以下是 Pull Request 的 diff（base64 編碼）：
+            請先解碼後再進行程式碼審查。
 
             ${{ steps.diff.outputs.diff }}
           tool_schema: |

@@ -1,0 +1,59 @@
+import type { Config } from "tailwindcss";
+
+const config: Config = {
+  content: [
+    "./app/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./providers/**/*.{ts,tsx}",
+    "./stores/**/*.{ts,tsx}",
+    "./lib/**/*.{ts,tsx}",
+    "./utils/**/*.{ts,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        gray: {
+          600: "#a09d92",
+        },
+        red: {
+          100: "#FFF5F2",
+          300: "#FFDDD4",
+          500: "#FF6B4A",
+          700: "#E64A2E",
+          900: "#B33820",
+        },
+        purple: {
+          100: "#F5F3FF",
+          300: "#E9D5FF",
+          500: "#9333EA",
+          700: "#7E22CE",
+          900: "#6B21A8",
+        },
+        green: {
+          100: "#F0FDF9",
+          300: "#C7F5E8",
+          500: "#00967D",
+          700: "#007A66",
+          900: "#006654",
+        },
+        blue: {
+          100: "#F2F7FC",
+          300: "#D4E6F7",
+          500: "#4A90E2",
+          700: "#2E7BD4",
+          900: "#1E5FA8",
+        },
+        yellow: {
+          100: "#FEF3C7",
+          300: "#FCD34D",
+          500: "#FFB020",
+          700: "#D97706",
+          900: "#B45309",
+        },
+      },
+    },
+  },
+  plugins: [],
+};
+
+export default config;

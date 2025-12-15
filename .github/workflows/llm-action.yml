@@ -43,27 +43,13 @@ jobs:
               return;
             }
 
-            const MAX_DIFF_CHARS = 120_000;
-            const HEAD_CHARS = 90_000;
-            const TAIL_CHARS = 20_000;
+            const SINGLE_CHUNK_LIMIT = 60_000;
+            const CHUNK_CHAR_LIMIT = 30_000;
 
             let diff = fs.readFileSync(diffFile, 'utf8').trim();
             if (!diff) {
               core.setFailed('Diff is empty. Add code changes before requesting AI review.');
               return;
-            }
-
-            if (diff.length > MAX_DIFF_CHARS) {
-              const head = diff.slice(0, HEAD_CHARS);
-              const tail = diff.slice(-TAIL_CHARS);
-              const notice = [
-                `Diff 長度 (${diff.length} chars) 超過上限 ${MAX_DIFF_CHARS}，已截取前 ${HEAD_CHARS} 與後 ${TAIL_CHARS} chars。`,
-                '請在建議中提及是否需人工檢查被截斷的部分。',
-                '',
-                '--- 截斷開始 ---',
-                ''
-              ].join('\n');
-              diff = `${notice}${head}\n\n...截斷...\n\n${tail}`;
             }
 
             const systemPrompt = [
@@ -73,12 +59,6 @@ jobs:
               '3. 效能問題',
               '4. 最佳實踐建議',
               '5. 回傳結果時必須嚴格符合 JSON schema，且不要包含任何多餘文字。'
-            ].join('\n');
-
-            const userPrompt = [
-              '以下是 Pull Request 的 diff：',
-              '',
-              diff
             ].join('\n');
 
             const responseSchema = {
@@ -93,75 +73,168 @@ jobs:
               required: ['score', 'summary', 'issues', 'suggestions', 'approved']
             };
 
-            const payload = {
-              systemInstruction: {
-                role: 'system',
-                parts: [{ text: systemPrompt }]
-              },
-              contents: [
-                {
-                  role: 'user',
-                  parts: [{ text: userPrompt }]
+            function chunkDiff(text, chunkSize) {
+              const chunks = [];
+              for (let i = 0; i < text.length; i += chunkSize) {
+                chunks.push(text.slice(i, i + chunkSize));
+              }
+              return chunks;
+            }
+
+            async function reviewChunk(chunkText, chunkIndex, totalChunks) {
+              const chunkLabel =
+                totalChunks > 1 ? `（第 ${chunkIndex + 1}/${totalChunks} 部分）` : '';
+              const userPrompt = [
+                `以下是 Pull Request 的 diff${chunkLabel}：`,
+                '',
+                chunkText
+              ].join('\n');
+
+              const payload = {
+                systemInstruction: {
+                  role: 'system',
+                  parts: [{ text: systemPrompt }]
+                },
+                contents: [
+                  {
+                    role: 'user',
+                    parts: [{ text: userPrompt }]
+                  }
+                ],
+                generationConfig: {
+                  temperature: 0.2,
+                  responseMimeType: 'application/json',
+                  responseSchema,
+                  maxOutputTokens: 3072
                 }
-              ],
-              generationConfig: {
-                temperature: 0.2,
-                responseMimeType: 'application/json',
-                responseSchema,
-                maxOutputTokens: 3072
-              }
-            };
+              };
 
-            const response = await fetch(
-              `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`,
-              {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-              }
-            );
+              const response = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${apiKey}`,
+                {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(payload)
+                }
+              );
 
-            if (!response.ok) {
-              const errorText = await response.text();
-              core.setFailed(`Gemini API error: ${response.status} ${response.statusText} - ${errorText}`);
-              return;
-            }
-
-            const data = await response.json();
-            const candidate = data?.candidates?.[0];
-            const finishReason = candidate?.finishReason;
-            const content = candidate?.content?.parts
-              ?.map((part) => part.text ?? '')
-              .join('')
-              .trim();
-
-            if (!content) {
-              const promptTokens = data?.usageMetadata?.promptTokenCount;
-              const totalTokens = data?.usageMetadata?.totalTokenCount;
-              if (finishReason === 'MAX_TOKENS') {
+              if (!response.ok) {
+                const errorText = await response.text();
                 core.setFailed(
-                  `Gemini API hit the max token limit (prompt tokens: ${promptTokens}, total tokens: ${totalTokens}). ` +
-                    'Try reducing the diff size or rerunning the workflow.'
+                  `Gemini API error for chunk ${chunkIndex + 1}/${totalChunks}: ` +
+                    `${response.status} ${response.statusText} - ${errorText}`
                 );
-              } else {
-                core.setFailed(`Gemini API returned an empty response: ${JSON.stringify(data)}`);
+                return null;
               }
-              return;
+
+              const data = await response.json();
+              const candidate = data?.candidates?.[0];
+              const finishReason = candidate?.finishReason;
+              const content = candidate?.content?.parts
+                ?.map((part) => part.text ?? '')
+                .join('')
+                .trim();
+
+              if (!content) {
+                const promptTokens = data?.usageMetadata?.promptTokenCount;
+                const totalTokens = data?.usageMetadata?.totalTokenCount;
+                if (finishReason === 'MAX_TOKENS') {
+                  core.setFailed(
+                    `Gemini API hit the max token limit on chunk ${chunkIndex + 1}/${totalChunks} ` +
+                      `(prompt tokens: ${promptTokens}, total tokens: ${totalTokens}). ` +
+                      'Try reducing the diff size or rerunning the workflow.'
+                  );
+                } else {
+                  core.setFailed(
+                    `Gemini API returned an empty response on chunk ${chunkIndex + 1}/${totalChunks}: ` +
+                      `${JSON.stringify(data)}`
+                  );
+                }
+                return null;
+              }
+
+              let parsed;
+              try {
+                parsed = JSON.parse(content);
+              } catch (error) {
+                core.setFailed(
+                  `Model response was not valid JSON on chunk ${chunkIndex + 1}/${totalChunks}: ${content}`
+                );
+                return null;
+              }
+
+              return parsed;
             }
 
-            let parsed;
-            try {
-              parsed = JSON.parse(content);
-            } catch (error) {
-              core.setFailed(`Model response was not valid JSON: ${content}`);
-              return;
+            function gatherChunks(text) {
+              if (text.length <= SINGLE_CHUNK_LIMIT) {
+                return [text];
+              }
+              core.info(
+                `Diff length ${text.length} chars exceeds ${SINGLE_CHUNK_LIMIT}. ` +
+                  `Splitting into ${CHUNK_CHAR_LIMIT}-char chunks for review.`
+              );
+              return chunkDiff(text, CHUNK_CHAR_LIMIT);
             }
 
-            const fields = ['score', 'summary', 'issues', 'suggestions', 'approved'];
-            for (const field of fields) {
-              const value = parsed[field] ?? '';
-              core.setOutput(field, value);
+            function extractNumericScore(scoreStr) {
+              if (typeof scoreStr !== 'string') return null;
+              const match = scoreStr.match(/\\d+(?:\\.\\d+)?/);
+              return match ? Number(match[0]) : null;
             }
+
+            const diffChunks = gatherChunks(diff);
+            const chunkResults = [];
+
+            for (let i = 0; i < diffChunks.length; i++) {
+              const parsed = await reviewChunk(diffChunks[i], i, diffChunks.length);
+              if (!parsed) {
+                return;
+              }
+              chunkResults.push(parsed);
+            }
+
+            const summaries = [];
+            const issues = [];
+            const suggestions = [];
+            const numericScores = [];
+            let approved = 'yes';
+
+            chunkResults.forEach((result, index) => {
+              const label = chunkResults.length > 1 ? `第 ${index + 1} 部分：` : '';
+              const summary = result.summary ? `${label}${result.summary}` : '';
+              const issue = result.issues ? `${label}${result.issues}` : '';
+              const suggestion = result.suggestions ? `${label}${result.suggestions}` : '';
+              if (summary) summaries.push(summary);
+              if (issue) issues.push(issue);
+              if (suggestion) suggestions.push(suggestion);
+
+              const numericScore = extractNumericScore(result.score);
+              if (Number.isFinite(numericScore)) {
+                numericScores.push(numericScore);
+              }
+
+              const approvedValue = (result.approved || '').trim().toLowerCase();
+              if (approvedValue !== 'yes') {
+                approved = 'no';
+              }
+            });
+
+            const finalScore = numericScores.length
+              ? (numericScores.reduce((sum, value) => sum + value, 0) / numericScores.length)
+                  .toFixed(1)
+                  .replace(/\\.0$/, '')
+              : chunkResults[0]?.score || 'N/A';
+
+            const finalSummary = summaries.join('\\n\\n');
+            const finalIssues = issues.join('\\n\\n');
+            const finalSuggestions = suggestions.join('\\n\\n');
+
+            core.setOutput('score', finalScore);
+            core.setOutput('summary', finalSummary);
+            core.setOutput('issues', finalIssues);
+            core.setOutput('suggestions', finalSuggestions);
+            core.setOutput('approved', approved);
 
       - name: Comment on PR
         uses: actions/github-script@v7

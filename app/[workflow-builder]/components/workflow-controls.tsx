@@ -25,7 +25,6 @@ const WorkFlowControls = () => {
         label: "縮小",
         icon: ZoomOut,
         handler: () => {
-          console.log("zoom out");
           reactFlow.zoomOut();
         },
       },

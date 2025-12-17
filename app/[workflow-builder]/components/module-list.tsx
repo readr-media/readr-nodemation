@@ -1,3 +1,5 @@
+"use client";
+import type { LucideIcon } from "lucide-react";
 import {
   FileSpreadsheet,
   Share2,
@@ -7,8 +9,17 @@ import {
   Download,
 } from "lucide-react";
 import { ModuleCard } from "./module-card";
+import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 
-const moduleGroups = [
+type ModuleItem = {
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  accent: "ai" | "code" | "cms" | "content";
+  nodeType?: "aiCall";
+};
+
+const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
   {
     title: "AI 模組",
     modules: [
@@ -17,6 +28,7 @@ const moduleGroups = [
         description: "透過 AI 進行內容處理",
         icon: Sparkles,
         accent: "ai",
+        nodeType: "aiCall",
       },
     ],
   },
@@ -67,21 +79,33 @@ const moduleGroups = [
   },
 ] as const;
 
-const ModuleList = () => (
-  <div className="flex flex-col gap-6 px-4 pb-4 pt-4">
-    {moduleGroups.map((group) => (
-      <div key={group.title} className="space-y-3">
-        <p className="text-sm font-normal leading-5 tracking-[-0.01em] text-module-muted">
-          {group.title}
-        </p>
-        <div className="flex flex-col gap-2">
-          {group.modules.map((module) => (
-            <ModuleCard key={module.title} {...module} />
-          ))}
+const ModuleList = () => {
+  const { addAiNode } = useNodesStore();
+
+  return (
+    <div className="flex flex-col gap-6 px-4 pb-4 pt-4">
+      {moduleGroups.map((group) => (
+        <div key={group.title} className="space-y-3">
+          <p className="text-sm font-normal leading-5 tracking-[-0.01em] text-module-muted">
+            {group.title}
+          </p>
+          <div className="flex flex-col gap-2">
+            {group.modules.map(({ nodeType, ...cardProps }) => (
+              <ModuleCard
+                key={cardProps.title}
+                {...cardProps}
+                onClick={() => {
+                  if (nodeType === "aiCall") {
+                    addAiNode();
+                  }
+                }}
+              />
+            ))}
+          </div>
         </div>
-      </div>
-    ))}
-  </div>
-);
+      ))}
+    </div>
+  );
+};
 
 export default ModuleList;

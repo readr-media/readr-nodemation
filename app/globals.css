@@ -160,4 +160,12 @@
     .body-3 {
         @apply text-xs font-normal leading-normal;
     }
+
+    .module-card {
+        @apply hover:shadow-[0px_4px_8px_-1px_rgba(0, 0, 0, 0.05), 0px_2px_4px_-2px_rgba(0, 0, 0, 0.05)];
+    }
+
+    .node-settings-header {
+        @apply h-[60px] items-center justify-between border-b border-module-border px-4;
+    }
 }

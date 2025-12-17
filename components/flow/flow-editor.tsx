@@ -1,7 +1,9 @@
 import "@xyflow/react/dist/style.css";
-import { Background, Controls, ReactFlow } from "@xyflow/react";
+import { Background, Controls, ReactFlow, SelectionMode } from "@xyflow/react";
 import { useCallback } from "react";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
+
+const panOnDrag = [1, 2];
 
 const FlowEditor = () => {
   const { nodes, edges, onNodesChange, onEdgeChange, onConnect } =
@@ -17,6 +19,11 @@ const FlowEditor = () => {
         onNodesChange={handleNodeChange}
         onEdgesChange={handleEdgeChange}
         onConnect={onConnect}
+        panOnScroll
+        selectionOnDrag
+        panOnDrag={panOnDrag}
+        selectionMode={SelectionMode.Partial}
+        fitView
       >
         <Background />
         <Controls />

@@ -1,18 +1,29 @@
+"use client";
+
 import "@xyflow/react/dist/style.css";
-import { Background, Controls, ReactFlow, SelectionMode } from "@xyflow/react";
-import { useCallback } from "react";
+import {
+  Background,
+  Panel,
+  ReactFlow,
+  SelectionMode,
+} from "@xyflow/react";
+import { useCallback, type ReactNode } from "react";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 
 const panOnDrag = [1, 2];
 
-const FlowEditor = () => {
+type FlowEditorProps = {
+  controlsSlot?: ReactNode;
+};
+
+const FlowEditor = ({ controlsSlot }: FlowEditorProps) => {
   const { nodes, edges, onNodesChange, onEdgeChange, onConnect } =
     useNodesStore();
   const handleNodeChange = useCallback(onNodesChange, []);
   const handleEdgeChange = useCallback(onEdgeChange, []);
 
   return (
-    <div className="size-full">
+    <div className="relative size-full">
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -26,7 +37,11 @@ const FlowEditor = () => {
         fitView
       >
         <Background />
-        <Controls />
+        {controlsSlot ? (
+          <Panel position="bottom-right" className="pointer-events-auto">
+            {controlsSlot}
+          </Panel>
+        ) : null}
       </ReactFlow>
     </div>
   );

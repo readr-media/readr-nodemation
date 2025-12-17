@@ -38,14 +38,9 @@
     --color-popover: var(--popover);
     --color-card-foreground: var(--card-foreground);
     --color-card: var(--card);
-    --radius-sm: calc(var(--radius) - 4px);
-    --radius-md: calc(var(--radius) - 2px);
-    --radius-lg: var(--radius);
-    --radius-xl: calc(var(--radius) + 4px);
 }
 
 :root {
-    --radius: 0.625rem;
     --background: oklch(1 0 0);
     --foreground: oklch(0.145 0 0);
     --card: oklch(1 0 0);
@@ -125,27 +120,27 @@
 
 
 @layer components {
-    .hero-title {
-        @apply text-[30px] font-medium leading-normal;
-    }
-
     .title-1 {
-        @apply text-2xl font-medium leading-normal;
+        @apply text-3xl font-medium leading-normal;
     }
 
     .title-2 {
-        @apply text-xl font-medium leading-normal;
+        @apply text-2xl font-medium leading-normal;
     }
 
     .title-3 {
-        @apply text-lg font-medium leading-normal;
+        @apply text-xl font-medium leading-normal;
     }
 
     .title-4 {
-        @apply text-base font-medium leading-normal;
+        @apply text-lg font-medium leading-normal;
     }
 
     .title-5 {
+        @apply text-base font-medium leading-normal;
+    }
+
+     .title-6 {
         @apply text-sm font-medium leading-normal;
     }
 
@@ -162,7 +157,7 @@
     }
 
     .module-card {
-        @apply hover:shadow-[0px_4px_8px_-1px_rgba(0, 0, 0, 0.05), 0px_2px_4px_-2px_rgba(0, 0, 0, 0.05)];
+        @apply hover:shadow-[0px_4px_8px_-1px_rgba(0,0,0,0.05),0px_2px_4px_-2px_rgba(0,0,0,0.05)];
     }
 
     .node-settings-header {

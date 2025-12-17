@@ -13,8 +13,12 @@ const config: Config = {
     extend: {
       colors: {
         gray: {
+          300: "#f5f5f1",
+          400: "#e8e7e2",
           600: "#a09d92",
           700: "#6e6b51",
+          800: "#4a4842",
+          900: "#2a2822",
         },
         module: {
           border: "#e8e7e2",
@@ -61,6 +65,12 @@ const config: Config = {
           700: "#D97706",
           900: "#B45309",
         },
+      },
+      boxShadow: {
+        2: [
+          "0px 8px 12px -2px rgba(0, 0, 0, 0.05)",
+          "0px 4px 12px 0px rgba(0, 0, 0, 0.05)",
+        ],
       },
     },
   },

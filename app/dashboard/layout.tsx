@@ -1,3 +1,5 @@
+import Header from "@/components/layout/header";
+
 export default function layout({
   children,
 }: Readonly<{
@@ -5,6 +7,7 @@ export default function layout({
 }>) {
   return (
     <div className="flex w-full flex-col bg-[#f5f5f1]/50 min-h-screen">
+      <Header />
       {children}
     </div>
   );

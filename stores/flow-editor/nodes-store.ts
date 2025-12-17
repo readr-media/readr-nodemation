@@ -18,13 +18,6 @@ const defaultNode = {
   type: "default",
 } as const;
 
-const defaultNode2 = {
-  id: "n2",
-  position: { x: 100, y: 100 },
-  data: { label: "Node 2" },
-  type: "default",
-} as const;
-
 const defaultEdge = {
   id: "n1-n2",
   source: "n1",
@@ -48,6 +41,7 @@ export type NodeActions = {
   onNodesChange: (changes: NodeChange[]) => void;
   onEdgeChange: (changes: EdgeChange[]) => void;
   onConnect: (params: Connection) => void;
+  addNode: (node: Node) => void;
 };
 
 export type NodesStore = NodesStates & NodeActions;
@@ -55,8 +49,13 @@ export type NodesStore = NodesStates & NodeActions;
 export const useNodesStore = create<NodesStore>()(
   devtools(
     (set) => ({
-      nodes: [defaultNode, defaultNode2],
-      edges: [defaultEdge],
+      nodes: [],
+      edges: [],
+      addNode: (node: Node) => {
+        set((state: NodesStore) => ({
+          nodes: [...state.nodes, { ...defaultNode, ...node }],
+        }));
+      },
       onNodesChange: (changes: NodeChange[]) => {
         set(
           (state: NodesStore) => ({

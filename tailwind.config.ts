@@ -14,6 +14,17 @@ const config: Config = {
       colors: {
         gray: {
           600: "#a09d92",
+          700: "#6e6b51",
+        },
+        module: {
+          border: "#e8e7e2",
+          placeholder: "#a09d92",
+          text: "#4c463c",
+          title: "#2a2822",
+          muted: "#6e6b5e",
+          hover: "#d4d3cc",
+          heading: "#4a4842",
+          iconBg: "#f5f5f1",
         },
         red: {
           100: "#FFF5F2",

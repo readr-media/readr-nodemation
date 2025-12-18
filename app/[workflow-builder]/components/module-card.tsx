@@ -36,7 +36,7 @@ const ModuleCard = ({
 }: ModuleCardProps & React.ComponentProps<"div">) => (
   <div
     className={cn(
-      "module-card cursor-pointer rounded-[12px] border border-module-border bg-white p-4 transition hover:border-module-hover",
+      "module-card cursor-pointer rounded-xl border border-module-border bg-white p-4 transition hover:border-module-hover",
       className,
     )}
     {...props}

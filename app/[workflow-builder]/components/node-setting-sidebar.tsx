@@ -11,8 +11,10 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
+import type { CodeNodeData } from "@/components/flow/nodes/code-node";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import AiNodeSettings from "./node-settings/ai-node-setting";
+import CodeNodeSetting from "./node-settings/code-node-setting";
 
 const EmptyState = () => (
   <div className="flex w-40 flex-col items-center gap-4 text-center">
@@ -37,6 +39,14 @@ const NodeSettingSidebar = () => {
       <AiNodeSettings
         nodeId={selectedNode.id}
         data={selectedNode.data as AiCallNodeData}
+      />
+    );
+  }
+  if (selectedNode?.type === "codeBlock") {
+    content = (
+      <CodeNodeSetting
+        nodeId={selectedNode.id}
+        data={selectedNode.data as CodeNodeData}
       />
     );
   }

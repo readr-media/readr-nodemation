@@ -16,7 +16,7 @@ type ModuleItem = {
   description: string;
   icon: LucideIcon;
   accent: "ai" | "code" | "cms" | "content";
-  nodeType?: "aiCall";
+  nodeType?: "aiCall" | "codeBlock";
 };
 
 const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
@@ -40,6 +40,7 @@ const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
         description: "輸入程式碼來處理資料",
         icon: Code2,
         accent: "code",
+        nodeType: "codeBlock",
       },
     ],
   },
@@ -80,7 +81,7 @@ const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
 ] as const;
 
 const ModuleList = () => {
-  const { addAiNode } = useNodesStore();
+  const { addAiNode, addCodeNode } = useNodesStore();
 
   return (
     <div className="flex flex-col gap-6 px-4 pb-4 pt-4">
@@ -97,6 +98,9 @@ const ModuleList = () => {
                 onClick={() => {
                   if (nodeType === "aiCall") {
                     addAiNode();
+                  }
+                  if (nodeType === "codeBlock") {
+                    addCodeNode();
                   }
                 }}
               />

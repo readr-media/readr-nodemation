@@ -6,6 +6,7 @@ import type {
   NodeChange,
 } from "@xyflow/react";
 import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
+import type { CodeNodeData } from "@/components/flow/nodes/code-node";
 
 export type FlowSlice = {
   nodes: Node[];
@@ -24,4 +25,9 @@ export type AiNodeSlice = {
   updateNodeData: (nodeId: string, data: Partial<AiCallNodeData>) => void;
 };
 
-export type NodesStore = FlowSlice & AiNodeSlice;
+export type CodeNodeSlice = {
+  addCodeNode: () => void;
+  updateCodeNodeData: (nodeId: string, data: Partial<CodeNodeData>) => void;
+};
+
+export type NodesStore = FlowSlice & AiNodeSlice & CodeNodeSlice;

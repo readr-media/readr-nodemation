@@ -13,6 +13,7 @@ import {
 import { useCallback, useMemo, type ReactNode } from "react";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import AiCallNode from "./nodes/ai-call-node";
+import CodeNode from "./nodes/code-node";
 
 const panOnDrag = [1, 2];
 
@@ -31,7 +32,13 @@ const FlowEditor = ({ controlsSlot }: FlowEditorProps) => {
   } = useNodesStore();
   const handleNodeChange = useCallback(onNodesChange, []);
   const handleEdgeChange = useCallback(onEdgeChange, []);
-  const nodeTypes = useMemo<NodeTypes>(() => ({ aiCall: AiCallNode }), []);
+  const nodeTypes = useMemo<NodeTypes>(
+    () => ({
+      aiCall: AiCallNode,
+      codeBlock: CodeNode,
+    }),
+    [],
+  );
   const handleNodeClick = useCallback(
     (_: React.MouseEvent, node: Node) => selectNode(node.id),
     [selectNode],

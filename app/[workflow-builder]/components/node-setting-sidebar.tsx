@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode } from "react";
+import { type CSSProperties, type ReactNode } from "react";
 import { Check, ChevronDown, Cog, Play } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -242,7 +242,11 @@ const NodeSettingSidebar = () => {
   }
 
   return (
-    <Sidebar side="right" className="border-l border-module-border bg-white">
+    <Sidebar
+      side="right"
+      className="border-l border-module-border bg-white"
+      style={{ "--sidebar-width": "18rem" } as CSSProperties}
+    >
       <SidebarHeader className="node-settings-header">
         <h2 className="text-lg font-medium text-module-title">節點設定</h2>
         <SidebarTrigger

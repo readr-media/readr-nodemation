@@ -43,6 +43,7 @@ export type NodeActions = {
   addAiNode: () => void;
   selectNode: (nodeId: string | null) => void;
   updateNodeData: (nodeId: string, data: Partial<AiCallNodeData>) => void;
+  loadSnapshot: (payload: { nodes: Node[]; edges: Edge[] }) => void;
 };
 
 export type NodesStore = NodesStates & NodeActions;
@@ -98,6 +99,13 @@ export const useNodesStore = create<NodesStore>()(
                 }
               : node,
           ),
+        }));
+      },
+      loadSnapshot: (payload: { nodes: Node[]; edges: Edge[] }) => {
+        set(() => ({
+          nodes: payload.nodes ?? [],
+          edges: payload.edges ?? [],
+          selectedNodeId: null,
         }));
       },
       onNodesChange: (changes: NodeChange[]) => {

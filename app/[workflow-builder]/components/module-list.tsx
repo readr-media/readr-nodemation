@@ -1,5 +1,6 @@
 "use client";
 
+import type { LucideIcon } from "lucide-react";
 import {
   Code2,
   Database,
@@ -8,7 +9,6 @@ import {
   Share2,
   Sparkles,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import { ModuleCard } from "./module-card";
@@ -18,7 +18,7 @@ type ModuleItem = {
   description: string;
   icon: LucideIcon;
   accent: "ai" | "code" | "cms" | "content";
-  nodeType?: "aiCall" | "codeBlock" | "cmsInput" | "cmsOutput";
+  nodeType?: "aiCall" | "codeBlock" | "cmsInput" | "cmsOutput" | "exportResult";
 };
 
 const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
@@ -73,6 +73,7 @@ const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
         description: "將處理結果匯出為檔案",
         icon: Download,
         accent: "content",
+        nodeType: "exportResult",
       },
       {
         title: "產出報告紀錄",
@@ -85,8 +86,13 @@ const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
 ] as const;
 
 const ModuleList = () => {
-  const { addAiNode, addCodeNode, addCmsNode, addCmsOutputNode } =
-    useNodesStore();
+  const {
+    addAiNode,
+    addCodeNode,
+    addCmsNode,
+    addCmsOutputNode,
+    addExportNode,
+  } = useNodesStore();
 
   return (
     <div className="flex flex-col gap-6 px-4 pb-4 pt-4">
@@ -112,6 +118,9 @@ const ModuleList = () => {
                   }
                   if (nodeType === "cmsOutput") {
                     addCmsOutputNode();
+                  }
+                  if (nodeType === "exportResult") {
+                    addExportNode();
                   }
                 }}
               />

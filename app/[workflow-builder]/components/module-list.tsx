@@ -16,7 +16,7 @@ type ModuleItem = {
   description: string;
   icon: LucideIcon;
   accent: "ai" | "code" | "cms" | "content";
-  nodeType?: "aiCall" | "codeBlock";
+  nodeType?: "aiCall" | "codeBlock" | "cmsInput";
 };
 
 const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
@@ -52,6 +52,7 @@ const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
         description: "從 CMS 系統抓取內容",
         icon: Database,
         accent: "cms",
+        nodeType: "cmsInput",
       },
       {
         title: "輸出到 CMS",
@@ -81,7 +82,7 @@ const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
 ] as const;
 
 const ModuleList = () => {
-  const { addAiNode, addCodeNode } = useNodesStore();
+  const { addAiNode, addCodeNode, addCmsNode } = useNodesStore();
 
   return (
     <div className="flex flex-col gap-6 px-4 pb-4 pt-4">
@@ -101,6 +102,9 @@ const ModuleList = () => {
                   }
                   if (nodeType === "codeBlock") {
                     addCodeNode();
+                  }
+                  if (nodeType === "cmsInput") {
+                    addCmsNode();
                   }
                 }}
               />

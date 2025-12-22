@@ -12,9 +12,11 @@ import {
 } from "@/components/ui/sidebar";
 import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
+import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import AiNodeSettings from "./node-settings/ai-node-setting";
 import CodeNodeSetting from "./node-settings/code-node-setting";
+import CmsNodeSetting from "./node-settings/cms-node-setting";
 
 const EmptyState = () => (
   <div className="flex w-40 flex-col items-center gap-4 text-center">
@@ -33,22 +35,34 @@ const EmptyState = () => (
 const NodeSettingSidebar = () => {
   const { nodes, selectedNodeId } = useNodesStore();
   const selectedNode = nodes.find((node) => node.id === selectedNodeId) ?? null;
-  let content: ReactNode = <EmptyState />;
-  if (selectedNode?.type === "aiCall") {
-    content = (
-      <AiNodeSettings
-        nodeId={selectedNode.id}
-        data={selectedNode.data as AiCallNodeData}
-      />
-    );
-  }
-  if (selectedNode?.type === "codeBlock") {
-    content = (
-      <CodeNodeSetting
-        nodeId={selectedNode.id}
-        data={selectedNode.data as CodeNodeData}
-      />
-    );
+  let content: ReactNode;
+  switch (selectedNode?.type) {
+    case "aiCall":
+      content = (
+        <AiNodeSettings
+          nodeId={selectedNode.id}
+          data={selectedNode.data as AiCallNodeData}
+        />
+      );
+      break;
+    case "codeBlock":
+      content = (
+        <CodeNodeSetting
+          nodeId={selectedNode.id}
+          data={selectedNode.data as CodeNodeData}
+        />
+      );
+      break;
+    case "cmsInput":
+      content = (
+        <CmsNodeSetting
+          nodeId={selectedNode.id}
+          data={selectedNode.data as CmsInputNodeData}
+        />
+      );
+      break;
+    default:
+      content = <EmptyState />;
   }
 
   return (

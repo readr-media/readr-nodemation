@@ -3,6 +3,7 @@ import { devtools } from "zustand/middleware";
 import { createAiNodeSlice } from "./slices/ai-node-slice";
 import { createFlowSlice } from "./slices/flow-slice";
 import { createCodeNodeSlice } from "./slices/code-node-slice";
+import { createCmsNodeSlice } from "./slices/cms-node-slice";
 import type { NodesStore } from "./types";
 
 export const useNodesStore = create<NodesStore>()(
@@ -11,6 +12,7 @@ export const useNodesStore = create<NodesStore>()(
       ...createFlowSlice(set, get, store),
       ...createAiNodeSlice(set, get, store),
       ...createCodeNodeSlice(set, get, store),
+      ...createCmsNodeSlice(set, get, store),
     }),
     { name: "FlowNodesStore" },
   ),

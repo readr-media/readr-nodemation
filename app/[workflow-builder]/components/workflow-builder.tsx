@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import FlowEditor from "@/components/flow/flow-editor";
 import FlowDebugControls from "./flow-debug-controls";

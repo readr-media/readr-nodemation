@@ -1,22 +1,24 @@
 "use client";
-import type { LucideIcon } from "lucide-react";
+
 import {
+  Code2,
+  Database,
+  Download,
   FileSpreadsheet,
   Share2,
   Sparkles,
-  Database,
-  Code2,
-  Download,
 } from "lucide-react";
-import { ModuleCard } from "./module-card";
+import type { LucideIcon } from "lucide-react";
+
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
+import { ModuleCard } from "./module-card";
 
 type ModuleItem = {
   title: string;
   description: string;
   icon: LucideIcon;
   accent: "ai" | "code" | "cms" | "content";
-  nodeType?: "aiCall" | "codeBlock" | "cmsInput";
+  nodeType?: "aiCall" | "codeBlock" | "cmsInput" | "cmsOutput";
 };
 
 const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
@@ -59,6 +61,7 @@ const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
         description: "將內容輸出到 CMS 系統",
         icon: Share2,
         accent: "cms",
+        nodeType: "cmsOutput",
       },
     ],
   },
@@ -82,7 +85,8 @@ const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
 ] as const;
 
 const ModuleList = () => {
-  const { addAiNode, addCodeNode, addCmsNode } = useNodesStore();
+  const { addAiNode, addCodeNode, addCmsNode, addCmsOutputNode } =
+    useNodesStore();
 
   return (
     <div className="flex flex-col gap-6 px-4 pb-4 pt-4">
@@ -105,6 +109,9 @@ const ModuleList = () => {
                   }
                   if (nodeType === "cmsInput") {
                     addCmsNode();
+                  }
+                  if (nodeType === "cmsOutput") {
+                    addCmsOutputNode();
                   }
                 }}
               />

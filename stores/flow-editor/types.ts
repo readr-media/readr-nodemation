@@ -6,8 +6,9 @@ import type {
   NodeChange,
 } from "@xyflow/react";
 import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
-import type { CodeNodeData } from "@/components/flow/nodes/code-node";
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
+import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
+import type { CodeNodeData } from "@/components/flow/nodes/code-node";
 
 export type FlowSlice = {
   nodes: Node[];
@@ -36,4 +37,16 @@ export type CmsNodeSlice = {
   updateCmsNodeData: (nodeId: string, data: Partial<CmsInputNodeData>) => void;
 };
 
-export type NodesStore = FlowSlice & AiNodeSlice & CodeNodeSlice & CmsNodeSlice;
+export type CmsOutputNodeSlice = {
+  addCmsOutputNode: () => void;
+  updateCmsOutputNodeData: (
+    nodeId: string,
+    data: Partial<CmsOutputNodeData>,
+  ) => void;
+};
+
+export type NodesStore = FlowSlice &
+  AiNodeSlice &
+  CodeNodeSlice &
+  CmsNodeSlice &
+  CmsOutputNodeSlice;

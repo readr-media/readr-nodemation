@@ -15,6 +15,7 @@ import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import AiCallNode from "./nodes/ai-call-node";
 import CodeNode from "./nodes/code-node";
 import CmsInputNode from "./nodes/cms-input-node";
+import CmsOutputNode from "./nodes/cms-output-node";
 
 const panOnDrag = [1, 2];
 
@@ -38,6 +39,7 @@ const FlowEditor = ({ controlsSlot }: FlowEditorProps) => {
       aiCall: AiCallNode,
       codeBlock: CodeNode,
       cmsInput: CmsInputNode,
+      cmsOutput: CmsOutputNode,
     }),
     [],
   );

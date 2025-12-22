@@ -1,8 +1,12 @@
 "use client";
 
-import { type CSSProperties, type ReactNode } from "react";
 import { Cog } from "lucide-react";
+import type { CSSProperties, ReactNode } from "react";
 
+import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
+import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
+import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
+import type { CodeNodeData } from "@/components/flow/nodes/code-node";
 import {
   Sidebar,
   SidebarContent,
@@ -10,13 +14,11 @@ import {
   SidebarHeader,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
-import type { CodeNodeData } from "@/components/flow/nodes/code-node";
-import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import AiNodeSettings from "./node-settings/ai-node-setting";
 import CodeNodeSetting from "./node-settings/code-node-setting";
 import CmsNodeSetting from "./node-settings/cms-node-setting";
+import CmsOutputNodeSetting from "./node-settings/cms-output-node-setting";
 
 const EmptyState = () => (
   <div className="flex w-40 flex-col items-center gap-4 text-center">
@@ -58,6 +60,14 @@ const NodeSettingSidebar = () => {
         <CmsNodeSetting
           nodeId={selectedNode.id}
           data={selectedNode.data as CmsInputNodeData}
+        />
+      );
+      break;
+    case "cmsOutput":
+      content = (
+        <CmsOutputNodeSetting
+          nodeId={selectedNode.id}
+          data={selectedNode.data as CmsOutputNodeData}
         />
       );
       break;

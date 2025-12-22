@@ -2,6 +2,7 @@
 
 import { Cog } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
+import { useShallow } from "zustand/react/shallow";
 
 import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
@@ -35,7 +36,12 @@ const EmptyState = () => (
 );
 
 const NodeSettingSidebar = () => {
-  const { nodes, selectedNodeId } = useNodesStore();
+  const { nodes, selectedNodeId } = useNodesStore(
+    useShallow((state) => ({
+      nodes: state.nodes,
+      selectedNodeId: state.selectedNodeId,
+    })),
+  );
   const selectedNode = nodes.find((node) => node.id === selectedNodeId) ?? null;
   let content: ReactNode;
   switch (selectedNode?.type) {

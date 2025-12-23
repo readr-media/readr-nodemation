@@ -63,15 +63,6 @@ const SourceOption = ({
 );
 const helperTextClass = "text-xs text-module-muted";
 
-const DropdownField = ({ value }: { value: string }) => (
-  <button
-    type="button"
-    className="flex h-10 w-full items-center justify-between rounded-lg border border-module-border bg-white px-3 text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)]"
-  >
-    <span>{value}</span>
-    <ChevronDown className="size-4 text-gray-500" />
-  </button>
-);
 const AiNodeSettings = ({
   nodeId,
   data,

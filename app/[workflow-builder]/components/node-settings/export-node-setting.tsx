@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, type ChangeEvent } from "react";
+import { type ChangeEvent, useMemo, useRef } from "react";
 
 import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ const sourceOptions = ["AI Tagging → tags", "AI Summary → summary"];
 const formatOptions = ["JSON", "純文字（.txt）"];
 const destinationOptions = ["本地下載", "Google Drive"];
 const variableNames = ["workflow_name", "date"] as const;
-const filenameVariables = variableNames.map((name) => "$" + `{${name}}`);
+const filenameVariables = variableNames.map((name) => `\${${name}}`);
 const defaultFileNameHint = `${filenameVariables[0]}_${filenameVariables[1]}.json`;
 
 const Toggle = ({
@@ -64,16 +64,18 @@ const ExportNodeSetting = ({
     updateExportNodeData(nodeId, payload);
   };
 
-  const handleSelectChange = (
-    field: keyof Pick<
-      ExportResultNodeData,
-      "source" | "format" | "destination"
-    >,
-  ) => (event: ChangeEvent<HTMLSelectElement>) => {
-    handleDataChange({ [field]: event.target.value } as Partial<
-      ExportResultNodeData
-    >);
-  };
+  const handleSelectChange =
+    (
+      field: keyof Pick<
+        ExportResultNodeData,
+        "source" | "format" | "destination"
+      >,
+    ) =>
+    (event: ChangeEvent<HTMLSelectElement>) => {
+      handleDataChange({
+        [field]: event.target.value,
+      } as Partial<ExportResultNodeData>);
+    };
 
   const handleFileNameChange = (value: string) => {
     handleDataChange({ fileNamePattern: value });
@@ -102,9 +104,7 @@ const ExportNodeSetting = ({
     <div className="flex flex-1 flex-col overflow-y-auto px-6 py-6">
       <div className="space-y-6">
         <div className="space-y-2">
-          <p className="text-lg font-medium text-module-title">
-            匯出結果 設定
-          </p>
+          <p className="text-lg font-medium text-module-title">匯出結果 設定</p>
         </div>
 
         <section className="space-y-2">
@@ -182,9 +182,7 @@ const ExportNodeSetting = ({
           <div className="flex items-center justify-between">
             <div>
               <p className={labelClass}>自動開啟下載</p>
-              <p className={helperClass}>
-                執行完成後自動觸發下載視窗
-              </p>
+              <p className={helperClass}>執行完成後自動觸發下載視窗</p>
             </div>
             <Toggle
               aria-label="自動開啟下載"

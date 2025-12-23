@@ -3,7 +3,6 @@ import {
   applyEdgeChanges,
   applyNodeChanges,
   type Connection,
-  type Edge,
   type EdgeChange,
   type Node,
   type NodeChange,

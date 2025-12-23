@@ -1,13 +1,8 @@
 "use client";
 
-import { memo } from "react";
-import {
-  Handle,
-  Position,
-  type Node,
-  type NodeProps,
-} from "@xyflow/react";
+import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
 import { Code2 } from "lucide-react";
+import { memo } from "react";
 
 import { cn } from "@/lib/utils";
 

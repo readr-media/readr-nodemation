@@ -1,8 +1,8 @@
 "use client";
 
+import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import { Input } from "@/components/ui/input";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
-import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 
 const sources = ["READr CMS", "Custom API"];
 const outputFormats = ["JSON", "Text"];
@@ -44,9 +44,7 @@ const CmsNodeSetting = ({
   nodeId: string;
   data: CmsInputNodeData;
 }) => {
-  const updateCmsNodeData = useNodesStore(
-    (state) => state.updateCmsNodeData,
-  );
+  const updateCmsNodeData = useNodesStore((state) => state.updateCmsNodeData);
 
   const handleSourceChange = (value: string) =>
     updateCmsNodeData(nodeId, { source: value });
@@ -64,7 +62,9 @@ const CmsNodeSetting = ({
     <div className="flex flex-1 flex-col overflow-y-auto px-6 py-6">
       <div className="space-y-6">
         <div className="space-y-2">
-          <p className="text-lg font-medium text-module-title">從 CMS 輸入 設定</p>
+          <p className="text-lg font-medium text-module-title">
+            從 CMS 輸入 設定
+          </p>
           <p className="text-sm text-module-muted">設定資料來源與抓取欄位</p>
         </div>
 

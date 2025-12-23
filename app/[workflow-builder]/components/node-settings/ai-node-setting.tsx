@@ -1,11 +1,11 @@
-import { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
+import { Separator } from "@radix-ui/react-separator";
+import { Check, Play } from "lucide-react";
+import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
-import { Separator } from "@radix-ui/react-separator";
-import { Check, ChevronDown, Play } from "lucide-react";
 
 const modelOptions = ["gemini-1.5-flash", "gemini-1.5-pro"];
 const outputOptions = ["JSON", "Text"];
@@ -151,7 +151,7 @@ const AiNodeSettings = ({
             onChange={(event) => handlePromptChange(event.target.value)}
           />
           <p className={helperTextClass}>
-            {"支援變數：${title}, ${content}, ${summary}"}
+            {`支援變數：\${title}, \${content}, \${summary}`}
           </p>
         </section>
 

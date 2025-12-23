@@ -1,8 +1,8 @@
 import type { Node } from "@xyflow/react";
 import type { StateCreator } from "zustand";
 import type {
-  CmsOutputNodeData,
   CmsFieldMapping,
+  CmsOutputNodeData,
 } from "@/components/flow/nodes/cms-output-node";
 import type { CmsOutputNodeSlice, NodesStore } from "../types";
 

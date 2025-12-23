@@ -1,6 +1,6 @@
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import IconAdd from "@/public/add.svg";
-import Image from "next/image";
 
 export default function CreatWorkflowCard() {
   return (

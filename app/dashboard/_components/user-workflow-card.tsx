@@ -1,11 +1,11 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
-  SparklesIcon,
   ClockIcon,
-  PlayIcon,
   MoreVerticalIcon,
+  PlayIcon,
+  SparklesIcon,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 
 type Status = "published" | "draft" | "template" | "running";
 

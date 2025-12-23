@@ -1,11 +1,13 @@
 import type { Node } from "@xyflow/react";
-import { type StateCreator } from "zustand";
+import type { StateCreator } from "zustand";
 import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
 import type { AiNodeSlice, NodesStore } from "../types";
 
 const NODE_OFFSET_STEP = 40;
 
-const createAiCallNode = (positionOffset: number): Node<AiCallNodeData, "aiCall"> => ({
+const createAiCallNode = (
+  positionOffset: number,
+): Node<AiCallNodeData, "aiCall"> => ({
   id: crypto.randomUUID(),
   type: "aiCall",
   position: { x: positionOffset, y: positionOffset },
@@ -14,8 +16,7 @@ const createAiCallNode = (positionOffset: number): Node<AiCallNodeData, "aiCall"
     model: "gemini-1.5-flash",
     inputs: { title: true, content: true, summary: false },
     outputFormat: "JSON",
-    promptTemplate:
-      "請為以下新聞進行處理：\n\n標題：${title}\n內文：${content}",
+    promptTemplate: `請為以下新聞進行處理：\n\n標題：\${title}\n內文：\${content}`,
     cmsField: "category",
     testInput: "",
   },

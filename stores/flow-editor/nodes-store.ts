@@ -1,11 +1,11 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { createAiNodeSlice } from "./slices/ai-node-slice";
-import { createFlowSlice } from "./slices/flow-slice";
-import { createCodeNodeSlice } from "./slices/code-node-slice";
 import { createCmsNodeSlice } from "./slices/cms-node-slice";
 import { createCmsOutputNodeSlice } from "./slices/cms-output-node-slice";
+import { createCodeNodeSlice } from "./slices/code-node-slice";
 import { createExportNodeSlice } from "./slices/export-node-slice";
+import { createFlowSlice } from "./slices/flow-slice";
 import { createReportNodeSlice } from "./slices/report-node-slice";
 import type { NodesStore } from "./types";
 

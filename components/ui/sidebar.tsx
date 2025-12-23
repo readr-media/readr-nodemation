@@ -1,12 +1,9 @@
 "use client";
 
-import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
-import { useIsMobile } from "@/hooks/use-mobile";
-import { cn } from "@/lib/utils";
+import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -24,6 +21,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -31,6 +30,15 @@ const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
+
+type CookieStoreLike = {
+  set: (options: {
+    name: string;
+    value: string;
+    expires?: number;
+    path?: string;
+  }) => Promise<void>;
+};
 
 type SidebarContextProps = {
   state: "expanded" | "collapsed";
@@ -69,6 +77,31 @@ function SidebarProvider({
   const isMobile = useIsMobile();
   const [openMobile, setOpenMobile] = React.useState(false);
 
+  const writeSidebarStateCookie = React.useCallback((openState: boolean) => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const cookieStore = (
+      window as typeof window & { cookieStore?: CookieStoreLike }
+    ).cookieStore;
+    const cookieValue = openState ? "1" : "0";
+    const expires = Date.now() + SIDEBAR_COOKIE_MAX_AGE * 1000;
+
+    if (cookieStore) {
+      void cookieStore.set({
+        name: SIDEBAR_COOKIE_NAME,
+        value: cookieValue,
+        expires,
+        path: "/",
+      });
+      return;
+    }
+
+    // biome-ignore lint/suspicious/noDocumentCookie: CookieStore API is not supported in all browsers yet.
+    document.cookie = `${SIDEBAR_COOKIE_NAME}=${cookieValue}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+  }, []);
+
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
   const [_open, _setOpen] = React.useState(defaultOpen);
@@ -82,16 +115,15 @@ function SidebarProvider({
         _setOpen(openState);
       }
 
-      // This sets the cookie to keep the sidebar state.
-      document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+      writeSidebarStateCookie(openState);
     },
-    [setOpenProp, open],
+    [setOpenProp, open, writeSidebarStateCookie],
   );
 
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
     return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
-  }, [isMobile, setOpen, setOpenMobile]);
+  }, [isMobile, setOpen]);
 
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
@@ -123,7 +155,7 @@ function SidebarProvider({
       setOpenMobile,
       toggleSidebar,
     }),
-    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar],
+    [state, open, setOpen, isMobile, openMobile, toggleSidebar],
   );
 
   return (

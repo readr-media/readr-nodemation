@@ -17,7 +17,7 @@ const createExportResultNode = (
     source: "AI Tagging → tags",
     format: "JSON",
     fileNamePattern: `\${workflow_name}_\${date}.json`,
-    destination: "本地下載",
+    destination: "local_download",
     autoDownload: true,
     zipFiles: false,
   },

@@ -1,8 +1,8 @@
 /* eslint-disable */
-import * as types from "./graphql";
-import { TypedDocumentNode as DocumentNode } from "@graphql-typed-document-node/core";
+import * as types from './graphql';
+import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 
-const documents: Record<string, DocumentNode<any, any> | undefined> = {};
+const documents = [];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  *
@@ -18,8 +18,7 @@ const documents: Record<string, DocumentNode<any, any> | undefined> = {};
 export function gql(source: string): unknown;
 
 export function gql(source: string) {
-  return documents[source] ?? {};
+  return (documents as any)[source] ?? {};
 }
 
-export type DocumentType<TDocumentNode extends DocumentNode<any, any>> =
-  TDocumentNode extends DocumentNode<infer TType, any> ? TType : never;
+export type DocumentType<TDocumentNode extends DocumentNode<any, any>> = TDocumentNode extends DocumentNode<  infer TType,  any>  ? TType  : never;

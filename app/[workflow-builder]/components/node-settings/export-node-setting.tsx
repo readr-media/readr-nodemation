@@ -14,7 +14,10 @@ const helperClass = "text-xs text-module-muted";
 
 const sourceOptions = ["AI Tagging → tags", "AI Summary → summary"];
 const formatOptions = ["JSON", "純文字（.txt）"];
-const destinationOptions = ["本地下載", "Google Drive"];
+const destinationOptions = [
+  { value: "local_download", label: "本地下載" },
+  { value: "google_drive", label: "Google Drive" },
+] as const;
 const variableNames = ["workflow_name", "date"] as const;
 const filenameVariables = variableNames.map((name) => `\${${name}}`);
 const defaultFileNameHint = `${filenameVariables[0]}_${filenameVariables[1]}.json`;
@@ -171,8 +174,8 @@ const ExportNodeSetting = ({
             className="h-10 w-full rounded-lg border border-module-border bg-white px-3 text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)] focus-visible:border-[#00967d] focus-visible:ring-0"
           >
             {destinationOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
+              <option key={option.value} value={option.value}>
+                {option.label}
               </option>
             ))}
           </select>

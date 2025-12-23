@@ -147,7 +147,7 @@ const AiNodeSettings = ({
           <p className={fieldLabelClass}>Prompt 模板</p>
           <Textarea
             className="min-h-[140px] rounded-[10px] border-module-border bg-white text-sm leading-6 text-module-title"
-            defaultValue={data.promptTemplate}
+            value={data.promptTemplate ?? ""}
             onChange={(event) => handlePromptChange(event.target.value)}
           />
           <p className={helperTextClass}>

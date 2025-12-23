@@ -1,7 +1,7 @@
 "use client";
 
-import type { CSSProperties, ReactNode } from "react";
 import { Cog } from "lucide-react";
+import type { CSSProperties, ReactNode } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
@@ -9,6 +9,7 @@ import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
 import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
+import type { ReportNodeData } from "@/components/flow/nodes/report-node";
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +23,7 @@ import CmsNodeSetting from "./node-settings/cms-node-setting";
 import CmsOutputNodeSetting from "./node-settings/cms-output-node-setting";
 import CodeNodeSetting from "./node-settings/code-node-setting";
 import ExportNodeSetting from "./node-settings/export-node-setting";
+import ReportNodeSetting from "./node-settings/report-node-setting";
 
 const EmptyState = () => (
   <div className="flex w-40 flex-col items-center gap-4 text-center">
@@ -84,6 +86,14 @@ const NodeSettingSidebar = () => {
         <ExportNodeSetting
           nodeId={selectedNode.id}
           data={selectedNode.data as ExportResultNodeData}
+        />
+      );
+      break;
+    case "reportRecord":
+      content = (
+        <ReportNodeSetting
+          nodeId={selectedNode.id}
+          data={selectedNode.data as ReportNodeData}
         />
       );
       break;

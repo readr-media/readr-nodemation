@@ -3,20 +3,21 @@
 import "@xyflow/react/dist/style.css";
 import {
   Background,
-  Controls as ReactFlowControls,
-  Panel,
-  ReactFlow,
-  SelectionMode,
   type Node,
   type NodeTypes,
+  Panel,
+  ReactFlow,
+  Controls as ReactFlowControls,
+  SelectionMode,
 } from "@xyflow/react";
-import { useCallback, useMemo, type ReactNode } from "react";
+import { type ReactNode, useCallback, useMemo } from "react";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import AiCallNode from "./nodes/ai-call-node";
-import CodeNode from "./nodes/code-node";
 import CmsInputNode from "./nodes/cms-input-node";
 import CmsOutputNode from "./nodes/cms-output-node";
+import CodeNode from "./nodes/code-node";
 import ExportResultNode from "./nodes/export-result-node";
+import ReportNode from "./nodes/report-node";
 
 const panOnDrag = [1, 2];
 
@@ -25,14 +26,8 @@ type FlowEditorProps = {
 };
 
 const FlowEditor = ({ controlsSlot }: FlowEditorProps) => {
-  const {
-    nodes,
-    edges,
-    onNodesChange,
-    onEdgeChange,
-    onConnect,
-    selectNode,
-  } = useNodesStore();
+  const { nodes, edges, onNodesChange, onEdgeChange, onConnect, selectNode } =
+    useNodesStore();
   const handleNodeChange = useCallback(onNodesChange, []);
   const handleEdgeChange = useCallback(onEdgeChange, []);
   const nodeTypes = useMemo<NodeTypes>(
@@ -42,6 +37,7 @@ const FlowEditor = ({ controlsSlot }: FlowEditorProps) => {
       cmsInput: CmsInputNode,
       cmsOutput: CmsOutputNode,
       exportResult: ExportResultNode,
+      reportRecord: ReportNode,
     }),
     [],
   );

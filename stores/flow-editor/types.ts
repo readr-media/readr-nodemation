@@ -10,6 +10,7 @@ import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
 import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
+import type { ReportNodeData } from "@/components/flow/nodes/report-node";
 
 export type FlowSlice = {
   nodes: Node[];
@@ -54,9 +55,15 @@ export type ExportNodeSlice = {
   ) => void;
 };
 
+export type ReportNodeSlice = {
+  addReportNode: () => void;
+  updateReportNodeData: (nodeId: string, data: Partial<ReportNodeData>) => void;
+};
+
 export type NodesStore = FlowSlice &
   AiNodeSlice &
   CodeNodeSlice &
   CmsNodeSlice &
   CmsOutputNodeSlice &
-  ExportNodeSlice;
+  ExportNodeSlice &
+  ReportNodeSlice;

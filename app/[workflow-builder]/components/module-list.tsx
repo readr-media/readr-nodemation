@@ -18,7 +18,13 @@ type ModuleItem = {
   description: string;
   icon: LucideIcon;
   accent: "ai" | "code" | "cms" | "content";
-  nodeType?: "aiCall" | "codeBlock" | "cmsInput" | "cmsOutput" | "exportResult";
+  nodeType?:
+    | "aiCall"
+    | "codeBlock"
+    | "cmsInput"
+    | "cmsOutput"
+    | "exportResult"
+    | "reportRecord";
 };
 
 const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
@@ -80,6 +86,7 @@ const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
         description: "產出處理報告",
         icon: FileSpreadsheet,
         accent: "content",
+        nodeType: "reportRecord",
       },
     ],
   },
@@ -92,6 +99,7 @@ const ModuleList = () => {
     addCmsNode,
     addCmsOutputNode,
     addExportNode,
+    addReportNode,
   } = useNodesStore();
 
   return (
@@ -121,6 +129,9 @@ const ModuleList = () => {
                   }
                   if (nodeType === "exportResult") {
                     addExportNode();
+                  }
+                  if (nodeType === "reportRecord") {
+                    addReportNode();
                   }
                 }}
               />

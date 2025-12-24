@@ -2,9 +2,8 @@ import type { Node } from "@xyflow/react";
 import type { StateCreator } from "zustand";
 
 import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
+import { NODE_OFFSET_STEP } from "../constants";
 import type { ExportNodeSlice, NodesStore } from "../types";
-
-const NODE_OFFSET_STEP = 40;
 
 const createExportResultNode = (
   offset: number,

@@ -1,9 +1,8 @@
 import type { Node } from "@xyflow/react";
 import type { StateCreator } from "zustand";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
+import { NODE_OFFSET_STEP } from "../constants";
 import type { CodeNodeSlice, NodesStore } from "../types";
-
-const NODE_OFFSET_STEP = 40;
 
 const defaultCode = [
   "// 請輸入您的程式碼",

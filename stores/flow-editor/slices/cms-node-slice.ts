@@ -1,9 +1,8 @@
 import type { Node } from "@xyflow/react";
 import type { StateCreator } from "zustand";
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
+import { NODE_OFFSET_STEP } from "../constants";
 import type { CmsNodeSlice, NodesStore } from "../types";
-
-const NODE_OFFSET_STEP = 40;
 
 const createCmsInputNode = (
   offset: number,

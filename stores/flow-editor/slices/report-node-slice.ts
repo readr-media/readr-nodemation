@@ -2,9 +2,8 @@ import type { Node } from "@xyflow/react";
 import type { StateCreator } from "zustand";
 
 import type { ReportNodeData } from "@/components/flow/nodes/report-node";
+import { NODE_OFFSET_STEP } from "../constants";
 import type { NodesStore, ReportNodeSlice } from "../types";
-
-const NODE_OFFSET_STEP = 40;
 
 const createReportNode = (
   offset: number,

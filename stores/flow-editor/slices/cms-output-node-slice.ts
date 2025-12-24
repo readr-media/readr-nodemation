@@ -4,9 +4,8 @@ import type {
   CmsFieldMapping,
   CmsOutputNodeData,
 } from "@/components/flow/nodes/cms-output-node";
+import { NODE_OFFSET_STEP } from "../constants";
 import type { CmsOutputNodeSlice, NodesStore } from "../types";
-
-const NODE_OFFSET_STEP = 40;
 
 const createDefaultMapping = (): CmsFieldMapping => ({
   id: crypto.randomUUID(),

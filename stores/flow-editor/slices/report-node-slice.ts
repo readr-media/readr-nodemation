@@ -15,7 +15,7 @@ const createReportNode = (
   data: {
     title: "產出報告紀錄",
     reportName: "",
-    storageLocation: "MCP 任務紀錄系統",
+    storageLocation: "mcp_task_log_system",
     format: "JSON",
   },
 });

@@ -8,7 +8,10 @@ const labelClass =
   "text-sm font-medium leading-6 text-module-title tracking-tight";
 const helperClass = "text-xs text-module-muted";
 
-const storageOptions = ["MCP 任務紀錄系統", "內部報表資料庫"];
+const storageOptions = [
+  { value: "mcp_task_log_system", label: "MCP 任務紀錄系統" },
+  { value: "internal_report_database", label: "內部報表資料庫" },
+];
 const formatOptions = ["JSON", "純文字（.txt）"];
 
 const selectClass =
@@ -61,8 +64,8 @@ const ReportNodeSetting = ({
             className={selectClass}
           >
             {storageOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
+              <option key={option.value} value={option.value}>
+                {option.label}
               </option>
             ))}
           </select>

@@ -49,7 +49,9 @@ const ModuleCard = ({
         <p className="text-base font-medium leading-6 text-module-title">
           {title}
         </p>
-        <p className="text-xs leading-[18px] text-module-muted">{description}</p>
+        <p className="text-xs leading-[18px] text-module-muted">
+          {description}
+        </p>
       </div>
     </div>
   </div>

@@ -1,8 +1,14 @@
-import Link from "next/link";
-import { Button } from "../ui/button";
-import IconLogo from "@/public/logo.svg";
-import IconAvatar from "@/public/avatar.svg";
+import {
+  ClockIcon,
+  DownloadIcon,
+  SearchIcon,
+  SparklesIcon,
+} from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import IconAvatar from "@/public/avatar.svg";
+import IconLogo from "@/public/logo.svg";
+import { Button } from "../ui/button";
 import {
   InputGroup,
   InputGroupAddon,

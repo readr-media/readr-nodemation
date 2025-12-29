@@ -1,14 +1,33 @@
+"use client";
+
+import type { LucideIcon } from "lucide-react";
 import {
+  Code2,
+  Database,
+  Download,
   FileSpreadsheet,
   Share2,
   Sparkles,
-  Database,
-  Code2,
-  Download,
 } from "lucide-react";
+
+import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import { ModuleCard } from "./module-card";
 
-const moduleGroups = [
+type ModuleItem = {
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  accent: "ai" | "code" | "cms" | "content";
+  nodeType?:
+    | "aiCall"
+    | "codeBlock"
+    | "cmsInput"
+    | "cmsOutput"
+    | "exportResult"
+    | "reportRecord";
+};
+
+const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
   {
     title: "AI 模組",
     modules: [
@@ -17,6 +36,7 @@ const moduleGroups = [
         description: "透過 AI 進行內容處理",
         icon: Sparkles,
         accent: "ai",
+        nodeType: "aiCall",
       },
     ],
   },
@@ -28,6 +48,7 @@ const moduleGroups = [
         description: "輸入程式碼來處理資料",
         icon: Code2,
         accent: "code",
+        nodeType: "codeBlock",
       },
     ],
   },
@@ -39,12 +60,14 @@ const moduleGroups = [
         description: "從 CMS 系統抓取內容",
         icon: Database,
         accent: "cms",
+        nodeType: "cmsInput",
       },
       {
         title: "輸出到 CMS",
         description: "將內容輸出到 CMS 系統",
         icon: Share2,
         accent: "cms",
+        nodeType: "cmsOutput",
       },
     ],
   },
@@ -56,32 +79,68 @@ const moduleGroups = [
         description: "將處理結果匯出為檔案",
         icon: Download,
         accent: "content",
+        nodeType: "exportResult",
       },
       {
         title: "產出報告紀錄",
         description: "產出處理報告",
         icon: FileSpreadsheet,
         accent: "content",
+        nodeType: "reportRecord",
       },
     ],
   },
 ] as const;
 
-const ModuleList = () => (
-  <div className="flex flex-col gap-6 px-4 pb-4 pt-4">
-    {moduleGroups.map((group) => (
-      <div key={group.title} className="space-y-3">
-        <p className="text-sm font-normal leading-5 tracking-[-0.01em] text-module-muted">
-          {group.title}
-        </p>
-        <div className="flex flex-col gap-2">
-          {group.modules.map((module) => (
-            <ModuleCard key={module.title} {...module} />
-          ))}
+const ModuleList = () => {
+  const {
+    addAiNode,
+    addCodeNode,
+    addCmsNode,
+    addCmsOutputNode,
+    addExportNode,
+    addReportNode,
+  } = useNodesStore();
+
+  return (
+    <div className="flex flex-col gap-6 px-4 pb-4 pt-4">
+      {moduleGroups.map((group) => (
+        <div key={group.title} className="space-y-3">
+          <p className="text-sm font-normal leading-5 tracking-[-0.01em] text-module-muted">
+            {group.title}
+          </p>
+          <div className="flex flex-col gap-2">
+            {group.modules.map(({ nodeType, ...cardProps }) => (
+              <ModuleCard
+                key={cardProps.title}
+                {...cardProps}
+                onClick={() => {
+                  if (nodeType === "aiCall") {
+                    addAiNode();
+                  }
+                  if (nodeType === "codeBlock") {
+                    addCodeNode();
+                  }
+                  if (nodeType === "cmsInput") {
+                    addCmsNode();
+                  }
+                  if (nodeType === "cmsOutput") {
+                    addCmsOutputNode();
+                  }
+                  if (nodeType === "exportResult") {
+                    addExportNode();
+                  }
+                  if (nodeType === "reportRecord") {
+                    addReportNode();
+                  }
+                }}
+              />
+            ))}
+          </div>
         </div>
-      </div>
-    ))}
-  </div>
-);
+      ))}
+    </div>
+  );
+};
 
 export default ModuleList;

@@ -1,4 +1,4 @@
-import Header from "./_components/header";
+import Header from "@/components/layout/header";
 
 export default function layout({
   children,
@@ -6,7 +6,7 @@ export default function layout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex w-full flex-col bg-gray-300/50 min-h-screen">
+    <div className="flex w-full flex-col bg-[#f5f5f1]/50 min-h-screen">
       <Header />
       {children}
     </div>

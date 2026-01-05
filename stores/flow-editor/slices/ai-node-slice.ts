@@ -1,13 +1,14 @@
 import type { Node } from "@xyflow/react";
 import type { StateCreator } from "zustand";
 import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
+import { generateId } from "@/utils/generate-id";
 import { NODE_OFFSET_STEP } from "../constants";
 import type { AiNodeSlice, NodesStore } from "../types";
 
 const createAiCallNode = (
   positionOffset: number,
 ): Node<AiCallNodeData, "aiCall"> => ({
-  id: crypto.randomUUID(),
+  id: generateId(),
   type: "aiCall",
   position: { x: positionOffset, y: positionOffset },
   data: {

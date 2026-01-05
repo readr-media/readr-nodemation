@@ -1,6 +1,7 @@
 import type { Node } from "@xyflow/react";
 import type { StateCreator } from "zustand";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
+import { generateId } from "@/utils/generate-id";
 import { NODE_OFFSET_STEP } from "../constants";
 import type { CodeNodeSlice, NodesStore } from "../types";
 
@@ -15,7 +16,7 @@ const defaultCode = [
 const createCodeNode = (
   positionOffset: number,
 ): Node<CodeNodeData, "codeBlock"> => ({
-  id: crypto.randomUUID(),
+  id: generateId(),
   type: "codeBlock",
   position: { x: positionOffset, y: positionOffset },
   data: {

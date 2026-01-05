@@ -3,20 +3,78 @@
 import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
+import {
+  useExecutionScheduleStore,
+  type ExecutionScheduleStore,
+} from "@/stores/execution-schedule-store";
+
+type ExportPayload = {
+  nodes: unknown[];
+  edges: unknown[];
+  schedule: Pick<
+    ExecutionScheduleStore,
+    "enabled" | "frequency" | "slots" | "lastUpdated"
+  >;
+};
+
+const isSchedulePayload = (
+  value: unknown,
+): value is ExportPayload["schedule"] => {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const candidate = value as {
+    enabled?: unknown;
+    frequency?: unknown;
+    slots?: unknown;
+  };
+
+  if (typeof candidate.enabled !== "boolean") return false;
+  if (typeof candidate.frequency !== "string") return false;
+  if (!Array.isArray(candidate.slots)) return false;
+
+  return candidate.slots.every(
+    (slot) =>
+      slot &&
+      typeof slot === "object" &&
+      typeof (slot as { id?: unknown }).id === "string" &&
+      typeof (slot as { time?: unknown }).time === "string",
+  );
+};
 
 const FlowDebugControls = () => {
   const loadSnapshot = useNodesStore((state) => state.loadSnapshot);
+  const setFrequency = useExecutionScheduleStore(
+    (state) => state.setFrequency,
+  );
+  const setSlots = useExecutionScheduleStore((state) => state.setSlots);
+  const setEnabled = useExecutionScheduleStore((state) => state.setEnabled);
+  const resetSchedule = useExecutionScheduleStore((state) => state.reset);
 
-  const handleExport = useCallback(() => {
+  const handleExport = useCallback(async () => {
     const { nodes, edges } = useNodesStore.getState();
-    const payload = JSON.stringify({ nodes, edges }, null, 2);
-    try {
-      void navigator.clipboard?.writeText(payload);
-      window.alert("Flow JSON 已複製到剪貼簿 (測試用)");
-    } catch (error) {
-      console.warn("Clipboard not available", error);
-      window.prompt("請手動複製 JSON", payload);
+    const { enabled, frequency, slots, lastUpdated } =
+      useExecutionScheduleStore.getState();
+    const payload: ExportPayload = {
+      nodes,
+      edges,
+      schedule: { enabled, frequency, slots, lastUpdated },
+    };
+    const json = JSON.stringify(payload, null, 2);
+    const clipboardWriter = navigator.clipboard?.writeText;
+
+    if (clipboardWriter) {
+      try {
+        await clipboardWriter.call(navigator.clipboard, json);
+        window.alert("Flow JSON 已複製到剪貼簿 (測試用)");
+        return;
+      } catch (error) {
+        console.warn("Clipboard write failed", error);
+      }
     }
+
+    window.prompt("請手動複製 JSON", json);
   }, []);
 
   const handleImport = useCallback(() => {
@@ -26,6 +84,13 @@ const FlowDebugControls = () => {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed?.nodes) && Array.isArray(parsed?.edges)) {
         loadSnapshot({ nodes: parsed.nodes, edges: parsed.edges });
+        if (isSchedulePayload(parsed?.schedule)) {
+          setFrequency(parsed.schedule.frequency);
+          setSlots(parsed.schedule.slots);
+          setEnabled(parsed.schedule.enabled);
+        } else {
+          resetSchedule();
+        }
         window.alert("匯入成功 (測試用)");
       } else {
         window.alert("JSON 格式不正確");
@@ -34,7 +99,7 @@ const FlowDebugControls = () => {
       console.error(error);
       window.alert("解析 JSON 時發生錯誤");
     }
-  }, [loadSnapshot]);
+  }, [loadSnapshot, resetSchedule, setEnabled, setFrequency, setSlots]);
 
   return (
     <div className="pointer-events-auto flex gap-2 rounded-xl border border-dashed border-module-border bg-white/90 px-3 py-2 text-xs text-module-muted shadow-sm">

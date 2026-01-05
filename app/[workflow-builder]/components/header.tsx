@@ -1,6 +1,4 @@
 "use client";
-import IconAvatar from "@/public/avatar.svg";
-import Image from "next/image";
 import {
   ArrowLeftIcon,
   BugIcon,
@@ -9,9 +7,12 @@ import {
   PlayIcon,
   PlusIcon,
   SaveIcon,
+  SendIcon,
   UploadIcon,
   XIcon,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -30,8 +31,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import {
+  createScheduleSlot,
+  type ExecutionFrequency,
+  type ScheduleSlot,
+  useExecutionScheduleStore,
+} from "@/stores/execution-schedule-store";
+import { UserInfo } from "@/components/layout/user-info";
 
-const frequencyOptions = [
+const frequencyOptions: { value: ExecutionFrequency; label: string }[] = [
   { value: "daily", label: "每天" },
   { value: "weekly", label: "每週" },
   { value: "monthly", label: "每月" },
@@ -57,11 +65,10 @@ function InlineEditableText() {
         onChange={(e) => setValue(e.target.value)}
         onFocus={() => setIsEditing(true)}
         onBlur={() => setIsEditing(false)}
-        className={`transition-all w-36 body-1 px-2 py-1 ${
-          isEditing
-            ? "border-gray-600 w-[200px]"
-            : "shadow-none border-none hover:bg-gray-300 cursor-pointer"
-        }`}
+        className={`transition-all w-36 body-1 px-2 py-1 ${isEditing
+          ? "border-gray-600 w-[200px]"
+          : "shadow-none border-none hover:bg-gray-300 cursor-pointer"
+          }`}
       />
     </div>
   );
@@ -74,22 +81,53 @@ function ScheduleDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const [selectedFrequency, setSelectedFrequency] = useState(
-    frequencyOptions[0]?.value ?? "daily",
+  const frequency = useExecutionScheduleStore((state) => state.frequency);
+  const slots = useExecutionScheduleStore((state) => state.slots);
+  const setFrequencyState = useExecutionScheduleStore(
+    (state) => state.setFrequency,
   );
-  const [timeSlots, setTimeSlots] = useState<string[]>(["09:00"]);
+  const setSlotsState = useExecutionScheduleStore((state) => state.setSlots);
+  const setEnabled = useExecutionScheduleStore((state) => state.setEnabled);
+  const resetSchedule = useExecutionScheduleStore((state) => state.reset);
 
-  const handleTimeChange = (index: number, value: string) => {
-    setTimeSlots((prev) =>
-      prev.map((slot, slotIndex) => (slotIndex === index ? value : slot)),
+  const [draftFrequency, setDraftFrequency] =
+    useState<ExecutionFrequency>(frequency);
+  const [draftSlots, setDraftSlots] = useState<ScheduleSlot[]>(() =>
+    slots.length > 0 ? slots : [createScheduleSlot()],
+  );
+
+  useEffect(() => {
+    if (open) {
+      setDraftFrequency(frequency);
+      setDraftSlots(slots.length > 0 ? slots : [createScheduleSlot()]);
+    }
+  }, [open, frequency, slots]);
+
+  const handleTimeChange = (id: string, value: string) => {
+    setDraftSlots((prev) =>
+      prev.map((slot) => (slot.id === id ? { ...slot, time: value } : slot)),
     );
   };
 
   const handleAddTime = () => {
-    setTimeSlots((prev) => [...prev, "09:00"]);
+    setDraftSlots((prev) => [...prev, createScheduleSlot()]);
   };
 
   const handleClose = () => {
+    onOpenChange(false);
+  };
+
+  const handleConfirm = () => {
+    const sanitizedSlots = draftSlots.filter((slot) => Boolean(slot.time));
+    if (sanitizedSlots.length === 0) {
+      resetSchedule();
+      onOpenChange(false);
+      return;
+    }
+
+    setFrequencyState(draftFrequency);
+    setSlotsState(sanitizedSlots);
+    setEnabled(true);
     onOpenChange(false);
   };
 
@@ -123,14 +161,14 @@ function ScheduleDialog({
                   <input
                     type="radio"
                     value={option.value}
-                    checked={selectedFrequency === option.value}
-                    onChange={() => setSelectedFrequency(option.value)}
+                    checked={draftFrequency === option.value}
+                    onChange={() => setDraftFrequency(option.value)}
                     className="sr-only"
                   />
                   <span
                     className={cn(
                       "flex size-4 items-center justify-center rounded-full border",
-                      selectedFrequency === option.value
+                      draftFrequency === option.value
                         ? "border-green-500"
                         : "border-gray-400 bg-white",
                     )}
@@ -138,7 +176,7 @@ function ScheduleDialog({
                     <span
                       className={cn(
                         "size-2 rounded-full",
-                        selectedFrequency === option.value
+                        draftFrequency === option.value
                           ? "bg-green-500"
                           : "bg-transparent",
                       )}
@@ -164,9 +202,9 @@ function ScheduleDialog({
               </Button>
             </div>
             <div className="flex flex-col gap-3">
-              {timeSlots.map((time, index) => (
+              {draftSlots.map((slot) => (
                 <div
-                  key={`${time}-${index}`}
+                  key={slot.id}
                   className="flex items-center gap-3 rounded-lg border border-gray-400 bg-white px-3 py-2"
                 >
                   <div className="flex size-8 items-center justify-center rounded-md bg-gray-300 text-gray-700">
@@ -175,8 +213,8 @@ function ScheduleDialog({
                   <Input
                     type="time"
                     step={60}
-                    value={time}
-                    onChange={(event) => handleTimeChange(index, event.target.value)}
+                    value={slot.time}
+                    onChange={(event) => handleTimeChange(slot.id, event.target.value)}
                     className="body-2 border-none bg-transparent p-0 text-gray-900 shadow-none focus-visible:border-none focus-visible:ring-0"
                   />
                 </div>
@@ -196,7 +234,7 @@ function ScheduleDialog({
           <Button
             type="button"
             className="bg-green-500 text-white border border-green-500 hover:bg-green-700"
-            onClick={handleClose}
+            onClick={handleConfirm}
           >
             確認
           </Button>

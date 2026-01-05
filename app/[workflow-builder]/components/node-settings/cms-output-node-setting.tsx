@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
+import { generateId } from "@/utils/generate-id";
 
 const labelClass =
   "text-sm font-medium leading-6 text-module-title tracking-tight";
@@ -122,7 +123,7 @@ const CmsOutputNodeSetting = ({
       mappings: [
         ...data.mappings,
         {
-          id: crypto.randomUUID(),
+          id: generateId(),
           sourceField: "",
           targetField: "",
         },

@@ -4,11 +4,12 @@ import type {
   CmsFieldMapping,
   CmsOutputNodeData,
 } from "@/components/flow/nodes/cms-output-node";
+import { generateId } from "@/utils/generate-id";
 import { NODE_OFFSET_STEP } from "../constants";
 import type { CmsOutputNodeSlice, NodesStore } from "../types";
 
 const createDefaultMapping = (): CmsFieldMapping => ({
-  id: crypto.randomUUID(),
+  id: generateId(),
   sourceField: "AI output",
   targetField: "CMS tags",
 });
@@ -16,7 +17,7 @@ const createDefaultMapping = (): CmsFieldMapping => ({
 const createCmsOutputNode = (
   offset: number,
 ): Node<CmsOutputNodeData, "cmsOutput"> => ({
-  id: crypto.randomUUID(),
+  id: generateId(),
   type: "cmsOutput",
   position: { x: offset, y: offset },
   data: {

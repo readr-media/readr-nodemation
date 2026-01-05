@@ -1,13 +1,14 @@
 import type { Node } from "@xyflow/react";
 import type { StateCreator } from "zustand";
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
+import { generateId } from "@/utils/generate-id";
 import { NODE_OFFSET_STEP } from "../constants";
 import type { CmsNodeSlice, NodesStore } from "../types";
 
 const createCmsInputNode = (
   offset: number,
 ): Node<CmsInputNodeData, "cmsInput"> => ({
-  id: crypto.randomUUID(),
+  id: generateId(),
   type: "cmsInput",
   position: { x: offset, y: offset },
   data: {

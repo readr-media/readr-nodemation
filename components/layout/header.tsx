@@ -1,12 +1,19 @@
+import {
+  ClockIcon,
+  DownloadIcon,
+  SearchIcon,
+  SparklesIcon,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import IconAvatar from "@/public/avatar.svg";
 import IconLogo from "@/public/logo.svg";
-import { Button } from "@/components/ui/button";
+import { Button } from "../ui/button";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
-} from "@/components/ui/input-group";
+} from "../ui/input-group";
 import {
   SearchIcon,
   ClockIcon,

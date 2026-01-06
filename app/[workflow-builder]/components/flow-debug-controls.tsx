@@ -6,6 +6,8 @@ import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import {
   useExecutionScheduleStore,
   type ExecutionScheduleStore,
+  type ScheduleSlot,
+  type Weekday,
 } from "@/stores/execution-schedule-store";
 
 type ExportPayload = {
@@ -15,6 +17,66 @@ type ExportPayload = {
     ExecutionScheduleStore,
     "enabled" | "frequency" | "slots" | "lastUpdated"
   >;
+};
+
+const isSlotPayload = (slot: unknown): slot is ScheduleSlot => {
+  if (!slot || typeof slot !== "object") return false;
+  const { id, time, frequency } = slot as {
+    id?: unknown;
+    time?: unknown;
+    frequency?: unknown;
+  };
+
+  if (typeof id !== "string" || typeof time !== "string") return false;
+  if (
+    frequency !== "daily" &&
+    frequency !== "weekly" &&
+    frequency !== "monthly" &&
+    frequency !== "yearly"
+  ) {
+    return false;
+  }
+
+  if (frequency === "weekly") {
+    const { daysOfWeek } = slot as { daysOfWeek?: unknown };
+    return (
+      Array.isArray(daysOfWeek) &&
+      daysOfWeek.every(
+        (day): day is Weekday =>
+          typeof day === "string" &&
+          ["mon", "tue", "wed", "thu", "fri", "sat", "sun"].includes(day),
+      )
+    );
+  }
+
+  if (frequency === "monthly") {
+    const { dayOfMonth } = slot as { dayOfMonth?: unknown };
+    return (
+      typeof dayOfMonth === "number" &&
+      Number.isInteger(dayOfMonth) &&
+      dayOfMonth >= 1 &&
+      dayOfMonth <= 31
+    );
+  }
+
+  if (frequency === "yearly") {
+    const { month, dayOfMonth } = slot as {
+      month?: unknown;
+      dayOfMonth?: unknown;
+    };
+    return (
+      typeof month === "number" &&
+      Number.isInteger(month) &&
+      month >= 1 &&
+      month <= 12 &&
+      typeof dayOfMonth === "number" &&
+      Number.isInteger(dayOfMonth) &&
+      dayOfMonth >= 1 &&
+      dayOfMonth <= 31
+    );
+  }
+
+  return true;
 };
 
 const isSchedulePayload = (
@@ -31,16 +93,17 @@ const isSchedulePayload = (
   };
 
   if (typeof candidate.enabled !== "boolean") return false;
-  if (typeof candidate.frequency !== "string") return false;
+  if (
+    candidate.frequency !== "daily" &&
+    candidate.frequency !== "weekly" &&
+    candidate.frequency !== "monthly" &&
+    candidate.frequency !== "yearly"
+  ) {
+    return false;
+  }
   if (!Array.isArray(candidate.slots)) return false;
 
-  return candidate.slots.every(
-    (slot) =>
-      slot &&
-      typeof slot === "object" &&
-      typeof (slot as { id?: unknown }).id === "string" &&
-      typeof (slot as { time?: unknown }).time === "string",
-  );
+  return candidate.slots.every((slot) => isSlotPayload(slot));
 };
 
 const FlowDebugControls = () => {

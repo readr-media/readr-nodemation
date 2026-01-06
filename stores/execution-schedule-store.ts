@@ -4,11 +4,38 @@ import { create } from "zustand";
 import { generateId } from "@/utils/generate-id";
 
 export type ExecutionFrequency = "daily" | "weekly" | "monthly" | "yearly";
+export type Weekday = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
 
-export type ScheduleSlot = {
+type ScheduleSlotBase = {
   id: string;
   time: string; // HH:mm (24h)
 };
+
+export type DailyScheduleSlot = ScheduleSlotBase & {
+  frequency: "daily";
+};
+
+export type WeeklyScheduleSlot = ScheduleSlotBase & {
+  frequency: "weekly";
+  daysOfWeek: Weekday[];
+};
+
+export type MonthlyScheduleSlot = ScheduleSlotBase & {
+  frequency: "monthly";
+  dayOfMonth: number | null;
+};
+
+export type YearlyScheduleSlot = ScheduleSlotBase & {
+  frequency: "yearly";
+  month: number | null; // 1-12
+  dayOfMonth: number | null;
+};
+
+export type ScheduleSlot =
+  | DailyScheduleSlot
+  | WeeklyScheduleSlot
+  | MonthlyScheduleSlot
+  | YearlyScheduleSlot;
 
 type ExecutionScheduleState = {
   enabled: boolean;
@@ -32,11 +59,68 @@ export type ExecutionScheduleStore = ExecutionScheduleState &
   ExecutionScheduleActions;
 
 const defaultSlotTime = "09:00";
+const weekdayOrder: Weekday[] = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
-export const createScheduleSlot = (time: string = defaultSlotTime): ScheduleSlot => ({
-  id: generateId(),
-  time,
-});
+export const createScheduleSlot = (
+  frequency: ExecutionFrequency,
+  time: string = defaultSlotTime,
+): ScheduleSlot => {
+  switch (frequency) {
+    case "weekly":
+      return { id: generateId(), time, frequency, daysOfWeek: [] };
+    case "monthly":
+      return { id: generateId(), time, frequency, dayOfMonth: null };
+    case "yearly":
+      return { id: generateId(), time, frequency, month: null, dayOfMonth: null };
+    case "daily":
+    default:
+      return { id: generateId(), time, frequency: "daily" };
+  }
+};
+
+const isSlotConfigured = (slot: ScheduleSlot): boolean => {
+  if (!slot.time) return false;
+  switch (slot.frequency) {
+    case "daily":
+      return true;
+    case "weekly":
+      return slot.daysOfWeek.length > 0;
+    case "monthly":
+      return typeof slot.dayOfMonth === "number";
+    case "yearly":
+      return typeof slot.month === "number" && typeof slot.dayOfMonth === "number";
+    default:
+      return false;
+  }
+};
+
+const parseTime = (time: string): { hours: number; minutes: number } | null => {
+  const [hours = "0", minutes = "0"] = time.split(":");
+  const parsedHours = Number(hours);
+  const parsedMinutes = Number(minutes);
+  if (
+    Number.isNaN(parsedHours) ||
+    Number.isNaN(parsedMinutes) ||
+    parsedHours < 0 ||
+    parsedHours > 23 ||
+    parsedMinutes < 0 ||
+    parsedMinutes > 59
+  ) {
+    return null;
+  }
+  return { hours: parsedHours, minutes: parsedMinutes };
+};
+
+const setTimeComponents = (date: Date, hours: number, minutes: number) => {
+  date.setSeconds(0, 0);
+  date.setHours(hours, minutes, 0, 0);
+};
+
+const setDayWithClamp = (date: Date, day: number) => {
+  const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  const targetDay = Math.min(Math.max(1, day), daysInMonth);
+  date.setDate(targetDay);
+};
 
 const initialState: ExecutionScheduleState = {
   enabled: false,
@@ -50,17 +134,74 @@ const computeNextRun = (
   slots: ScheduleSlot[],
 ) => {
   if (!slots.length) return null;
-  const sorted = [...slots].sort((a, b) => a.time.localeCompare(b.time));
-  const [hours, minutes] = sorted[0]?.time.split(":").map(Number) ?? [0, 0];
   const now = new Date();
-  const next = new Date(now);
-  next.setSeconds(0, 0);
-  next.setHours(hours ?? 0, minutes ?? 0);
-  if (next <= now) {
-    const dayOffset = frequency === "yearly" ? 365 : frequency === "monthly" ? 30 : frequency === "weekly" ? 7 : 1;
-    next.setDate(next.getDate() + dayOffset);
+  const candidates: Date[] = [];
+
+  for (const slot of slots) {
+    if (slot.frequency !== frequency || !isSlotConfigured(slot)) continue;
+    const parsed = parseTime(slot.time);
+    if (!parsed) continue;
+
+    switch (slot.frequency) {
+      case "daily": {
+        const candidate = new Date(now);
+        setTimeComponents(candidate, parsed.hours, parsed.minutes);
+        if (candidate <= now) {
+          candidate.setDate(candidate.getDate() + 1);
+        }
+        candidates.push(candidate);
+        break;
+      }
+      case "weekly": {
+        for (const day of slot.daysOfWeek) {
+          const candidate = new Date(now);
+          setTimeComponents(candidate, parsed.hours, parsed.minutes);
+          const dayIndex = weekdayOrder.indexOf(day);
+          const currentDayIndex = candidate.getDay();
+          const offset = (dayIndex - currentDayIndex + 7) % 7;
+          candidate.setDate(candidate.getDate() + offset);
+          if (candidate <= now) {
+            candidate.setDate(candidate.getDate() + 7);
+          }
+          candidates.push(candidate);
+        }
+        break;
+      }
+      case "monthly": {
+        const targetDay = slot.dayOfMonth ?? 1;
+        const candidate = new Date(now);
+        setTimeComponents(candidate, parsed.hours, parsed.minutes);
+        setDayWithClamp(candidate, targetDay);
+        if (candidate <= now) {
+          candidate.setMonth(candidate.getMonth() + 1);
+          setDayWithClamp(candidate, targetDay);
+        }
+        candidates.push(candidate);
+        break;
+      }
+      case "yearly": {
+        const targetMonth = (slot.month ?? 1) - 1;
+        const targetDay = slot.dayOfMonth ?? 1;
+        const candidate = new Date(now);
+        setTimeComponents(candidate, parsed.hours, parsed.minutes);
+        candidate.setMonth(targetMonth, 1);
+        setDayWithClamp(candidate, targetDay);
+        if (candidate <= now) {
+          candidate.setFullYear(candidate.getFullYear() + 1);
+          candidate.setMonth(targetMonth, 1);
+          setDayWithClamp(candidate, targetDay);
+        }
+        candidates.push(candidate);
+        break;
+      }
+      default:
+        break;
+    }
   }
-  return next;
+
+  if (!candidates.length) return null;
+  candidates.sort((a, b) => a.getTime() - b.getTime());
+  return candidates[0];
 };
 
 const timestamp = () => new Date().toISOString();
@@ -85,7 +226,7 @@ export const useExecutionScheduleStore = create<ExecutionScheduleStore>()(
       })),
     addSlot: (time) =>
       set((state) => ({
-        slots: [...state.slots, createScheduleSlot(time)],
+        slots: [...state.slots, createScheduleSlot(state.frequency, time)],
         lastUpdated: timestamp(),
       })),
     updateSlot: (id, time) =>

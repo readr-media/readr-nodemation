@@ -104,7 +104,7 @@ const NodeSettingSidebar = () => {
   return (
     <Sidebar
       side="right"
-      className="border-l border-module-border bg-white"
+      className="border-l border-module-border bg-white md:top-16 md:h-[calc(100svh-4rem)]"
       style={{ "--sidebar-width": "18rem" } as CSSProperties}
     >
       <SidebarHeader className="node-settings-header">

@@ -1,3 +1,5 @@
+"use client";
+
 import IconAvatar from "@/public/avatar.svg";
 import Image from "next/image";
 

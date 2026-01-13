@@ -101,7 +101,15 @@ export default function ModuleSection() {
           <h3 className="title-4 text-gray-900 pb-4">{type.name}</h3>
           <div className="grid grid-cols-3 gap-x-5 gap-y-6">
             {type.units.map((unit) => (
-              <ModuleUnit key={unit.id} {...unit} />
+              <ModuleUnit
+                key={unit.id}
+                id={unit.id}
+                action={unit.action}
+                actionIcon={unit.actionIcon}
+                actionCode={unit.actionCode}
+                description={unit.description}
+                active={unit.active}
+              />
             ))}
           </div>
         </div>

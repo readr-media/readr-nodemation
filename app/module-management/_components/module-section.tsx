@@ -10,7 +10,19 @@ import {
   CircleCheck,
 } from "lucide-react";
 
-const moduleTypes = [
+export type ModuleType = {
+  name: string;
+  units: Array<{
+    id: number;
+    action: string;
+    actionIcon: LucideIcon;
+    actionCode: "ai" | "code" | "cms" | "content";
+    description: string;
+    active: boolean;
+  }>;
+};
+
+const moduleTypes: ModuleType[] = [
   {
     name: "AI 模組",
     units: [

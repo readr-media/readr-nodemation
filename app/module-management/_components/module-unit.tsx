@@ -1,16 +1,69 @@
-export default function ModuleUnit(unit: {
-  id: string;
-  action: string;
-  description: string;
-  status: string;
-}) {
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
+import type { ModuleType } from "./module-section";
+import { Button } from "@/components/ui/button";
+import { CircleCheck, Settings } from "lucide-react";
+import toggleActive from "@/public/module-management/toggle-active.svg";
+import Image from "next/image";
+
+const actionIconVariants = cva(
+  "flex items-center justify-center size-10 rounded-[10px] text-white",
+  {
+    variants: {
+      actionCode: {
+        ai: "bg-red-500",
+        code: "bg-purple-500",
+        cms: "bg-green-500",
+        content: "bg-blue-500",
+      },
+    },
+    defaultVariants: {
+      actionCode: "ai",
+    },
+  }
+);
+
+const actionCodeVariants = cva("absolute top-0 left-4 w-12 h-1 rounded-b-md", {
+  variants: {
+    actionCode: {
+      ai: "bg-red-500",
+      code: "bg-purple-500",
+      cms: "bg-green-500",
+      content: "bg-blue-500",
+    },
+  },
+  defaultVariants: {
+    actionCode: "ai",
+  },
+});
+
+export default function ModuleUnit({
+  action,
+  actionIcon: ActionIcon,
+  actionCode,
+  description,
+  active,
+}: ModuleType["units"][number] &
+  VariantProps<typeof actionIconVariants> &
+  VariantProps<typeof actionCodeVariants>) {
   const activeUnit = (
-    <div className="flex justify-between items-center border-t border-gray-400 py-[7px]">
-      <div className="flex items-center gap-x-2">
-        <div>icon</div>
-        <div className="body-3 text-green-500">啟用中</div>
+    <div className="flex justify-between items-center border-t border-gray-400 pt-4">
+      <div className="flex items-center gap-x-2 text-green-500">
+        <CircleCheck size={16} />
+        <div className="body-3">啟用中</div>
       </div>
-      <div>b</div>
+      <div className="flex items-center gap-x-3">
+        <Image
+          src={toggleActive}
+          width={30}
+          height={16}
+          alt="啟動模組"
+          className="cursor-pointer"
+        />
+        <Button className="border-none has-[>svg]:px-2 hover:bg-gray-300">
+          <Settings size={16} color="#6e6b5e" />
+        </Button>
+      </div>
     </div>
   );
 
@@ -25,18 +78,18 @@ export default function ModuleUnit(unit: {
   );
 
   return (
-    <div
-      key={unit.id}
-      className="bg-gray-100 border border-gray-400 rounded-xl flex flex-col gap-y-4 p-4"
-    >
-      <div className="flex gap-x-3">
-        <div>我是 icon</div>
+    <div className="relative bg-white border border-gray-400 rounded-xl flex flex-col gap-y-4 p-4">
+      <div className={cn(actionCodeVariants({ actionCode: actionCode }))} />
+      <div className="flex gap-x-3 items-center">
+        <div className={cn(actionIconVariants({ actionCode: actionCode }))}>
+          <ActionIcon size={20} />
+        </div>
         <div>
-          <div className="title-5 text-gray-900">{unit.action}</div>
-          <div className="body-3 text-gray-700">{unit.description}</div>
+          <div className="title-5 text-gray-900">{action}</div>
+          <div className="body-3 text-gray-700">{description}</div>
         </div>
       </div>
-      {unit.status === "active" ? activeUnit : inactiveUnit}
+      {active ? activeUnit : inactiveUnit}
     </div>
   );
 }

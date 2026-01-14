@@ -2,9 +2,10 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import type { ModuleType } from "./module-section";
 import { Button } from "@/components/ui/button";
-import { CircleCheck, Settings } from "lucide-react";
-import toggleActive from "@/public/module-management/toggle-active.svg";
+import { CircleCheck, CircleX, Settings } from "lucide-react";
 import Image from "next/image";
+import toggleActive from "@/public/module-management/toggle-active.svg";
+import toggleInactive from "@/public/module-management/toggle-inactive.svg";
 
 const actionIconVariants = cva(
   "flex items-center justify-center size-10 rounded-[10px] text-white",
@@ -57,7 +58,7 @@ export default function ModuleUnit({
           src={toggleActive}
           width={30}
           height={16}
-          alt="啟動模組"
+          alt="啟用模組"
           className="cursor-pointer"
         />
         <Button className="border-none has-[>svg]:px-2 hover:bg-gray-300">
@@ -68,12 +69,23 @@ export default function ModuleUnit({
   );
 
   const inactiveUnit = (
-    <div className="flex justify-between items-center border-t border-gray-400 py-[7px]">
-      <div className="flex items-center gap-x-2">
-        <div>icon</div>
-        <div className="body-3 text-gray-600">未啟用</div>
+    <div className="flex justify-between items-center border-t border-gray-400 pt-4">
+      <div className="flex items-center gap-x-2 text-gray-600">
+        <CircleX size={16} />
+        <div className="body-3">未啟用</div>
       </div>
-      <div>b</div>
+      <div className="flex items-center gap-x-3">
+        <Image
+          src={toggleInactive}
+          width={30}
+          height={16}
+          alt="停用模組"
+          className="cursor-pointer"
+        />
+        <Button className="border-none has-[>svg]:px-2 hover:bg-gray-300">
+          <Settings size={16} color="#6e6b5e" />
+        </Button>
+      </div>
     </div>
   );
 

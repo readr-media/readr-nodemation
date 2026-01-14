@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
 import { ArrowLeftIcon, PlusIcon } from "lucide-react";
 import { UserInfo } from "@/components/layout/user-info";
+import { Button } from "@/components/ui/button";
 
 export default function Header() {
   return (

@@ -1,11 +1,11 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils";
-import type { ModuleType } from "./module-section";
-import { Button } from "@/components/ui/button";
 import { CircleCheck, CircleX, Settings } from "lucide-react";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import toggleActive from "@/public/module-management/toggle-active.svg";
 import toggleInactive from "@/public/module-management/toggle-inactive.svg";
+import type { ModuleType } from "./module-section";
 
 const actionIconVariants = cva(
   "flex items-center justify-center size-10 rounded-[10px] text-white",
@@ -21,7 +21,7 @@ const actionIconVariants = cva(
     defaultVariants: {
       actionCode: "ai",
     },
-  }
+  },
 );
 
 const actionCodeVariants = cva("absolute top-0 left-4 w-12 h-1 rounded-b-md", {

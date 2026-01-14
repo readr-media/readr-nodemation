@@ -1,5 +1,4 @@
 import type { LucideIcon } from "lucide-react";
-import ModuleUnit from "./module-unit";
 import {
   Code2,
   Database,
@@ -8,6 +7,7 @@ import {
   Share2,
   Sparkles,
 } from "lucide-react";
+import ModuleUnit from "./module-unit";
 
 export type ModuleType = {
   name: string;

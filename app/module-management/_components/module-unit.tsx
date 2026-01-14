@@ -21,7 +21,7 @@ const actionIconVariants = cva(
     defaultVariants: {
       actionCode: "ai",
     },
-  },
+  }
 );
 
 const actionCodeVariants = cva("absolute top-0 left-4 w-12 h-1 rounded-b-md", {

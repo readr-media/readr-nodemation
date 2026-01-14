@@ -102,6 +102,14 @@ export default function ModuleUnit({
         </div>
       </div>
       {active ? activeUnit : inactiveUnit}
+      {/* TODO: 做完 toggle 功能後：
+      1. 實測決定上行用整塊/局部渲染對使用者體驗較好
+      2. 承上，決定寫法要：
+        (1) 維持現狀
+        (2) 將 activeUnit 和 inactiveUnit 分別抽成元件
+        (3) 將 activeUnit 和 inactiveUnit 不同的樣式抽成變數，用模板字符串拼接
+        (4) 有其他寫法也歡迎推薦！
+      */}
     </div>
   );
 }

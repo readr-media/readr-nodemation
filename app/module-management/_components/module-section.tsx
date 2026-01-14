@@ -7,7 +7,6 @@ import {
   FileSpreadsheet,
   Share2,
   Sparkles,
-  CircleCheck,
 } from "lucide-react";
 
 export type ModuleType = {

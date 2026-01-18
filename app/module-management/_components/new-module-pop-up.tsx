@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/custom_select";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Save, X } from "lucide-react";
+import { PlusIcon, Save, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function NewModulePopUp() {
@@ -35,7 +35,10 @@ export default function NewModulePopUp() {
     <Dialog>
       <form>
         <DialogTrigger asChild>
-          <Button variant="outline">Open Dialog</Button>
+          <Button className="text-sm/[1.5] bg-green-500 text-white hover:bg-green-700">
+            <PlusIcon size={16} />
+            新增模組
+          </Button>
         </DialogTrigger>
 
         <DialogContent className="max-w-[512px] border border-gray-400 rounded-xl p-6 bg-gray-200 gap-y-5 [&_[data-slot=dialog-close]:hover]:bg-gray-400 [&_[data-slot=dialog-close]:hover]:ring-0 [&_[data-slot=dialog-close]:hover]:ring-offset-0 [&_[data-slot=dialog-close]]:cursor-pointer [&_[data-slot=dialog-close]]:p-2 [&_[data-slot=dialog-close]]:rounded-lg">

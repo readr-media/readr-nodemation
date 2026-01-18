@@ -1,6 +1,7 @@
-import { ArrowLeftIcon, PlusIcon } from "lucide-react";
+import { ArrowLeftIcon } from "lucide-react";
 import { UserInfo } from "@/components/layout/user-info";
 import { Button } from "@/components/ui/button";
+import NewModulePopUp from "./new-module-pop-up";
 
 export default function Header() {
   return (
@@ -13,10 +14,7 @@ export default function Header() {
           <h2 className="body-1 text-gray-900 px-2">模組管理</h2>
         </div>
         <div className="flex items-center gap-x-3 px-3">
-          <Button className="text-sm/[1.5] bg-green-500 text-white hover:bg-green-700">
-            <PlusIcon size={16} />
-            新增模組
-          </Button>
+          <NewModulePopUp />
           <UserInfo />
         </div>
       </div>

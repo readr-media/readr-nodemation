@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Save, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function NewModulePopUp() {
+export default function NewModulePopUp() {
   const labelStyle = "title-6 text-gray-900 mb-2";
   const inputBasicStyle =
     "border border-gray-400 rounded-lg py-2 px-3 bg-white body-2 text-gray-900";

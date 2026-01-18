@@ -1,6 +1,14 @@
 "use client";
 
+import { PlusIcon, Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/custom_select";
 import {
   Dialog,
   DialogClose,
@@ -10,16 +18,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/custom_select";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { PlusIcon, Save, X } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 export default function NewModulePopUp() {

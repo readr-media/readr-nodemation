@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import toggleActive from "@/public/module-management/toggle-active.svg";
 import toggleInactive from "@/public/module-management/toggle-inactive.svg";
 import type { ModuleType } from "./module-section";
+import ModuleSettingPopUpLayout from "./module-setting-popup-layout";
 
 const actionIconVariants = cva(
   "flex items-center justify-center size-10 rounded-[10px] text-white",
@@ -61,9 +62,7 @@ export default function ModuleUnit({
           alt="啟用模組"
           className="cursor-pointer"
         />
-        <Button className="border-none has-[>svg]:px-2 hover:bg-gray-300">
-          <Settings size={16} color="#6e6b5e" />
-        </Button>
+        <ModuleSettingPopUpLayout />
       </div>
     </div>
   );
@@ -82,9 +81,7 @@ export default function ModuleUnit({
           alt="停用模組"
           className="cursor-pointer"
         />
-        <Button className="border-none has-[>svg]:px-2 hover:bg-gray-300">
-          <Settings size={16} color="#6e6b5e" />
-        </Button>
+        <ModuleSettingPopUpLayout />
       </div>
     </div>
   );

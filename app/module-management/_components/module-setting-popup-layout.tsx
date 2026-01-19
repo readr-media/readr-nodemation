@@ -1,6 +1,6 @@
 "use client";
 
-import { Save, X } from "lucide-react";
+import { Save, Settings, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -34,7 +34,9 @@ export default function ModuleSettingPopUpLayout({
     <Dialog>
       <form>
         <DialogTrigger asChild>
-          <Button variant="outline">Open Dialog</Button>
+          <Button className="border-none has-[>svg]:px-2 hover:bg-gray-300">
+            <Settings size={16} color="#6e6b5e" />
+          </Button>
         </DialogTrigger>
 
         <DialogContent className={DialogContentStyle}>

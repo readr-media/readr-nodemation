@@ -8,6 +8,10 @@ import {
   Sparkles,
 } from "lucide-react";
 import ModuleUnit from "./module-unit";
+import AiModulePopUpChild from "./ai-module-popup-child";
+import CodeModulePopUpChild from "./code-module-popup-child";
+import CmsModulePopUpChild from "./cms-module-popup-child";
+import ContentModulePopUpChild from "./content-module-popup-child";
 
 export type ModuleType = {
   name: string;
@@ -18,6 +22,7 @@ export type ModuleType = {
     actionCode: "ai" | "code" | "cms" | "content";
     description: string;
     active: boolean;
+    popUpChild: React.ReactNode;
   }>;
 };
 
@@ -32,6 +37,7 @@ const moduleTypes: ModuleType[] = [
         actionCode: "ai",
         description: "透過 AI 進行內容處理",
         active: true,
+        popUpChild: <AiModulePopUpChild />,
       },
     ],
   },
@@ -45,6 +51,7 @@ const moduleTypes: ModuleType[] = [
         actionCode: "code",
         description: "輸入程式碼來處理資料",
         active: false,
+        popUpChild: <CodeModulePopUpChild />,
       },
     ],
   },
@@ -58,6 +65,7 @@ const moduleTypes: ModuleType[] = [
         actionCode: "cms",
         description: "從 CMS 系統抓取內容",
         active: true,
+        popUpChild: <CmsModulePopUpChild />,
       },
       {
         id: 2,
@@ -66,6 +74,7 @@ const moduleTypes: ModuleType[] = [
         actionCode: "cms",
         description: "將內容輸出到 CMS 系統",
         active: true,
+        popUpChild: <CmsModulePopUpChild />,
       },
     ],
   },
@@ -79,6 +88,7 @@ const moduleTypes: ModuleType[] = [
         actionCode: "content",
         description: "將處理結果匯出為檔案",
         active: true,
+        popUpChild: <ContentModulePopUpChild />,
       },
       {
         id: 2,
@@ -87,6 +97,7 @@ const moduleTypes: ModuleType[] = [
         actionCode: "content",
         description: "產出處理報告",
         active: true,
+        popUpChild: <ContentModulePopUpChild />,
       },
     ],
   },
@@ -108,6 +119,7 @@ export default function ModuleSection() {
                 actionCode={unit.actionCode}
                 description={unit.description}
                 active={unit.active}
+                popUpChild={unit.popUpChild}
               />
             ))}
           </div>

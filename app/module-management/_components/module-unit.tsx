@@ -45,6 +45,7 @@ export default function ModuleUnit({
   actionCode,
   description,
   active,
+  popUpChild,
 }: ModuleType["units"][number] &
   VariantProps<typeof actionIconVariants> &
   VariantProps<typeof actionCodeVariants>) {
@@ -62,7 +63,7 @@ export default function ModuleUnit({
           alt="啟用模組"
           className="cursor-pointer"
         />
-        <ModuleSettingPopUpLayout />
+        <ModuleSettingPopUpLayout children={popUpChild} />
       </div>
     </div>
   );
@@ -81,7 +82,7 @@ export default function ModuleUnit({
           alt="停用模組"
           className="cursor-pointer"
         />
-        <ModuleSettingPopUpLayout />
+        <ModuleSettingPopUpLayout children={popUpChild} />
       </div>
     </div>
   );

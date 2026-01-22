@@ -63,7 +63,11 @@ export default function ModuleUnit({
           alt="啟用模組"
           className="cursor-pointer"
         />
-        <ModuleSettingPopUpLayout children={popUpChild} action={action} />
+        <ModuleSettingPopUpLayout
+          children={popUpChild}
+          action={action}
+          description={description}
+        />
       </div>
     </div>
   );
@@ -82,7 +86,11 @@ export default function ModuleUnit({
           alt="停用模組"
           className="cursor-pointer"
         />
-        <ModuleSettingPopUpLayout children={popUpChild} action={action} />
+        <ModuleSettingPopUpLayout
+          children={popUpChild}
+          action={action}
+          description={description}
+        />
       </div>
     </div>
   );

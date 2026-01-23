@@ -21,7 +21,7 @@ export default function ModuleSettingPopUpLayout({
   action,
   description,
 }: {
-  children: React.ReactNode;
+  children: (props: { action:string }) => React.ReactNode;
   action: string;
   description: string;
 }) {
@@ -80,7 +80,7 @@ export default function ModuleSettingPopUpLayout({
 
           <Separator className="text-module-border" />
 
-          {children}
+          {children({ action })}
 
           <DialogFooter className="flex gap-x-3">
             <DialogClose asChild>

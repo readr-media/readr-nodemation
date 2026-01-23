@@ -7,6 +7,7 @@ import toggleActive from "@/public/module-management/toggle-active.svg";
 import toggleInactive from "@/public/module-management/toggle-inactive.svg";
 import type { ModuleType } from "./module-section";
 import ModuleSettingPopUpLayout from "./module-setting-popup-layout";
+import * as React from "react";
 
 const actionIconVariants = cva(
   "flex items-center justify-center size-10 rounded-[10px] text-white",
@@ -22,7 +23,7 @@ const actionIconVariants = cva(
     defaultVariants: {
       actionCode: "ai",
     },
-  }
+  },
 );
 
 const actionCodeVariants = cva("absolute top-0 left-4 w-12 h-1 rounded-b-md", {
@@ -63,11 +64,15 @@ export default function ModuleUnit({
           alt="啟用模組"
           className="cursor-pointer"
         />
-        <ModuleSettingPopUpLayout
-          children={popUpChild}
-          action={action}
-          description={description}
-        />
+        <ModuleSettingPopUpLayout action={action} description={description}>
+          {({ action }) => {
+            if (React.isValidElement(popUpChild)) {
+              // @ts-expect-error add this because TS may not know the dynamically added prop
+              return React.cloneElement(popUpChild, { action });
+            }
+            return popUpChild;
+          }}
+        </ModuleSettingPopUpLayout>
       </div>
     </div>
   );
@@ -86,11 +91,15 @@ export default function ModuleUnit({
           alt="停用模組"
           className="cursor-pointer"
         />
-        <ModuleSettingPopUpLayout
-          children={popUpChild}
-          action={action}
-          description={description}
-        />
+        <ModuleSettingPopUpLayout action={action} description={description}>
+          {({ action }) => {
+            if (React.isValidElement(popUpChild)) {
+              // @ts-expect-error add this because TS may not know the dynamically added prop
+              return React.cloneElement(popUpChild, { action });
+            }
+            return popUpChild;
+          }}
+        </ModuleSettingPopUpLayout>
       </div>
     </div>
   );

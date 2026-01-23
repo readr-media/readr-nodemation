@@ -66,7 +66,6 @@ export default function ModuleUnit({
         <ModuleSettingPopUpLayout action={action} description={description}>
           {({ action }) => {
             if (React.isValidElement(popUpChild)) {
-              // @ts-expect-error add this because TS may not know the dynamically added prop
               return React.cloneElement(popUpChild, { action });
             }
             return popUpChild;
@@ -93,7 +92,6 @@ export default function ModuleUnit({
         <ModuleSettingPopUpLayout action={action} description={description}>
           {({ action }) => {
             if (React.isValidElement(popUpChild)) {
-              // @ts-expect-error add this because TS may not know the dynamically added prop
               return React.cloneElement(popUpChild, { action });
             }
             return popUpChild;

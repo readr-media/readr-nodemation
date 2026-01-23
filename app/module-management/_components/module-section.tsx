@@ -15,6 +15,10 @@ import CodeModulePopUpChild from "./code-module-popup-child";
 import CmsModulePopUpChild from "./cms-module-popup-child";
 import ContentModulePopUpChild from "./content-module-popup-child";
 
+export type PopUpChildProps = {
+  action?: string;
+};
+
 export type ModuleType = {
   name: string;
   units: Array<{
@@ -24,7 +28,7 @@ export type ModuleType = {
     actionCode: "ai" | "code" | "cms" | "content";
     description: string;
     active: boolean;
-    popUpChild: React.ReactNode;
+    popUpChild: React.ReactElement<PopUpChildProps>;
   }>;
 };
 

@@ -1,12 +1,12 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { CircleCheck, CircleX } from "lucide-react";
 import Image from "next/image";
+import * as React from "react";
 import { cn } from "@/lib/utils";
 import toggleActive from "@/public/module-management/toggle-active.svg";
 import toggleInactive from "@/public/module-management/toggle-inactive.svg";
 import type { ModuleType } from "./module-section";
 import ModuleSettingPopUpLayout from "./module-setting-popup-layout";
-import * as React from "react";
 
 const actionIconVariants = cva(
   "flex items-center justify-center size-10 rounded-[10px] text-white",

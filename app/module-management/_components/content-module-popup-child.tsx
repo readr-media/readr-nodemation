@@ -10,7 +10,11 @@ import {
   SelectValue,
 } from "@/components/ui/custom_select";
 
-export default function ContentModulePopUpChild() {
+export default function ContentModulePopUpChild({
+  action,
+}: {
+  action?: string;
+}) {
   const labelStyle = "title-6 text-gray-900 mb-2";
   const inputBasicStyle =
     "border border-gray-400 rounded-lg py-2 px-3 bg-white body-2 text-gray-900";
@@ -18,6 +22,7 @@ export default function ContentModulePopUpChild() {
     "w-full cursor-pointer data-[placeholder]:text-gray-600 data-[state=open]:border-gray-600";
   const outputFormat = ["CSV", "JSON"];
   const reportFormat = ["PDF", "DOCX"];
+  const popUpFormat = action === "匯出結果" ? outputFormat : reportFormat;
 
   return (
     <div>
@@ -32,13 +37,13 @@ export default function ContentModulePopUpChild() {
           </SelectTrigger>
 
           <SelectContent side="bottom" sideOffset={9}>
-            {outputFormat.map((outputFormat) => (
+            {popUpFormat.map((format) => (
               <SelectItem
-                key={outputFormat}
-                value={outputFormat}
+                key={format}
+                value={format}
                 className="cursor-pointer"
               >
-                {outputFormat}
+                {format}
               </SelectItem>
             ))}
           </SelectContent>

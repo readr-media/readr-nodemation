@@ -21,7 +21,7 @@ export default function ModuleSettingPopUpLayout({
   action,
   description,
 }: {
-  children: (props: { action:string }) => React.ReactNode;
+  children: (props: { action: string }) => React.ReactNode;
   action: string;
   description: string;
 }) {
@@ -78,7 +78,7 @@ export default function ModuleSettingPopUpLayout({
             </div>
           </div>
 
-          <Separator className="text-module-border" />
+          <Separator className="border-gray-400" />
 
           {children({ action })}
 

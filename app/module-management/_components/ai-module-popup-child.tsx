@@ -31,7 +31,7 @@ export default function AiModulePopUpChild() {
             逾時時間（秒）
           </Label>
           <Input
-            id="module-duration"
+            id="api-timeout"
             name="逾時時間"
             className={cn(inputBasicStyle, inputPseudoStyle)}
           />

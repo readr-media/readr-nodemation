@@ -8,7 +8,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/custom_select";
+} from "@/components/ui/custom-select";
 import {
   Dialog,
   DialogClose,

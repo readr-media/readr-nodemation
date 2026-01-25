@@ -6,7 +6,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/custom_select";
+} from "@/components/ui/custom-select";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 

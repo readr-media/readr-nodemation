@@ -1,5 +1,5 @@
-import IconAvatar from "@/public/avatar.svg";
 import Image from "next/image";
+import IconAvatar from "@/public/avatar.svg";
 
 export function UserInfo({ name = "王小明" }: { name?: string }) {
   return (

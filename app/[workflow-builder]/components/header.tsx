@@ -1,20 +1,18 @@
 "use client";
-import IconAvatar from "@/public/avatar.svg";
-import Image from "next/image";
 import {
-  SaveIcon,
-  UploadIcon,
-  SendIcon,
-  PlayIcon,
-  MoreHorizontalIcon,
-  BugIcon,
   ArrowLeftIcon,
+  BugIcon,
+  MoreHorizontalIcon,
+  PlayIcon,
+  SaveIcon,
+  SendIcon,
+  UploadIcon,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { UserInfo } from "@/components/layout/user-info";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState, useRef, useEffect } from "react";
-import { Badge } from "@/components/ui/badge";
-import { UserInfo } from "@/components/layout/user-info";
 
 function InlineEditableText() {
   const [isEditing, setIsEditing] = useState(false);

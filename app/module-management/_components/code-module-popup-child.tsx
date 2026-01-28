@@ -22,11 +22,14 @@ export default function CodeModulePopUpChild() {
     <div>
       <h4 className="title-6 text-gray-600 mb-1">程式碼設定</h4>
       <div className="body-2">
-        <Label htmlFor="模組類型" className={labelStyle}>
+        <Label htmlFor="module-type" className={labelStyle}>
           模組類型
         </Label>
         <Select>
-          <SelectTrigger className={cn(inputBasicStyle, selectTriggerStyle)}>
+          <SelectTrigger
+            id="module-type"
+            className={cn(inputBasicStyle, selectTriggerStyle)}
+          >
             <SelectValue placeholder="請選擇模組類型" />
           </SelectTrigger>
 

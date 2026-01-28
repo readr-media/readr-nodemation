@@ -64,11 +64,12 @@ export default function NewModulePopUp() {
             </div>
 
             <div className="body-2">
-              <Label htmlFor="模組類型" className={labelStyle}>
+              <Label htmlFor="module-type" className={labelStyle}>
                 模組類型
               </Label>
               <Select>
                 <SelectTrigger
+                  id="module-type"
                   className={cn(inputBasicStyle, selectTriggerStyle)}
                 >
                   <SelectValue placeholder="請選擇模組類型" />

@@ -28,11 +28,14 @@ export default function ContentModulePopUpChild({
     <div>
       <h4 className="title-6 text-gray-600 mb-1">內容整理設定</h4>
       <div className="body-2">
-        <Label htmlFor="預設輸出格式" className={labelStyle}>
+        <Label htmlFor="output-format" className={labelStyle}>
           預設輸出格式
         </Label>
         <Select>
-          <SelectTrigger className={cn(inputBasicStyle, selectTriggerStyle)}>
+          <SelectTrigger
+            id="output-format"
+            className={cn(inputBasicStyle, selectTriggerStyle)}
+          >
             <SelectValue placeholder="請選擇格式" />
           </SelectTrigger>
 

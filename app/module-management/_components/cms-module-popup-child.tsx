@@ -14,7 +14,7 @@ export default function CmsModulePopUpChild() {
       <h4 className="title-6 text-gray-600 mb-1">CMS 設定</h4>
       <div className="flex flex-col gap-y-3">
         <div>
-          <Label htmlFor="API 端點" className={labelStyle}>
+          <Label htmlFor="api-endpoint" className={labelStyle}>
             API 端點
           </Label>
           <Input
@@ -25,7 +25,7 @@ export default function CmsModulePopUpChild() {
         </div>
 
         <div>
-          <Label htmlFor="API 金鑰" className={labelStyle}>
+          <Label htmlFor="api-key" className={labelStyle}>
             API 金鑰
           </Label>
           <Input

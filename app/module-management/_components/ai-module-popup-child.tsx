@@ -16,7 +16,7 @@ export default function AiModulePopUpChild() {
       <h4 className="title-6 text-gray-600 mb-1">AI 設定</h4>
       <div className="flex flex-col gap-y-3">
         <div>
-          <Label htmlFor="API 金鑰" className={labelStyle}>
+          <Label htmlFor="api-key" className={labelStyle}>
             API 金鑰
           </Label>
           <Input
@@ -27,7 +27,7 @@ export default function AiModulePopUpChild() {
         </div>
 
         <div>
-          <Label htmlFor="逾時時間" className={labelStyle}>
+          <Label htmlFor="api-timeout" className={labelStyle}>
             逾時時間（秒）
           </Label>
           <Input

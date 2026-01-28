@@ -52,7 +52,7 @@ export default function ModuleSettingPopUpLayout({
 
           <div className="flex flex-col gap-y-3">
             <div>
-              <Label htmlFor="模組名稱" className={labelStyle}>
+              <Label htmlFor="module-name" className={labelStyle}>
                 模組名稱
               </Label>
               <Input
@@ -65,7 +65,7 @@ export default function ModuleSettingPopUpLayout({
             </div>
 
             <div>
-              <Label htmlFor="模組說明" className={labelStyle}>
+              <Label htmlFor="module-description" className={labelStyle}>
                 模組說明（選填）
               </Label>
               <Input

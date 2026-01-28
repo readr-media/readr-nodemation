@@ -37,7 +37,7 @@ export default function NewModulePopUp() {
     <Dialog>
       <form>
         <DialogTrigger asChild>
-          <Button className="text-sm/[1.5] bg-green-500 text-white hover:bg-green-700">
+          <Button className="body-2 bg-green-500 text-white hover:bg-green-700">
             <PlusIcon size={16} />
             新增模組
           </Button>

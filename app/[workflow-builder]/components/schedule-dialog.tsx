@@ -25,6 +25,7 @@ import {
   type ExecutionFrequency,
   type ScheduleSlot,
   type Weekday,
+  WEEKDAYS,
   useExecutionScheduleStore,
 } from "@/stores/execution-schedule-store";
 
@@ -35,15 +36,22 @@ const frequencyOptions: { value: ExecutionFrequency; label: string }[] = [
   { value: "yearly", label: "每年" },
 ];
 
-const weekdayOptions: { value: Weekday; label: string }[] = [
-  { value: "mon", label: "週一" },
-  { value: "tue", label: "週二" },
-  { value: "wed", label: "週三" },
-  { value: "thu", label: "週四" },
-  { value: "fri", label: "週五" },
-  { value: "sat", label: "週六" },
-  { value: "sun", label: "週日" },
-];
+const weekdayLabels: Record<Weekday, string> = {
+  mon: "週一",
+  tue: "週二",
+  wed: "週三",
+  thu: "週四",
+  fri: "週五",
+  sat: "週六",
+  sun: "週日",
+};
+
+const weekdayOptions: { value: Weekday; label: string }[] = WEEKDAYS.map(
+  (day) => ({
+    value: day,
+    label: weekdayLabels[day],
+  }),
+);
 
 const dayOptions = Array.from({ length: 31 }, (_, index) => index + 1);
 const monthOptions = Array.from({ length: 12 }, (_, index) => index + 1);

@@ -8,6 +8,7 @@ import {
   type ExecutionScheduleStore,
   type ScheduleSlot,
   type Weekday,
+  WEEKDAYS,
 } from "@/stores/execution-schedule-store";
 
 type ExportPayload = {
@@ -44,7 +45,7 @@ const isSlotPayload = (slot: unknown): slot is ScheduleSlot => {
       daysOfWeek.every(
         (day): day is Weekday =>
           typeof day === "string" &&
-          ["mon", "tue", "wed", "thu", "fri", "sat", "sun"].includes(day),
+          WEEKDAYS.includes(day),
       )
     );
   }

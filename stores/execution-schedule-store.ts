@@ -5,7 +5,27 @@ import { parseTimeValue } from "@/lib/time-utils";
 import { generateId } from "@/utils/generate-id";
 
 export type ExecutionFrequency = "daily" | "weekly" | "monthly" | "yearly";
-export type Weekday = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
+
+export const WEEKDAYS = [
+  "mon",
+  "tue",
+  "wed",
+  "thu",
+  "fri",
+  "sat",
+  "sun",
+] as const;
+
+export type Weekday = (typeof WEEKDAYS)[number];
+export const WEEKDAY_ORDER: readonly Weekday[] = [
+  "sun",
+  "mon",
+  "tue",
+  "wed",
+  "thu",
+  "fri",
+  "sat",
+];
 
 type ScheduleSlotBase = {
   id: string;
@@ -60,7 +80,6 @@ export type ExecutionScheduleStore = ExecutionScheduleState &
   ExecutionScheduleActions;
 
 const defaultSlotTime = "09:00";
-const weekdayOrder: Weekday[] = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 
 export const createScheduleSlot = (
   frequency: ExecutionFrequency,
@@ -140,7 +159,7 @@ const computeNextRun = (
         for (const day of slot.daysOfWeek) {
           const candidate = new Date(now);
           setTimeComponents(candidate, parsed.hours, parsed.minutes);
-          const dayIndex = weekdayOrder.indexOf(day);
+          const dayIndex = WEEKDAY_ORDER.indexOf(day);
           const currentDayIndex = candidate.getDay();
           const offset = (dayIndex - currentDayIndex + 7) % 7;
           candidate.setDate(candidate.getDate() + offset);

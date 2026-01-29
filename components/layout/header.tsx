@@ -1,11 +1,3 @@
-import {
-  ClockIcon,
-  DownloadIcon,
-  SearchIcon,
-  SparklesIcon,
-} from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
 import { UserInfo } from "@/components/layout/user-info";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +6,14 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import IconLogo from "@/public/logo.svg";
+import {
+  ClockIcon,
+  DownloadIcon,
+  SearchIcon,
+  SparklesIcon,
+} from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function Header() {
   return (

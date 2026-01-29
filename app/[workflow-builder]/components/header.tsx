@@ -1,5 +1,15 @@
 "use client";
 
+import { UserInfo } from "@/components/layout/user-info";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   ArrowLeftIcon,
   BugIcon,
@@ -11,16 +21,6 @@ import {
   UploadIcon,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { UserInfo } from "@/components/layout/user-info";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import ScheduleDialog from "./schedule-dialog";
 
 function InlineEditableText() {

@@ -1,6 +1,7 @@
 "use client";
 
 import { create } from "zustand";
+import { parseTimeValue } from "@/lib/time-utils";
 import { generateId } from "@/utils/generate-id";
 
 export type ExecutionFrequency = "daily" | "weekly" | "monthly" | "yearly";
@@ -94,23 +95,6 @@ const isSlotConfigured = (slot: ScheduleSlot): boolean => {
   }
 };
 
-const parseTime = (time: string): { hours: number; minutes: number } | null => {
-  const [hours = "0", minutes = "0"] = time.split(":");
-  const parsedHours = Number(hours);
-  const parsedMinutes = Number(minutes);
-  if (
-    Number.isNaN(parsedHours) ||
-    Number.isNaN(parsedMinutes) ||
-    parsedHours < 0 ||
-    parsedHours > 23 ||
-    parsedMinutes < 0 ||
-    parsedMinutes > 59
-  ) {
-    return null;
-  }
-  return { hours: parsedHours, minutes: parsedMinutes };
-};
-
 const setTimeComponents = (date: Date, hours: number, minutes: number) => {
   date.setSeconds(0, 0);
   date.setHours(hours, minutes, 0, 0);
@@ -139,7 +123,7 @@ const computeNextRun = (
 
   for (const slot of slots) {
     if (slot.frequency !== frequency || !isSlotConfigured(slot)) continue;
-    const parsed = parseTime(slot.time);
+    const parsed = parseTimeValue(slot.time);
     if (!parsed) continue;
 
     switch (slot.frequency) {

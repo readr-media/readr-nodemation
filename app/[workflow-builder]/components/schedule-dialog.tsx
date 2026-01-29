@@ -15,6 +15,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import {
+  getLocalNowParts,
+  getNextYearForYearlySlot,
+  isLeapYear,
+  type YearlySlotLike,
+} from "@/lib/time-utils";
+import {
   createScheduleSlot,
   type ExecutionFrequency,
   type ScheduleSlot,
@@ -205,6 +211,31 @@ const ScheduleDialog = ({ open, onOpenChange }: ScheduleDialogProps) => {
       resetSchedule();
       onOpenChange(false);
       return;
+    }
+
+    const nowParts = getLocalNowParts();
+    const needsLeapDayWarning = sanitizedSlots.some((slot) => {
+      if (
+        slot.frequency !== "yearly" ||
+        slot.month !== 2 ||
+        slot.dayOfMonth !== 29
+      ) {
+        return false;
+      }
+      const nextYear = getNextYearForYearlySlot(
+        slot as YearlySlotLike,
+        nowParts,
+      );
+      return !isLeapYear(nextYear);
+    });
+
+    if (needsLeapDayWarning) {
+      const confirmed = window.confirm(
+        "你選擇了 2 月 29 日。非閏年會改為 2 月 28 日執行，是否繼續？",
+      );
+      if (!confirmed) {
+        return;
+      }
     }
 
     setFrequencyState(draftFrequency);

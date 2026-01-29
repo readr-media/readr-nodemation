@@ -1,6 +1,7 @@
 // Generates a UUID-like identifier with graceful fallbacks for envs without crypto.randomUUID.
 export const generateId = (): string => {
-  const cryptoRef = typeof globalThis !== "undefined" ? globalThis.crypto : undefined;
+  const cryptoRef =
+    typeof globalThis !== "undefined" ? globalThis.crypto : undefined;
 
   if (cryptoRef?.randomUUID) {
     return cryptoRef.randomUUID();

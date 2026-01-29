@@ -1,7 +1,7 @@
 "use client";
 
+import { Clock3Icon, PlusIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { PlusIcon, Clock3Icon, XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,20 +13,20 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 import {
   getLocalNowParts,
   getNextYearForYearlySlot,
   isLeapYear,
   type YearlySlotLike,
 } from "@/lib/time-utils";
+import { cn } from "@/lib/utils";
 import {
   createScheduleSlot,
   type ExecutionFrequency,
   type ScheduleSlot,
-  type Weekday,
-  WEEKDAYS,
   useExecutionScheduleStore,
+  WEEKDAYS,
+  type Weekday,
 } from "@/stores/execution-schedule-store";
 
 const frequencyOptions: { value: ExecutionFrequency; label: string }[] = [
@@ -57,15 +57,10 @@ const dayOptions = Array.from({ length: 31 }, (_, index) => index + 1);
 const monthOptions = Array.from({ length: 12 }, (_, index) => index + 1);
 
 const cloneSlot = (slot: ScheduleSlot): ScheduleSlot => {
-  switch (slot.frequency) {
-    case "weekly":
-      return { ...slot, daysOfWeek: [...slot.daysOfWeek] };
-    case "monthly":
-    case "yearly":
-    case "daily":
-    default:
-      return { ...slot };
+  if (slot.frequency === "weekly") {
+    return { ...slot, daysOfWeek: [...slot.daysOfWeek] };
   }
+  return { ...slot };
 };
 
 const canEditSlotTime = (slot: ScheduleSlot): boolean => {
@@ -77,7 +72,9 @@ const canEditSlotTime = (slot: ScheduleSlot): boolean => {
     case "monthly":
       return typeof slot.dayOfMonth === "number";
     case "yearly":
-      return typeof slot.month === "number" && typeof slot.dayOfMonth === "number";
+      return (
+        typeof slot.month === "number" && typeof slot.dayOfMonth === "number"
+      );
     default:
       return false;
   }
@@ -137,14 +134,18 @@ const ScheduleDialog = ({ open, onOpenChange }: ScheduleDialogProps) => {
     if (open) {
       setDraftFrequency(frequency);
       setDraftSlots(
-        slots.length > 0 ? slots.map(cloneSlot) : [createScheduleSlot(frequency)],
+        slots.length > 0
+          ? slots.map(cloneSlot)
+          : [createScheduleSlot(frequency)],
       );
     }
   }, [open, frequency, slots]);
 
   const handleFrequencyChange = (nextFrequency: ExecutionFrequency) => {
     if (nextFrequency === draftFrequency) return;
-    const confirmed = window.confirm("切換頻率會重設目前的排程設定，確定要繼續嗎？");
+    const confirmed = window.confirm(
+      "切換頻率會重設目前的排程設定，確定要繼續嗎？",
+    );
     if (!confirmed) {
       return;
     }
@@ -189,7 +190,11 @@ const ScheduleDialog = ({ open, onOpenChange }: ScheduleDialogProps) => {
     setDraftSlots((prev) =>
       prev.map((slot) =>
         slot.id === id && slot.frequency === "yearly"
-          ? { ...slot, month: value, dayOfMonth: value ? slot.dayOfMonth : null }
+          ? {
+              ...slot,
+              month: value,
+              dayOfMonth: value ? slot.dayOfMonth : null,
+            }
           : slot,
       ),
     );
@@ -347,7 +352,9 @@ const ScheduleDialog = ({ open, onOpenChange }: ScheduleDialogProps) => {
                         <p className="title-6 text-gray-900">選擇星期</p>
                         <div className="flex flex-wrap gap-2">
                           {weekdayOptions.map((weekday) => {
-                            const active = slot.daysOfWeek.includes(weekday.value);
+                            const active = slot.daysOfWeek.includes(
+                              weekday.value,
+                            );
                             return (
                               <button
                                 key={weekday.value}
@@ -378,7 +385,9 @@ const ScheduleDialog = ({ open, onOpenChange }: ScheduleDialogProps) => {
                           onChange={(event) =>
                             handleDayOfMonthChange(
                               slot.id,
-                              event.target.value ? Number(event.target.value) : null,
+                              event.target.value
+                                ? Number(event.target.value)
+                                : null,
                             )
                           }
                           className="body-2 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-gray-900"
@@ -402,7 +411,9 @@ const ScheduleDialog = ({ open, onOpenChange }: ScheduleDialogProps) => {
                             onChange={(event) =>
                               handleYearMonthChange(
                                 slot.id,
-                                event.target.value ? Number(event.target.value) : null,
+                                event.target.value
+                                  ? Number(event.target.value)
+                                  : null,
                               )
                             }
                             className="body-2 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-gray-900"
@@ -422,7 +433,9 @@ const ScheduleDialog = ({ open, onOpenChange }: ScheduleDialogProps) => {
                             onChange={(event) =>
                               handleYearDayChange(
                                 slot.id,
-                                event.target.value ? Number(event.target.value) : null,
+                                event.target.value
+                                  ? Number(event.target.value)
+                                  : null,
                               )
                             }
                             className="body-2 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-gray-900"
@@ -432,7 +445,10 @@ const ScheduleDialog = ({ open, onOpenChange }: ScheduleDialogProps) => {
                               {slot.month ? "請選擇日期" : "請先選擇月份"}
                             </option>
                             {dayOptions
-                              .filter((day) => !slot.month || day <= daysInSelectedMonth)
+                              .filter(
+                                (day) =>
+                                  !slot.month || day <= daysInSelectedMonth,
+                              )
                               .map((day) => (
                                 <option key={day} value={day}>
                                   {day} 日
@@ -462,7 +478,9 @@ const ScheduleDialog = ({ open, onOpenChange }: ScheduleDialogProps) => {
                       />
                     </div>
                     {!timeReady && (
-                      <p className="body-3 text-amber-700">{needsFieldsMessage}</p>
+                      <p className="body-3 text-amber-700">
+                        {needsFieldsMessage}
+                      </p>
                     )}
                   </div>
                 );

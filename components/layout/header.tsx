@@ -6,21 +6,14 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import IconAvatar from "@/public/avatar.svg";
-import IconLogo from "@/public/logo.svg";
-import { Button } from "../ui/button";
+import { UserInfo } from "@/components/layout/user-info";
+import { Button } from "@/components/ui/button";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
-} from "../ui/input-group";
-import {
-  SearchIcon,
-  ClockIcon,
-  SparklesIcon,
-  DownloadIcon,
-} from "lucide-react";
-import { UserInfo } from "@/components/layout/user-info";
+} from "@/components/ui/input-group";
+import IconLogo from "@/public/logo.svg";
 
 export default function Header() {
   return (

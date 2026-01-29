@@ -91,8 +91,13 @@ export const createScheduleSlot = (
     case "monthly":
       return { id: generateId(), time, frequency, dayOfMonth: null };
     case "yearly":
-      return { id: generateId(), time, frequency, month: null, dayOfMonth: null };
-    case "daily":
+      return {
+        id: generateId(),
+        time,
+        frequency,
+        month: null,
+        dayOfMonth: null,
+      };
     default:
       return { id: generateId(), time, frequency: "daily" };
   }
@@ -108,7 +113,9 @@ const isSlotConfigured = (slot: ScheduleSlot): boolean => {
     case "monthly":
       return typeof slot.dayOfMonth === "number";
     case "yearly":
-      return typeof slot.month === "number" && typeof slot.dayOfMonth === "number";
+      return (
+        typeof slot.month === "number" && typeof slot.dayOfMonth === "number"
+      );
     default:
       return false;
   }
@@ -120,7 +127,11 @@ const setTimeComponents = (date: Date, hours: number, minutes: number) => {
 };
 
 const setDayWithClamp = (date: Date, day: number) => {
-  const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  const daysInMonth = new Date(
+    date.getFullYear(),
+    date.getMonth() + 1,
+    0,
+  ).getDate();
   const targetDay = Math.min(Math.max(1, day), daysInMonth);
   date.setDate(targetDay);
 };

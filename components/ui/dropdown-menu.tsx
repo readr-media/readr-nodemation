@@ -101,6 +101,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
     <span className="absolute left-3 flex size-3.5 items-center justify-center">
       <DropdownMenuPrimitive.ItemIndicator>
         <svg className="size-3 text-gray-900" viewBox="0 0 12 10">
+          <title>Selected</title>
           <path
             d="M1 5l2.5 2.5L11 1"
             fill="none"
@@ -136,8 +137,7 @@ const DropdownMenuRadioItem = React.forwardRef<
     <span className="pl-4">{children}</span>
   </DropdownMenuPrimitive.RadioItem>
 ));
-DropdownMenuRadioItem.displayName =
-  DropdownMenuPrimitive.RadioItem.displayName;
+DropdownMenuRadioItem.displayName = DropdownMenuPrimitive.RadioItem.displayName;
 
 const DropdownMenuSeparator = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.Separator>,
@@ -149,8 +149,7 @@ const DropdownMenuSeparator = React.forwardRef<
     {...props}
   />
 ));
-DropdownMenuSeparator.displayName =
-  DropdownMenuPrimitive.Separator.displayName;
+DropdownMenuSeparator.displayName = DropdownMenuPrimitive.Separator.displayName;
 
 const DropdownMenuLabel = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.Label>,

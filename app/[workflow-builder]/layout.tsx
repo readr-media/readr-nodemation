@@ -1,7 +1,7 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import Header from "./components/header";
 import ModuleSideBar from "./components/module-sidebar";
 import NodeSettingSidebar from "./components/node-setting-sidebar";
-import Header from "./components/header";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (

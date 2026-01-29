@@ -1,15 +1,15 @@
 "use client";
 
-import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import {
   useExecutionScheduleStore,
+  WEEKDAYS,
   type ExecutionScheduleStore,
   type ScheduleSlot,
   type Weekday,
-  WEEKDAYS,
 } from "@/stores/execution-schedule-store";
+import { useNodesStore } from "@/stores/flow-editor/nodes-store";
+import { useCallback } from "react";
 
 type ExportPayload = {
   nodes: unknown[];
@@ -44,8 +44,7 @@ const isSlotPayload = (slot: unknown): slot is ScheduleSlot => {
       Array.isArray(daysOfWeek) &&
       daysOfWeek.every(
         (day): day is Weekday =>
-          typeof day === "string" &&
-          WEEKDAYS.includes(day),
+          typeof day === "string" && WEEKDAYS.includes(day),
       )
     );
   }
@@ -109,9 +108,7 @@ const isSchedulePayload = (
 
 const FlowDebugControls = () => {
   const loadSnapshot = useNodesStore((state) => state.loadSnapshot);
-  const setFrequency = useExecutionScheduleStore(
-    (state) => state.setFrequency,
-  );
+  const setFrequency = useExecutionScheduleStore((state) => state.setFrequency);
   const setSlots = useExecutionScheduleStore((state) => state.setSlots);
   const setEnabled = useExecutionScheduleStore((state) => state.setEnabled);
   const resetSchedule = useExecutionScheduleStore((state) => state.reset);
@@ -126,11 +123,9 @@ const FlowDebugControls = () => {
       schedule: { enabled, frequency, slots, lastUpdated },
     };
     const json = JSON.stringify(payload, null, 2);
-    const clipboardWriter = navigator.clipboard?.writeText;
-
-    if (clipboardWriter) {
+    if (navigator.clipboard?.writeText) {
       try {
-        await clipboardWriter.call(navigator.clipboard, json);
+        await navigator.clipboard.writeText(json);
         window.alert("Flow JSON 已複製到剪貼簿 (測試用)");
         return;
       } catch (error) {

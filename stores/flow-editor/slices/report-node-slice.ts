@@ -2,13 +2,14 @@ import type { Node } from "@xyflow/react";
 import type { StateCreator } from "zustand";
 
 import type { ReportNodeData } from "@/components/flow/nodes/report-node";
+import { generateId } from "@/utils/generate-id";
 import { NODE_OFFSET_STEP } from "../constants";
 import type { NodesStore, ReportNodeSlice } from "../types";
 
 const createReportNode = (
   offset: number,
 ): Node<ReportNodeData, "reportRecord"> => ({
-  id: crypto.randomUUID(),
+  id: generateId(),
   type: "reportRecord",
   position: { x: offset, y: offset },
   data: {

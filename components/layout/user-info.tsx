@@ -1,5 +1,7 @@
-import Image from "next/image";
+"use client";
+
 import IconAvatar from "@/public/avatar.svg";
+import Image from "next/image";
 
 export function UserInfo({ name = "王小明" }: { name?: string }) {
   return (

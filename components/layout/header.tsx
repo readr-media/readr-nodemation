@@ -1,3 +1,11 @@
+import { UserInfo } from "@/components/layout/user-info";
+import { Button } from "@/components/ui/button";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import IconLogo from "@/public/logo.svg";
 import {
   ClockIcon,
   DownloadIcon,
@@ -6,14 +14,6 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { UserInfo } from "@/components/layout/user-info";
-import IconLogo from "@/public/logo.svg";
-import { Button } from "../ui/button";
-import {
-  InputGroup,
-  InputGroupAddon,
-  InputGroupInput,
-} from "../ui/input-group";
 
 export default function Header() {
   return (

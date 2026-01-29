@@ -1,15 +1,15 @@
 "use client";
 
+import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import {
-  useExecutionScheduleStore,
-  WEEKDAYS,
   type ExecutionScheduleStore,
   type ScheduleSlot,
+  useExecutionScheduleStore,
+  WEEKDAYS,
   type Weekday,
 } from "@/stores/execution-schedule-store";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
-import { useCallback } from "react";
 
 type ExportPayload = {
   nodes: unknown[];
@@ -19,6 +19,9 @@ type ExportPayload = {
     "enabled" | "frequency" | "slots" | "lastUpdated"
   >;
 };
+
+const isWeekdayValue = (value: unknown): value is Weekday =>
+  typeof value === "string" && WEEKDAYS.includes(value as Weekday);
 
 const isSlotPayload = (slot: unknown): slot is ScheduleSlot => {
   if (!slot || typeof slot !== "object") return false;
@@ -42,10 +45,7 @@ const isSlotPayload = (slot: unknown): slot is ScheduleSlot => {
     const { daysOfWeek } = slot as { daysOfWeek?: unknown };
     return (
       Array.isArray(daysOfWeek) &&
-      daysOfWeek.every(
-        (day): day is Weekday =>
-          typeof day === "string" && WEEKDAYS.includes(day),
-      )
+      daysOfWeek.every(isWeekdayValue)
     );
   }
 

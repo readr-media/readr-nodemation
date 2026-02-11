@@ -44,6 +44,4 @@ data/*.db
 *.tsbuildinfo
 next-env.d.ts
 .vscode/settings.json
-Feat
-PRPs
 prisma/data/workflow.db

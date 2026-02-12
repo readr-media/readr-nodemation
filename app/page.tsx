@@ -1,12 +1,9 @@
-"use client";
-import FlowControls from "@/components/flow/flow-controls";
-import FlowEditor from "@/components/flow/flow-editor";
+import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="w-[800px] h-[600px] shadow-md">
-      <FlowEditor />
-      <FlowControls />
+    <div className="flex h-fit">
+      <Link href="/workflow-builder">workflow-builder</Link>
     </div>
   );
 }

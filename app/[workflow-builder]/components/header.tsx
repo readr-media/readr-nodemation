@@ -12,6 +12,7 @@ import { UserInfo } from "@/components/layout/user-info";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import type { WorkflowStatus } from "@/lib/workflow-status";
 import SaveWorkflowDialog from "./save-workflow-dialog";
 
 function InlineEditableText({
@@ -54,8 +55,15 @@ function InlineEditableText({
 export default function Header() {
   const [workflowName, setWorkflowName] = useState("文章自動分類與標記");
   const [workflowDescription, setWorkflowDescription] = useState("");
-  const [workflowStatus, setWorkflowStatus] = useState("draft");
-  const statusLabel = workflowStatus === "draft" ? "草稿" : workflowStatus;
+  const [workflowStatus, setWorkflowStatus] =
+    useState<WorkflowStatus>("draft");
+  const statusLabelMap: Record<WorkflowStatus, string> = {
+    template: "範本",
+    draft: "草稿",
+    published: "已發佈",
+    running: "執行中",
+  };
+  const statusLabel = statusLabelMap[workflowStatus];
 
   return (
     <header>
@@ -69,7 +77,7 @@ export default function Header() {
             <ArrowLeftIcon aria-hidden="true" />
           </Button>
           <InlineEditableText value={workflowName} onChange={setWorkflowName} />
-          <Badge variant="draft">{statusLabel}</Badge>
+          <Badge variant={workflowStatus}>{statusLabel}</Badge>
         </div>
 
         <div className="flex items-center gap-x-3">

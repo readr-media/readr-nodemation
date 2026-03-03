@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { WORKFLOW_STATUS_VALUES } from "@/lib/workflow-status";
 
 // TODO: use the TS we define.
 const JsonFieldSchema = z.union([
@@ -15,7 +16,7 @@ const CreateWorkflowSchema = z.object({
   description: z.string().optional(),
   nodes: JsonFieldSchema,
   edges: JsonFieldSchema,
-  status: z.string().trim().min(1),
+  status: z.enum(WORKFLOW_STATUS_VALUES),
   cron_expression: z.string().optional(),
   next_run_at: z.string().datetime().optional(),
   last_run_at: z.string().datetime().optional(),

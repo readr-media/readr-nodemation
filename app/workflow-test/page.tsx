@@ -3,9 +3,20 @@
 import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/custom-select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  WORKFLOW_STATUSES,
+  type WorkflowStatus,
+} from "@/lib/workflow-status";
 
 type Workflow = {
   id: string;
@@ -13,7 +24,7 @@ type Workflow = {
   description: string | null;
   nodes: string;
   edges: string;
-  status: string;
+  status: WorkflowStatus;
   cron_expression: string | null;
   next_run_at: string | null;
   last_run_at: string | null;
@@ -28,7 +39,7 @@ export default function WorkflowTestPage() {
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [status, setStatus] = useState("pending");
+  const [status, setStatus] = useState<WorkflowStatus>("draft");
   const [nodes, setNodes] = useState(defaultNodes);
   const [edges, setEdges] = useState(defaultEdges);
   const [error, setError] = useState<string | null>(null);
@@ -77,7 +88,7 @@ export default function WorkflowTestPage() {
 
       setName("");
       setDescription("");
-      setStatus("pending");
+      setStatus("draft");
       setNodes(defaultNodes);
       setEdges(defaultEdges);
       await loadWorkflows();
@@ -125,13 +136,25 @@ export default function WorkflowTestPage() {
 
         <div className="flex flex-col gap-2">
           <Label htmlFor="status">Status</Label>
-          <Input
-            id="status"
+          <Select
             value={status}
-            onChange={(event) => setStatus(event.target.value)}
-            placeholder="pending | active | disabled"
-            required
-          />
+            onValueChange={(value) => setStatus(value as WorkflowStatus)}
+          >
+            <SelectTrigger id="status" className="w-full">
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent side="bottom" sideOffset={9}>
+              {WORKFLOW_STATUSES.map((workflowStatus) => (
+                <SelectItem
+                  key={workflowStatus}
+                  value={workflowStatus}
+                  className="cursor-pointer"
+                >
+                  {workflowStatus}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="flex flex-col gap-2">

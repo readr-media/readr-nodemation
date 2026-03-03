@@ -1,7 +1,6 @@
 import { unstable_noStore as noStore } from "next/cache";
 import { prisma } from "@/lib/prisma";
-
-export type WorkflowStatus = "template" | "draft" | "published" | "running";
+import { WORKFLOW_STATUSES, type WorkflowStatus } from "@/lib/workflow-status";
 
 export type WorkflowListItem = {
   id: string;
@@ -11,13 +10,6 @@ export type WorkflowListItem = {
   updatedAt: Date;
   lastRunAt: Date | null;
 };
-
-const allowedStatuses: WorkflowStatus[] = [
-  "template",
-  "draft",
-  "published",
-  "running",
-];
 
 export const getUserWorkflows = async (): Promise<WorkflowListItem[]> => {
   noStore();
@@ -38,7 +30,7 @@ export const getUserWorkflows = async (): Promise<WorkflowListItem[]> => {
     id: workflow.id,
     name: workflow.name,
     description: workflow.description,
-    status: (allowedStatuses.includes(workflow.status as WorkflowStatus)
+    status: (WORKFLOW_STATUSES.includes(workflow.status as WorkflowStatus)
       ? (workflow.status as WorkflowStatus)
       : "draft") satisfies WorkflowStatus,
     updatedAt: workflow.updated_at,

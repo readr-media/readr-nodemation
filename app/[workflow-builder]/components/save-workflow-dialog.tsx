@@ -16,7 +16,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/custom-select";
 import { cn } from "@/lib/utils";
+import {
+  WORKFLOW_STATUSES,
+  type WorkflowStatus,
+} from "@/lib/workflow-status";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 
 const dialogContentStyle =
@@ -26,16 +37,25 @@ const inputBaseStyle =
   "border border-gray-400 rounded-lg py-2 px-3 bg-white body-2 text-gray-900";
 const inputFocusStyle =
   "placeholder:text-gray-600 focus-visible:outline-none focus-visible:ring-0 focus-visible:border-gray-600";
+const selectTriggerStyle =
+  "w-full cursor-pointer data-[placeholder]:text-gray-600 data-[state=open]:border-gray-600";
 
 const emptyDisplay = "(空白)";
+
+const statusLabels: Record<WorkflowStatus, string> = {
+  template: "範本",
+  draft: "草稿",
+  published: "已發佈",
+  running: "執行中",
+};
 
 type SaveWorkflowDialogProps = {
   workflowName: string;
   onWorkflowNameChange: (value: string) => void;
   workflowDescription: string;
   onWorkflowDescriptionChange: (value: string) => void;
-  workflowStatus: string;
-  onWorkflowStatusChange: (value: string) => void;
+  workflowStatus: WorkflowStatus;
+  onWorkflowStatusChange: (value: WorkflowStatus) => void;
 };
 
 const SaveWorkflowDialog = ({
@@ -151,15 +171,26 @@ const SaveWorkflowDialog = ({
             <Label htmlFor="workflow-status" className={labelStyle}>
               狀態
             </Label>
-            <Input
-              id="workflow-status"
-              name="workflowStatus"
+            <Select
               value={workflowStatus}
-              onChange={(event) => onWorkflowStatusChange(event.target.value)}
-              placeholder="draft…"
-              autoComplete="off"
-              className={cn(inputBaseStyle, inputFocusStyle)}
-            />
+              onValueChange={(value) =>
+                onWorkflowStatusChange(value as WorkflowStatus)
+              }
+            >
+              <SelectTrigger
+                id="workflow-status"
+                className={cn(inputBaseStyle, inputFocusStyle, selectTriggerStyle)}
+              >
+                <SelectValue placeholder="請選擇狀態" />
+              </SelectTrigger>
+              <SelectContent side="bottom" sideOffset={9}>
+                {WORKFLOW_STATUSES.map((status) => (
+                  <SelectItem key={status} value={status} className="cursor-pointer">
+                    {statusLabels[status]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid gap-2">

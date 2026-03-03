@@ -10,17 +10,18 @@ const JsonFieldSchema = z.union([
   z.record(z.unknown()),
 ]);
 
-const CreateWorkflowSchema = z.object({
-  id: z.string().uuid().optional(),
-  name: z.string().trim().min(1),
-  description: z.string().optional(),
-  nodes: JsonFieldSchema,
-  edges: JsonFieldSchema,
-  status: z.enum(WORKFLOW_STATUS_VALUES),
-  cron_expression: z.string().optional(),
-  next_run_at: z.string().datetime().optional(),
-  last_run_at: z.string().datetime().optional(),
-});
+const CreateWorkflowSchema = z
+  .object({
+    name: z.string().trim().min(1),
+    description: z.string().optional(),
+    nodes: JsonFieldSchema,
+    edges: JsonFieldSchema,
+    status: z.enum(WORKFLOW_STATUS_VALUES),
+    cron_expression: z.string().optional(),
+    next_run_at: z.string().datetime().optional(),
+    last_run_at: z.string().datetime().optional(),
+  })
+  .strict();
 
 function toJsonString(value: z.infer<typeof JsonFieldSchema>): string {
   return typeof value === "string" ? value : JSON.stringify(value);
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
 
     const workflow = await prisma.workflow.create({
       data: {
-        id: data.id ?? crypto.randomUUID(),
+        id: crypto.randomUUID(),
         name: data.name,
         description: data.description,
         nodes: toJsonString(data.nodes),

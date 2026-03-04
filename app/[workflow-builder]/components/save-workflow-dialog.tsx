@@ -154,7 +154,7 @@ const SaveWorkflowDialog = ({
             <Label htmlFor="workflow-description" className={labelStyle}>
               描述（選填）
             </Label>
-            <Input
+            <Textarea
               id="workflow-description"
               name="workflowDescription"
               value={workflowDescription}
@@ -164,6 +164,7 @@ const SaveWorkflowDialog = ({
               placeholder="（空白…）"
               autoComplete="off"
               className={cn(inputBaseStyle, inputFocusStyle)}
+              rows={3}
             />
           </div>
 

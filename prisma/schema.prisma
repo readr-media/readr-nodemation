@@ -1,0 +1,78 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Workflow {
+  id              String   @id
+  name            String
+  description     String?
+  nodes           String
+  edges           String
+  status          String
+  cron_expression String?
+  next_run_at     DateTime?
+  last_run_at     DateTime?
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  jobs            Job[]
+}
+
+model Job {
+  id                String   @id
+  workflow_id       String
+  workflow_snapshot String?
+  status            String
+  result            String?
+  error             String?
+  node_results      String?
+  created_at        DateTime @default(now())
+  started_at        DateTime?
+  completed_at      DateTime?
+  workflow          Workflow @relation(fields: [workflow_id], references: [id])
+  logs              JobLog[]
+}
+
+model JobLog {
+  id        Int      @id @default(autoincrement())
+  job_id    String
+  node_id   String?
+  level     String
+  message   String
+  data      String?
+  timestamp DateTime
+  job       Job      @relation(fields: [job_id], references: [id])
+}
+
+model ModuleType {
+  id         Int          @id @default(autoincrement())
+  name       String
+  sort_order Int          @default(0)
+  units      ModuleUnit[]
+}
+
+model ModuleUnit {
+  id             Int        @id @default(autoincrement())
+  module_type_id Int
+  action         String
+  action_code    String
+  description    String
+  active         Boolean    @default(true)
+  icon_key       String
+  sort_order     Int        @default(0)
+  module_type    ModuleType @relation(fields: [module_type_id], references: [id])
+}
+
+model WorkflowTemplate {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  status      String   @default("template")
+  sort_order  Int      @default(0)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}

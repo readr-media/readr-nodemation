@@ -1,96 +1,8 @@
 "use client";
 
-import type { LucideIcon } from "lucide-react";
-import {
-  Code2,
-  Database,
-  Download,
-  FileSpreadsheet,
-  Share2,
-  Sparkles,
-} from "lucide-react";
-
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import { ModuleCard } from "./module-card";
-
-type ModuleItem = {
-  title: string;
-  description: string;
-  icon: LucideIcon;
-  accent: "ai" | "code" | "cms" | "content";
-  nodeType?:
-    | "aiCall"
-    | "codeBlock"
-    | "cmsInput"
-    | "cmsOutput"
-    | "exportResult"
-    | "reportRecord";
-};
-
-const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
-  {
-    title: "AI 模組",
-    modules: [
-      {
-        title: "呼叫 AI",
-        description: "透過 AI 進行內容處理",
-        icon: Sparkles,
-        accent: "ai",
-        nodeType: "aiCall",
-      },
-    ],
-  },
-  {
-    title: "程式碼模組",
-    modules: [
-      {
-        title: "撰寫程式碼",
-        description: "輸入程式碼來處理資料",
-        icon: Code2,
-        accent: "code",
-        nodeType: "codeBlock",
-      },
-    ],
-  },
-  {
-    title: "CMS 模組",
-    modules: [
-      {
-        title: "從 CMS 輸入",
-        description: "從 CMS 系統抓取內容",
-        icon: Database,
-        accent: "cms",
-        nodeType: "cmsInput",
-      },
-      {
-        title: "輸出到 CMS",
-        description: "將內容輸出到 CMS 系統",
-        icon: Share2,
-        accent: "cms",
-        nodeType: "cmsOutput",
-      },
-    ],
-  },
-  {
-    title: "內容整理模組",
-    modules: [
-      {
-        title: "匯出結果",
-        description: "將處理結果匯出為檔案",
-        icon: Download,
-        accent: "content",
-        nodeType: "exportResult",
-      },
-      {
-        title: "產出報告紀錄",
-        description: "產出處理報告",
-        icon: FileSpreadsheet,
-        accent: "content",
-        nodeType: "reportRecord",
-      },
-    ],
-  },
-] as const;
+import { moduleGroups } from "./module-list-config";
 
 const ModuleList = () => {
   const {
@@ -99,7 +11,6 @@ const ModuleList = () => {
     addCmsNode,
     addCmsOutputNode,
     addExportNode,
-    addReportNode,
   } = useNodesStore();
 
   return (
@@ -129,9 +40,6 @@ const ModuleList = () => {
                   }
                   if (nodeType === "exportResult") {
                     addExportNode();
-                  }
-                  if (nodeType === "reportRecord") {
-                    addReportNode();
                   }
                 }}
               />

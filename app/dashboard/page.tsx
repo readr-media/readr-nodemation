@@ -1,48 +1,45 @@
 import { PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getWorkflowTemplates } from "@/lib/workflow-templates";
+import { getUserWorkflows } from "@/lib/workflows";
 import TemplateWorkflowCard from "./_components/template-workflow-card";
 import UserWorkflowCard from "./_components/user-workflow-card";
 
-const userCards = [
-  {
-    id: 1,
-    name: "AI 模組卡片",
-    description: "剛剛編輯",
-    time: "尚無執行紀錄",
-    status: "draft",
-  },
-  {
-    id: 2,
-    name: "AI 新聞處理流程",
-    description: "2 小時前編輯",
-    time: "執行於 36 分鐘前",
-    status: "published",
-  },
-  {
-    id: 3,
-    name: "文章自動分類與標記",
-    time: "執行於 3 天前",
-    description: "1 天前編輯",
-    status: "running",
-  },
-];
+export const runtime = "nodejs";
 
-const templateCards = [
-  {
-    id: 1,
-    name: "自動標籤文章",
-    description: "快速為文章產生相關標籤",
-    status: "template",
-  },
-  {
-    id: 2,
-    name: "自動地震速報",
-    description: "自動產生地震速報",
-    status: "template",
-  },
-];
+const dateFormatter = new Intl.DateTimeFormat("zh-TW", {
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
 
-export default function Page() {
+const formatDate = (value: Date) => dateFormatter.format(value);
+
+export default async function Page() {
+  const [userWorkflows, templateWorkflows] = await Promise.all([
+    getUserWorkflows(),
+    getWorkflowTemplates(),
+  ]);
+
+  const userCards = userWorkflows.map((workflow) => ({
+    id: workflow.id,
+    name: workflow.name,
+    description: workflow.updatedAt
+      ? `編輯於 ${formatDate(workflow.updatedAt)}`
+      : "尚無編輯紀錄",
+    time: workflow.lastRunAt
+      ? `執行於 ${formatDate(workflow.lastRunAt)}`
+      : "尚無執行紀錄",
+    status: workflow.status,
+  }));
+
+  const templateCards = templateWorkflows.map((template) => ({
+    id: template.id,
+    name: template.name,
+    description: template.description ?? "",
+    status: template.status,
+  }));
+
   return (
     <main className="px-15 py-10 flex flex-col">
       <div className="flex justify-between items-center">
@@ -54,27 +51,35 @@ export default function Page() {
         </Button>
       </div>
       <div className="flex gap-x-6 mt-4">
-        {userCards.map((card) => (
-          <UserWorkflowCard
-            key={card.id}
-            name={card.name}
-            description={card.description}
-            time={card.time}
-            status={card.status as "draft" | "published" | "running"}
-          />
-        ))}
+        {userCards.length === 0 ? (
+          <p className="body-2 text-gray-500">尚無工作流</p>
+        ) : (
+          userCards.map((card) => (
+            <UserWorkflowCard
+              key={card.id}
+              name={card.name}
+              description={card.description}
+              time={card.time}
+              status={card.status}
+            />
+          ))
+        )}
       </div>
 
       <h2 className="title-4 text-gray-900 mt-10">工作流模板</h2>
       <div className="flex gap-x-6 mt-4">
-        {templateCards.map((card) => (
-          <TemplateWorkflowCard
-            key={card.id}
-            name={card.name}
-            description={card.description}
-            status={card.status as "draft" | "published" | "running"}
-          />
-        ))}
+        {templateCards.length === 0 ? (
+          <p className="body-2 text-gray-500">尚無模板</p>
+        ) : (
+          templateCards.map((card) => (
+            <TemplateWorkflowCard
+              key={card.id}
+              name={card.name}
+              description={card.description}
+              status={card.status}
+            />
+          ))
+        )}
       </div>
     </main>
   );

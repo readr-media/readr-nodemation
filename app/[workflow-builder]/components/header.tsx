@@ -55,8 +55,7 @@ function InlineEditableText({
 export default function Header() {
   const [workflowName, setWorkflowName] = useState("文章自動分類與標記");
   const [workflowDescription, setWorkflowDescription] = useState("");
-  const [workflowStatus, setWorkflowStatus] =
-    useState<WorkflowStatus>("draft");
+  const [workflowStatus, setWorkflowStatus] = useState<WorkflowStatus>("draft");
   const statusLabelMap: Record<WorkflowStatus, string> = {
     template: "範本",
     draft: "草稿",

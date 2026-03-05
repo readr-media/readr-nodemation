@@ -6,6 +6,9 @@
     "dev": "concurrently \"next dev --webpack\" \"graphql-codegen -w\"",
     "build": "next build --webpack",
     "start": "next start",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit --passWithNoTests",
+    "test:integration": "vitest run tests/integration --passWithNoTests",
     "lint": "biome check",
     "format": "biome format --write"
   },

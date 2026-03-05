@@ -5,6 +5,13 @@ import { useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/custom-select";
+import {
   Dialog,
   DialogClose,
   DialogContent,
@@ -16,18 +23,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/custom-select";
 import { cn } from "@/lib/utils";
-import {
-  WORKFLOW_STATUSES,
-  type WorkflowStatus,
-} from "@/lib/workflow-status";
+import { WORKFLOW_STATUSES, type WorkflowStatus } from "@/lib/workflow-status";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 
 const dialogContentStyle =
@@ -180,13 +177,21 @@ const SaveWorkflowDialog = ({
             >
               <SelectTrigger
                 id="workflow-status"
-                className={cn(inputBaseStyle, inputFocusStyle, selectTriggerStyle)}
+                className={cn(
+                  inputBaseStyle,
+                  inputFocusStyle,
+                  selectTriggerStyle,
+                )}
               >
                 <SelectValue placeholder="請選擇狀態" />
               </SelectTrigger>
               <SelectContent side="bottom" sideOffset={9}>
                 {WORKFLOW_STATUSES.map((status) => (
-                  <SelectItem key={status} value={status} className="cursor-pointer">
+                  <SelectItem
+                    key={status}
+                    value={status}
+                    className="cursor-pointer"
+                  >
                     {statusLabels[status]}
                   </SelectItem>
                 ))}

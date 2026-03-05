@@ -65,14 +65,6 @@ const moduleSeed = [
         icon_key: "Download",
         sort_order: 1,
       },
-      {
-        action: "產出報告紀錄",
-        action_code: "content",
-        description: "產出處理報告",
-        active: true,
-        icon_key: "FileSpreadsheet",
-        sort_order: 2,
-      },
     ],
   },
 ];

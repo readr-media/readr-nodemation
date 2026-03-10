@@ -2,13 +2,14 @@ import type { Node } from "@xyflow/react";
 import type { StateCreator } from "zustand";
 
 import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
+import { generateId } from "@/utils/generate-id";
 import { NODE_OFFSET_STEP } from "../constants";
 import type { ExportNodeSlice, NodesStore } from "../types";
 
 const createExportResultNode = (
   offset: number,
 ): Node<ExportResultNodeData, "exportResult"> => ({
-  id: crypto.randomUUID(),
+  id: generateId(),
   type: "exportResult",
   position: { x: offset, y: offset },
   data: {

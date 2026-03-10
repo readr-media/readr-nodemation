@@ -187,6 +187,7 @@ const computeNextRun = (
         setTimeComponents(candidate, parsed.hours, parsed.minutes);
         setDayWithClamp(candidate, targetDay);
         if (candidate <= now) {
+          candidate.setDate(1);
           candidate.setMonth(candidate.getMonth() + 1);
           setDayWithClamp(candidate, targetDay);
         }

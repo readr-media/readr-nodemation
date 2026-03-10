@@ -19,6 +19,12 @@ import {
   isLeapYear,
   type YearlySlotLike,
 } from "@/lib/time-utils";
+import {
+  getYearlyMonthMaxDay,
+  isValidYearlyMonthDay,
+  normalizeYearlyDayForMonthChange,
+} from "@/lib/schedule-yearly-date-utils";
+import { isScheduleSlotCompleteForDialog } from "@/lib/schedule-slot-completeness";
 import { cn } from "@/lib/utils";
 import {
   createScheduleSlot,
@@ -72,9 +78,7 @@ const canEditSlotTime = (slot: ScheduleSlot): boolean => {
     case "monthly":
       return typeof slot.dayOfMonth === "number";
     case "yearly":
-      return (
-        typeof slot.month === "number" && typeof slot.dayOfMonth === "number"
-      );
+      return isValidYearlyMonthDay(slot.month, slot.dayOfMonth);
     default:
       return false;
   }
@@ -92,9 +96,6 @@ const getSlotValidationMessage = (slot: ScheduleSlot): string => {
       return "";
   }
 };
-
-const isSlotComplete = (slot: ScheduleSlot): boolean =>
-  canEditSlotTime(slot) && Boolean(slot.time);
 
 const getFrequencyHint = (frequency: ExecutionFrequency) => {
   switch (frequency) {
@@ -193,7 +194,10 @@ const ScheduleDialog = ({ open, onOpenChange }: ScheduleDialogProps) => {
           ? {
               ...slot,
               month: value,
-              dayOfMonth: value ? slot.dayOfMonth : null,
+              dayOfMonth: normalizeYearlyDayForMonthChange(
+                value,
+                slot.dayOfMonth,
+              ),
             }
           : slot,
       ),
@@ -219,7 +223,9 @@ const ScheduleDialog = ({ open, onOpenChange }: ScheduleDialogProps) => {
   };
 
   const handleConfirm = () => {
-    const sanitizedSlots = draftSlots.filter((slot) => isSlotComplete(slot));
+    const sanitizedSlots = draftSlots.filter((slot) =>
+      isScheduleSlotCompleteForDialog(slot),
+    );
     if (sanitizedSlots.length === 0) {
       resetSchedule();
       onOpenChange(false);
@@ -337,10 +343,9 @@ const ScheduleDialog = ({ open, onOpenChange }: ScheduleDialogProps) => {
                 {draftSlots.map((slot) => {
                   const timeReady = canEditSlotTime(slot);
                   const needsFieldsMessage = getSlotValidationMessage(slot);
-                  const currentYear = new Date().getFullYear();
                   const daysInSelectedMonth =
                     slot.frequency === "yearly" && slot.month
-                      ? new Date(currentYear, slot.month, 0).getDate()
+                      ? getYearlyMonthMaxDay(slot.month)
                       : 31;
 
                   return (

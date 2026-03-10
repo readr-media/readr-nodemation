@@ -54,6 +54,15 @@ const FlowDebugControls = () => {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed?.nodes) && Array.isArray(parsed?.edges)) {
         loadSnapshot({ nodes: parsed.nodes, edges: parsed.edges });
+        const hasScheduleField =
+          typeof parsed === "object" && parsed !== null && "schedule" in parsed;
+
+        if (!hasScheduleField) {
+          // Backward compatibility: legacy JSON may only contain flow graph.
+          window.alert("匯入成功 (測試用)");
+          return;
+        }
+
         if (isSchedulePayload(parsed?.schedule)) {
           setFrequency(parsed.schedule.frequency);
           setSlots(parsed.schedule.slots);

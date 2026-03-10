@@ -5,6 +5,7 @@ COPY package.json pnpm-lock.yaml ./
 RUN corepack enable && pnpm install --frozen-lockfile
 
 COPY . .
+ENV NEXT_PUBLIC_ENV=dev
 RUN pnpm build
 
 FROM node:20-alpine AS production-stage

@@ -41,7 +41,11 @@ export const isSlotPayload = (slot: unknown): slot is ScheduleSlot => {
 
   if (frequency === "weekly") {
     const { daysOfWeek } = slot as { daysOfWeek?: unknown };
-    return Array.isArray(daysOfWeek) && daysOfWeek.every(isWeekdayValue);
+    return (
+      Array.isArray(daysOfWeek) &&
+      daysOfWeek.length > 0 &&
+      daysOfWeek.every(isWeekdayValue)
+    );
   }
 
   if (frequency === "monthly") {

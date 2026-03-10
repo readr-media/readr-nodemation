@@ -2,12 +2,10 @@
 
 import { useCallback } from "react";
 import { Button } from "@/components/ui/button";
+import { isSchedulePayload } from "@/lib/schedule-import-validation";
 import {
   type ExecutionScheduleStore,
-  type ScheduleSlot,
   useExecutionScheduleStore,
-  WEEKDAYS,
-  type Weekday,
 } from "@/stores/execution-schedule-store";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 
@@ -20,98 +18,11 @@ type ExportPayload = {
   >;
 };
 
-const isWeekdayValue = (value: unknown): value is Weekday =>
-  typeof value === "string" && WEEKDAYS.includes(value as Weekday);
-
-const isSlotPayload = (slot: unknown): slot is ScheduleSlot => {
-  if (!slot || typeof slot !== "object") return false;
-  const { id, time, frequency } = slot as {
-    id?: unknown;
-    time?: unknown;
-    frequency?: unknown;
-  };
-
-  if (typeof id !== "string" || typeof time !== "string") return false;
-  if (
-    frequency !== "daily" &&
-    frequency !== "weekly" &&
-    frequency !== "monthly" &&
-    frequency !== "yearly"
-  ) {
-    return false;
-  }
-
-  if (frequency === "weekly") {
-    const { daysOfWeek } = slot as { daysOfWeek?: unknown };
-    return (
-      Array.isArray(daysOfWeek) &&
-      daysOfWeek.every(isWeekdayValue)
-    );
-  }
-
-  if (frequency === "monthly") {
-    const { dayOfMonth } = slot as { dayOfMonth?: unknown };
-    return (
-      typeof dayOfMonth === "number" &&
-      Number.isInteger(dayOfMonth) &&
-      dayOfMonth >= 1 &&
-      dayOfMonth <= 31
-    );
-  }
-
-  if (frequency === "yearly") {
-    const { month, dayOfMonth } = slot as {
-      month?: unknown;
-      dayOfMonth?: unknown;
-    };
-    return (
-      typeof month === "number" &&
-      Number.isInteger(month) &&
-      month >= 1 &&
-      month <= 12 &&
-      typeof dayOfMonth === "number" &&
-      Number.isInteger(dayOfMonth) &&
-      dayOfMonth >= 1 &&
-      dayOfMonth <= 31
-    );
-  }
-
-  return true;
-};
-
-const isSchedulePayload = (
-  value: unknown,
-): value is ExportPayload["schedule"] => {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-
-  const candidate = value as {
-    enabled?: unknown;
-    frequency?: unknown;
-    slots?: unknown;
-  };
-
-  if (typeof candidate.enabled !== "boolean") return false;
-  if (
-    candidate.frequency !== "daily" &&
-    candidate.frequency !== "weekly" &&
-    candidate.frequency !== "monthly" &&
-    candidate.frequency !== "yearly"
-  ) {
-    return false;
-  }
-  if (!Array.isArray(candidate.slots)) return false;
-
-  return candidate.slots.every((slot) => isSlotPayload(slot));
-};
-
 const FlowDebugControls = () => {
   const loadSnapshot = useNodesStore((state) => state.loadSnapshot);
   const setFrequency = useExecutionScheduleStore((state) => state.setFrequency);
   const setSlots = useExecutionScheduleStore((state) => state.setSlots);
   const setEnabled = useExecutionScheduleStore((state) => state.setEnabled);
-  const resetSchedule = useExecutionScheduleStore((state) => state.reset);
 
   const handleExport = useCallback(async () => {
     const { nodes, edges } = useNodesStore.getState();
@@ -147,10 +58,10 @@ const FlowDebugControls = () => {
           setFrequency(parsed.schedule.frequency);
           setSlots(parsed.schedule.slots);
           setEnabled(parsed.schedule.enabled);
+          window.alert("匯入成功 (測試用)");
         } else {
-          resetSchedule();
+          window.alert("排程設定格式不正確，排程未匯入。");
         }
-        window.alert("匯入成功 (測試用)");
       } else {
         window.alert("JSON 格式不正確");
       }
@@ -158,7 +69,7 @@ const FlowDebugControls = () => {
       console.error(error);
       window.alert("解析 JSON 時發生錯誤");
     }
-  }, [loadSnapshot, resetSchedule, setEnabled, setFrequency, setSlots]);
+  }, [loadSnapshot, setEnabled, setFrequency, setSlots]);
 
   return (
     <div className="pointer-events-auto flex gap-2 rounded-xl border border-dashed border-module-border bg-white/90 px-3 py-2 text-xs text-module-muted shadow-sm">

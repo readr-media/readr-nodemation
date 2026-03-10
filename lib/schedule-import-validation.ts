@@ -1,4 +1,5 @@
 import { isValidYearlyMonthDay } from "@/lib/schedule-yearly-date-utils";
+import { parseTimeValue } from "@/lib/time-utils";
 import {
   type ExecutionScheduleStore,
   type ScheduleSlot,
@@ -22,7 +23,13 @@ export const isSlotPayload = (slot: unknown): slot is ScheduleSlot => {
     frequency?: unknown;
   };
 
-  if (typeof id !== "string" || typeof time !== "string") return false;
+  if (
+    typeof id !== "string" ||
+    typeof time !== "string" ||
+    parseTimeValue(time) === null
+  ) {
+    return false;
+  }
   if (
     frequency !== "daily" &&
     frequency !== "weekly" &&
@@ -89,5 +96,10 @@ export const isSchedulePayload = (
   }
   if (!Array.isArray(candidate.slots)) return false;
 
-  return candidate.slots.every((slot) => isSlotPayload(slot));
+  return candidate.slots.every((slot) => {
+    if (!isSlotPayload(slot)) {
+      return false;
+    }
+    return slot.frequency === candidate.frequency;
+  });
 };

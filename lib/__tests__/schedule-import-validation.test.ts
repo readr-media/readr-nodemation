@@ -4,6 +4,16 @@ import {
 } from "@/lib/schedule-import-validation";
 
 describe("schedule import validation", () => {
+  it("rejects slot with malformed time value", () => {
+    const slot = {
+      id: "bad-time",
+      time: "25:99",
+      frequency: "daily" as const,
+    };
+
+    expect(isSlotPayload(slot)).toBe(false);
+  });
+
   it("rejects yearly slot with impossible month/day", () => {
     const slot = {
       id: "y1",
@@ -39,6 +49,23 @@ describe("schedule import validation", () => {
           frequency: "yearly" as const,
           month: 4,
           dayOfMonth: 31,
+        },
+      ],
+    };
+
+    expect(isSchedulePayload(schedule)).toBe(false);
+  });
+
+  it("rejects schedule payload when slot frequencies do not match schedule frequency", () => {
+    const schedule = {
+      enabled: true,
+      frequency: "daily" as const,
+      slots: [
+        {
+          id: "w1",
+          time: "09:00",
+          frequency: "weekly" as const,
+          daysOfWeek: ["mon"] as const,
         },
       ],
     };

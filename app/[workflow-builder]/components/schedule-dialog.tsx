@@ -13,10 +13,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { isScheduleSlotCompleteForDialog } from "@/lib/schedule-slot-completeness";
+import {
+  canConfigureSlotTime,
+  isScheduleSlotCompleteForDialog,
+} from "@/lib/schedule-slot-completeness";
 import {
   getYearlyMonthMaxDay,
-  isValidYearlyMonthDay,
   normalizeYearlyDayForMonthChange,
 } from "@/lib/schedule-yearly-date-utils";
 import {
@@ -67,21 +69,6 @@ const cloneSlot = (slot: ScheduleSlot): ScheduleSlot => {
     return { ...slot, daysOfWeek: [...slot.daysOfWeek] };
   }
   return { ...slot };
-};
-
-const canEditSlotTime = (slot: ScheduleSlot): boolean => {
-  switch (slot.frequency) {
-    case "daily":
-      return true;
-    case "weekly":
-      return slot.daysOfWeek.length > 0;
-    case "monthly":
-      return typeof slot.dayOfMonth === "number";
-    case "yearly":
-      return isValidYearlyMonthDay(slot.month, slot.dayOfMonth);
-    default:
-      return false;
-  }
 };
 
 const getSlotValidationMessage = (slot: ScheduleSlot): string => {
@@ -341,7 +328,7 @@ const ScheduleDialog = ({ open, onOpenChange }: ScheduleDialogProps) => {
               </div>
               <div className="flex flex-col gap-4">
                 {draftSlots.map((slot) => {
-                  const timeReady = canEditSlotTime(slot);
+                  const timeReady = canConfigureSlotTime(slot);
                   const needsFieldsMessage = getSlotValidationMessage(slot);
                   const daysInSelectedMonth =
                     slot.frequency === "yearly" && slot.month

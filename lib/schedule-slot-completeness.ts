@@ -1,7 +1,7 @@
 import { isValidYearlyMonthDay } from "@/lib/schedule-yearly-date-utils";
 import type { ScheduleSlot } from "@/stores/execution-schedule-store";
 
-const canEditSlotTime = (slot: ScheduleSlot): boolean => {
+export const canConfigureSlotTime = (slot: ScheduleSlot): boolean => {
   switch (slot.frequency) {
     case "daily":
       return true;
@@ -17,4 +17,4 @@ const canEditSlotTime = (slot: ScheduleSlot): boolean => {
 };
 
 export const isScheduleSlotCompleteForDialog = (slot: ScheduleSlot): boolean =>
-  canEditSlotTime(slot) && Boolean(slot.time);
+  canConfigureSlotTime(slot) && Boolean(slot.time);

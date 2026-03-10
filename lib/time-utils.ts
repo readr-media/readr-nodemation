@@ -9,9 +9,13 @@ const MAX_MINUTE = MINUTES_IN_HOUR - 1;
 const defaultTimeParts = { hours: 0, minutes: 0 };
 
 export const parseTimeValue = (time: string) => {
-  const [hours = "0", minutes = "0"] = time.split(":");
-  const parsedHours = Number(hours);
-  const parsedMinutes = Number(minutes);
+  const match = /^(\d{1,2}):(\d{1,2})$/.exec(time.trim());
+  if (!match) {
+    return null;
+  }
+
+  const parsedHours = Number(match[1]);
+  const parsedMinutes = Number(match[2]);
   if (
     Number.isNaN(parsedHours) ||
     Number.isNaN(parsedMinutes) ||

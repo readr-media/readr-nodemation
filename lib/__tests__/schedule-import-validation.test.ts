@@ -4,6 +4,17 @@ import {
 } from "@/lib/schedule-import-validation";
 
 describe("schedule import validation", () => {
+  it("rejects weekly slot with empty daysOfWeek", () => {
+    const slot = {
+      id: "w-empty",
+      time: "09:00",
+      frequency: "weekly" as const,
+      daysOfWeek: [],
+    };
+
+    expect(isSlotPayload(slot)).toBe(false);
+  });
+
   it("rejects slot with malformed time value", () => {
     const slot = {
       id: "bad-time",

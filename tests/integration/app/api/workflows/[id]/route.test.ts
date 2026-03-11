@@ -94,7 +94,7 @@ describe("workflow resource route", () => {
         status: "published",
         cron_expression: "0 8 * * *",
         next_run_at: new Date("2026-03-11T08:00:00.000Z"),
-        last_run_at: undefined,
+        last_run_at: null,
       },
     });
     expect(response.status).toBe(200);
@@ -105,6 +105,57 @@ describe("workflow resource route", () => {
       new Request("http://localhost/api/workflows/wf-1", {
         method: "PUT",
         body: JSON.stringify({ name: "Only name" }),
+        headers: { "Content-Type": "application/json" },
+      }),
+      { params: Promise.resolve({ id: "wf-1" }) },
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toMatchObject({
+      error: "Invalid payload",
+    });
+  });
+
+  it("clears omitted nullable fields via PUT full replacement", async () => {
+    prisma.workflow.update.mockResolvedValueOnce({
+      id: "wf-1",
+    });
+
+    const response = await PUT(
+      new Request("http://localhost/api/workflows/wf-1", {
+        method: "PUT",
+        body: JSON.stringify({
+          name: "Updated workflow",
+          nodes: [{ id: "n1" }],
+          edges: [],
+          status: "published",
+        }),
+        headers: { "Content-Type": "application/json" },
+      }),
+      { params: Promise.resolve({ id: "wf-1" }) },
+    );
+
+    expect(prisma.workflow.update).toHaveBeenCalledWith({
+      where: { id: "wf-1" },
+      data: {
+        name: "Updated workflow",
+        description: null,
+        nodes: '[{"id":"n1"}]',
+        edges: "[]",
+        status: "published",
+        cron_expression: null,
+        next_run_at: null,
+        last_run_at: null,
+      },
+    });
+    expect(response.status).toBe(200);
+  });
+
+  it("returns 400 when PUT body is malformed JSON", async () => {
+    const response = await PUT(
+      new Request("http://localhost/api/workflows/wf-1", {
+        method: "PUT",
+        body: "{",
         headers: { "Content-Type": "application/json" },
       }),
       { params: Promise.resolve({ id: "wf-1" }) },

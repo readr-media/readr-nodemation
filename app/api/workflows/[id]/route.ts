@@ -54,7 +54,14 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const body = await request.json();
+  let body: unknown;
+
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json({ error: "Invalid payload" }, { status: 400 });
+  }
+
   const parsed = PutWorkflowSchema.safeParse(body);
 
   if (!parsed.success) {
@@ -72,13 +79,13 @@ export async function PUT(
       where: { id },
       data: {
         name: data.name,
-        description: data.description,
+        description: data.description ?? null,
         nodes: toJsonString(data.nodes),
         edges: toJsonString(data.edges),
         status: data.status,
-        cron_expression: data.cron_expression,
-        next_run_at: data.next_run_at ? new Date(data.next_run_at) : undefined,
-        last_run_at: data.last_run_at ? new Date(data.last_run_at) : undefined,
+        cron_expression: data.cron_expression ?? null,
+        next_run_at: data.next_run_at ? new Date(data.next_run_at) : null,
+        last_run_at: data.last_run_at ? new Date(data.last_run_at) : null,
       },
     });
 

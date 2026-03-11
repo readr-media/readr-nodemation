@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { describe, expect, it, vi } from "vitest";
-import { DELETE, PUT } from "@/app/api/workflows/[id]/route";
+import { DELETE, PATCH, PUT } from "@/app/api/workflows/[id]/route";
 
 const { prisma } = vi.hoisted(() => ({
   prisma: {
@@ -156,6 +156,57 @@ describe("workflow resource route", () => {
       new Request("http://localhost/api/workflows/wf-1", {
         method: "PUT",
         body: "{",
+        headers: { "Content-Type": "application/json" },
+      }),
+      { params: Promise.resolve({ id: "wf-1" }) },
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toMatchObject({
+      error: "Invalid payload",
+    });
+  });
+
+  it("updates only provided workflow fields via PATCH", async () => {
+    prisma.workflow.update.mockResolvedValueOnce({
+      id: "wf-1",
+      name: "Renamed",
+      description: "Existing description",
+      nodes: "[]",
+      edges: "[]",
+      status: "draft",
+      cron_expression: null,
+      next_run_at: null,
+      last_run_at: null,
+    });
+
+    const response = await PATCH(
+      new Request("http://localhost/api/workflows/wf-1", {
+        method: "PATCH",
+        body: JSON.stringify({
+          name: "Renamed",
+          status: "draft",
+        }),
+        headers: { "Content-Type": "application/json" },
+      }),
+      { params: Promise.resolve({ id: "wf-1" }) },
+    );
+
+    expect(prisma.workflow.update).toHaveBeenCalledWith({
+      where: { id: "wf-1" },
+      data: {
+        name: "Renamed",
+        status: "draft",
+      },
+    });
+    expect(response.status).toBe(200);
+  });
+
+  it("rejects PATCH when no updatable fields are provided", async () => {
+    const response = await PATCH(
+      new Request("http://localhost/api/workflows/wf-1", {
+        method: "PATCH",
+        body: JSON.stringify({}),
         headers: { "Content-Type": "application/json" },
       }),
       { params: Promise.resolve({ id: "wf-1" }) },

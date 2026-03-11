@@ -1,31 +1,9 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { WORKFLOW_STATUS_VALUES } from "@/lib/workflow-status";
-
-// TODO: use the TS we define.
-const JsonFieldSchema = z.union([
-  z.string(),
-  z.array(z.unknown()),
-  z.record(z.unknown()),
-]);
-
-const CreateWorkflowSchema = z
-  .object({
-    name: z.string().trim().min(1),
-    description: z.string().optional(),
-    nodes: JsonFieldSchema,
-    edges: JsonFieldSchema,
-    status: z.enum(WORKFLOW_STATUS_VALUES),
-    cron_expression: z.string().optional(),
-    next_run_at: z.string().datetime().optional(),
-    last_run_at: z.string().datetime().optional(),
-  })
-  .strict();
-
-function toJsonString(value: z.infer<typeof JsonFieldSchema>): string {
-  return typeof value === "string" ? value : JSON.stringify(value);
-}
+import {
+  buildWorkflowCreateData,
+  CreateWorkflowSchema,
+} from "@/lib/workflow-api-payload";
 
 export async function GET() {
   try {
@@ -59,14 +37,7 @@ export async function POST(request: Request) {
     const workflow = await prisma.workflow.create({
       data: {
         id: crypto.randomUUID(),
-        name: data.name,
-        description: data.description,
-        nodes: toJsonString(data.nodes),
-        edges: toJsonString(data.edges),
-        status: data.status,
-        cron_expression: data.cron_expression,
-        next_run_at: data.next_run_at ? new Date(data.next_run_at) : null,
-        last_run_at: data.last_run_at ? new Date(data.last_run_at) : null,
+        ...buildWorkflowCreateData(data),
       },
     });
 

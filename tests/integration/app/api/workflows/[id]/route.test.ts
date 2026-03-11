@@ -217,4 +217,28 @@ describe("workflow resource route", () => {
       error: "Invalid payload",
     });
   });
+
+  it("serializes array and object workflow fields consistently for updates", async () => {
+    prisma.workflow.update.mockResolvedValueOnce({ id: "wf-1" });
+
+    await PATCH(
+      new Request("http://localhost/api/workflows/wf-1", {
+        method: "PATCH",
+        body: JSON.stringify({
+          nodes: [{ id: "n1" }],
+          edges: [{ id: "e1", source: "n1", target: "n2" }],
+        }),
+        headers: { "Content-Type": "application/json" },
+      }),
+      { params: Promise.resolve({ id: "wf-1" }) },
+    );
+
+    expect(prisma.workflow.update).toHaveBeenCalledWith({
+      where: { id: "wf-1" },
+      data: {
+        nodes: '[{"id":"n1"}]',
+        edges: '[{"id":"e1","source":"n1","target":"n2"}]',
+      },
+    });
+  });
 });

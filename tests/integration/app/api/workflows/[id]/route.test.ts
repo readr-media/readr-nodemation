@@ -167,6 +167,57 @@ describe("workflow resource route", () => {
     });
   });
 
+  it("returns 404 when PUT updates a workflow that does not exist", async () => {
+    prisma.workflow.update.mockRejectedValueOnce(
+      new Prisma.PrismaClientKnownRequestError("Workflow not found", {
+        code: "P2025",
+        clientVersion: "test",
+      }),
+    );
+
+    const response = await PUT(
+      new Request("http://localhost/api/workflows/missing", {
+        method: "PUT",
+        body: JSON.stringify({
+          name: "Updated workflow",
+          nodes: [{ id: "n1" }],
+          edges: [],
+          status: "published",
+        }),
+        headers: { "Content-Type": "application/json" },
+      }),
+      { params: Promise.resolve({ id: "missing" }) },
+    );
+
+    expect(response.status).toBe(404);
+    await expect(response.json()).resolves.toMatchObject({
+      error: "Workflow not found",
+    });
+  });
+
+  it("returns 500 when PUT update fails unexpectedly", async () => {
+    prisma.workflow.update.mockRejectedValueOnce(new Error("boom"));
+
+    const response = await PUT(
+      new Request("http://localhost/api/workflows/wf-1", {
+        method: "PUT",
+        body: JSON.stringify({
+          name: "Updated workflow",
+          nodes: [{ id: "n1" }],
+          edges: [],
+          status: "published",
+        }),
+        headers: { "Content-Type": "application/json" },
+      }),
+      { params: Promise.resolve({ id: "wf-1" }) },
+    );
+
+    expect(response.status).toBe(500);
+    await expect(response.json()).resolves.toMatchObject({
+      error: "Failed to update workflow",
+    });
+  });
+
   it("updates only provided workflow fields via PATCH", async () => {
     prisma.workflow.update.mockResolvedValueOnce({
       id: "wf-1",
@@ -215,6 +266,51 @@ describe("workflow resource route", () => {
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toMatchObject({
       error: "Invalid payload",
+    });
+  });
+
+  it("returns 404 when PATCH updates a workflow that does not exist", async () => {
+    prisma.workflow.update.mockRejectedValueOnce(
+      new Prisma.PrismaClientKnownRequestError("Workflow not found", {
+        code: "P2025",
+        clientVersion: "test",
+      }),
+    );
+
+    const response = await PATCH(
+      new Request("http://localhost/api/workflows/missing", {
+        method: "PATCH",
+        body: JSON.stringify({
+          name: "Renamed",
+        }),
+        headers: { "Content-Type": "application/json" },
+      }),
+      { params: Promise.resolve({ id: "missing" }) },
+    );
+
+    expect(response.status).toBe(404);
+    await expect(response.json()).resolves.toMatchObject({
+      error: "Workflow not found",
+    });
+  });
+
+  it("returns 500 when PATCH update fails unexpectedly", async () => {
+    prisma.workflow.update.mockRejectedValueOnce(new Error("boom"));
+
+    const response = await PATCH(
+      new Request("http://localhost/api/workflows/wf-1", {
+        method: "PATCH",
+        body: JSON.stringify({
+          name: "Renamed",
+        }),
+        headers: { "Content-Type": "application/json" },
+      }),
+      { params: Promise.resolve({ id: "wf-1" }) },
+    );
+
+    expect(response.status).toBe(500);
+    await expect(response.json()).resolves.toMatchObject({
+      error: "Failed to update workflow",
     });
   });
 

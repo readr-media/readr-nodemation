@@ -218,6 +218,53 @@ describe("workflow resource route", () => {
     });
   });
 
+  it("awaits promised route params before issuing a PUT update", async () => {
+    prisma.workflow.update.mockClear();
+
+    let resolveParams: ((value: { id: string }) => void) | undefined;
+    const params = new Promise<{ id: string }>((resolve) => {
+      resolveParams = resolve;
+    });
+
+    prisma.workflow.update.mockResolvedValueOnce({ id: "wf-async" });
+
+    const responsePromise = PUT(
+      new Request("http://localhost/api/workflows/wf-async", {
+        method: "PUT",
+        body: JSON.stringify({
+          name: "Updated workflow",
+          nodes: [],
+          edges: [],
+          status: "draft",
+        }),
+        headers: { "Content-Type": "application/json" },
+      }),
+      { params },
+    );
+
+    await Promise.resolve();
+    expect(prisma.workflow.update).not.toHaveBeenCalled();
+
+    resolveParams?.({ id: "wf-async" });
+
+    const response = await responsePromise;
+
+    expect(prisma.workflow.update).toHaveBeenCalledWith({
+      where: { id: "wf-async" },
+      data: {
+        name: "Updated workflow",
+        description: null,
+        nodes: "[]",
+        edges: "[]",
+        status: "draft",
+        cron_expression: null,
+        next_run_at: null,
+        last_run_at: null,
+      },
+    });
+    expect(response.status).toBe(200);
+  });
+
   it("updates only provided workflow fields via PATCH", async () => {
     prisma.workflow.update.mockResolvedValueOnce({
       id: "wf-1",
@@ -269,6 +316,44 @@ describe("workflow resource route", () => {
     });
   });
 
+  it("rejects PATCH when next_run_at is null", async () => {
+    prisma.workflow.update.mockClear();
+
+    const response = await PATCH(
+      new Request("http://localhost/api/workflows/wf-1", {
+        method: "PATCH",
+        body: JSON.stringify({ next_run_at: null }),
+        headers: { "Content-Type": "application/json" },
+      }),
+      { params: Promise.resolve({ id: "wf-1" }) },
+    );
+
+    expect(prisma.workflow.update).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toMatchObject({
+      error: "Invalid payload",
+    });
+  });
+
+  it("rejects PATCH when last_run_at is null", async () => {
+    prisma.workflow.update.mockClear();
+
+    const response = await PATCH(
+      new Request("http://localhost/api/workflows/wf-1", {
+        method: "PATCH",
+        body: JSON.stringify({ last_run_at: null }),
+        headers: { "Content-Type": "application/json" },
+      }),
+      { params: Promise.resolve({ id: "wf-1" }) },
+    );
+
+    expect(prisma.workflow.update).not.toHaveBeenCalled();
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toMatchObject({
+      error: "Invalid payload",
+    });
+  });
+
   it("returns 404 when PATCH updates a workflow that does not exist", async () => {
     prisma.workflow.update.mockRejectedValueOnce(
       new Prisma.PrismaClientKnownRequestError("Workflow not found", {
@@ -311,6 +396,23 @@ describe("workflow resource route", () => {
     expect(response.status).toBe(500);
     await expect(response.json()).resolves.toMatchObject({
       error: "Failed to update workflow",
+    });
+  });
+
+  it("preserves PATCH error payload details after the shared-handler refactor", async () => {
+    const response = await PATCH(
+      new Request("http://localhost/api/workflows/wf-1", {
+        method: "PATCH",
+        body: JSON.stringify({ status: "not-a-valid-status" }),
+        headers: { "Content-Type": "application/json" },
+      }),
+      { params: Promise.resolve({ id: "wf-1" }) },
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toMatchObject({
+      error: "Invalid payload",
+      details: expect.any(Object),
     });
   });
 

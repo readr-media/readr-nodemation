@@ -45,3 +45,4 @@ data/*.db
 next-env.d.ts
 .vscode/settings.json
 prisma/data/workflow.db
+.worktrees/

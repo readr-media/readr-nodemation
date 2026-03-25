@@ -57,6 +57,7 @@ export default async function Page() {
           userCards.map((card) => (
             <UserWorkflowCard
               key={card.id}
+              id={card.id}
               name={card.name}
               description={card.description}
               time={card.time}

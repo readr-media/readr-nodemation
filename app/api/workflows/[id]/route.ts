@@ -5,6 +5,7 @@ import {
   PutWorkflowSchema,
 } from "@/lib/workflow-api-payload";
 import { handleWorkflowUpdate } from "@/lib/workflow-route-update";
+import { NextResponse } from "next/server";
 
 export async function DELETE(
   _request: Request,
@@ -25,9 +26,36 @@ export async function DELETE(
     ) {
       return Response.json({ error: "Workflow not found" }, { status: 404 });
     }
+  }
 
-    return Response.json(
-      { error: "Failed to delete workflow" },
+  return Response.json({ error: "Failed to delete workflow" }, { status: 500 });
+}
+
+type RouteContext = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
+export async function GET(_request: Request, context: RouteContext) {
+  try {
+    const { id } = await context.params;
+    const workflow = await prisma.workflow.findUnique({
+      where: { id },
+    });
+
+    if (!workflow) {
+      return NextResponse.json(
+        { error: "Workflow not found" },
+        { status: 404 },
+      );
+    }
+
+    return NextResponse.json(workflow);
+  } catch (error) {
+    console.error("Error fetching workflow:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch workflow" },
       { status: 500 },
     );
   }

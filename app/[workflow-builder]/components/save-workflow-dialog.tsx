@@ -29,6 +29,12 @@ import { WORKFLOW_STATUSES, type WorkflowStatus } from "@/lib/workflow-status";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
 import { saveWorkflow } from "./save-workflow-action";
+import {
+  getInitialSaveMode,
+  getSaveWorkflowSubmitLabel,
+  shouldShowSaveModeSelector,
+  type SaveMode,
+} from "./save-workflow-dialog-state";
 
 const dialogContentStyle =
   "max-w-[560px] h-[387px] border border-gray-400 rounded-xl p-6 bg-gray-200 gap-y-5 overscroll-contain overflow-y-auto scrollbar-hidden";
@@ -58,8 +64,6 @@ type SaveWorkflowDialogProps = {
   onWorkflowStatusChange: (value: WorkflowStatus) => void;
 };
 
-type SaveMode = "update" | "save-as-new";
-
 const SaveWorkflowDialog = ({
   workflowName,
   onWorkflowNameChange,
@@ -82,15 +86,15 @@ const SaveWorkflowDialog = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [saveMode, setSaveMode] = useState<SaveMode>(
-    workflowId ? "update" : "save-as-new",
+    getInitialSaveMode(workflowId),
   );
-  const hasExistingWorkflow = Boolean(workflowId);
+  const hasExistingWorkflow = shouldShowSaveModeSelector(workflowId);
 
   const nodesJson = useMemo(() => JSON.stringify(nodes, null, 2), [nodes]);
   const edgesJson = useMemo(() => JSON.stringify(edges, null, 2), [edges]);
 
   useEffect(() => {
-    setSaveMode(workflowId ? "update" : "save-as-new");
+    setSaveMode(getInitialSaveMode(workflowId));
   }, [workflowId, isOpen]);
 
   const performSave = async (mode: SaveMode) => {
@@ -317,11 +321,7 @@ const SaveWorkflowDialog = ({
               className="flex-1 px-3 border-gray-400 text-white bg-green-500 hover:bg-green-700"
               disabled={isSaving}
             >
-              {isSaving
-                ? "儲存中…"
-                : saveMode === "update"
-                  ? "更新原 workflow"
-                  : "另存新 workflow"}
+              {getSaveWorkflowSubmitLabel({ saveMode, isSaving })}
             </Button>
           </DialogFooter>
         </form>

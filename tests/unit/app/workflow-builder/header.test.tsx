@@ -19,6 +19,21 @@ vi.mock("@/components/layout/user-info", () => ({
   UserInfo: () => <div>使用者資訊</div>,
 }));
 
+vi.mock("@/app/[workflow-builder]/components/save-workflow-dialog", () => ({
+  default: (props: {
+    workflowName: string;
+    workflowDescription: string;
+    workflowStatus: string;
+  }) => (
+    <div
+      data-save-dialog="true"
+      data-workflow-name={props.workflowName}
+      data-workflow-description={props.workflowDescription}
+      data-workflow-status={props.workflowStatus}
+    />
+  ),
+}));
+
 vi.mock("@/stores/workflow-editor/store", () => ({
   useWorkflowEditorStore: (selector: (state: typeof workflowEditorState) => unknown) =>
     selector(workflowEditorState),
@@ -47,6 +62,10 @@ describe("workflow builder header", () => {
     expect(markup).toContain('value="既有工作流程"');
     expect(markup).toContain("已發佈");
     expect(markup).not.toContain("未儲存變更");
+    expect(markup).toContain('data-save-dialog="true"');
+    expect(markup).toContain('data-workflow-name="既有工作流程"');
+    expect(markup).toContain('data-workflow-description="說明"');
+    expect(markup).toContain('data-workflow-status="published"');
   });
 
   it("shows dirty state only when the workflow has unsaved changes", async () => {

@@ -16,13 +16,13 @@ import {
   Clock3Icon,
   MoreHorizontalIcon,
   PlayIcon,
-  SaveIcon,
   SendIcon,
   UploadIcon,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
 import ScheduleDialog from "./schedule-dialog";
+import SaveWorkflowDialog from "./save-workflow-dialog";
 
 const statusLabels = {
   template: "模板",
@@ -64,8 +64,17 @@ function InlineEditableText() {
 
 export default function Header() {
   const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
+  const workflowName = useWorkflowEditorStore((state) => state.name);
+  const workflowDescription = useWorkflowEditorStore(
+    (state) => state.description,
+  );
   const workflowStatus = useWorkflowEditorStore((state) => state.status);
   const isDirty = useWorkflowEditorStore((state) => state.isDirty);
+  const setWorkflowName = useWorkflowEditorStore((state) => state.setName);
+  const setWorkflowDescription = useWorkflowEditorStore(
+    (state) => state.setDescription,
+  );
+  const setWorkflowStatus = useWorkflowEditorStore((state) => state.setStatus);
 
   return (
     <header>
@@ -91,10 +100,14 @@ export default function Header() {
             <BugIcon />
             測試節點
           </Button>
-          <Button className="hover:bg-gray-300">
-            <SaveIcon />
-            儲存
-          </Button>
+          <SaveWorkflowDialog
+            workflowName={workflowName}
+            onWorkflowNameChange={setWorkflowName}
+            workflowDescription={workflowDescription}
+            onWorkflowDescriptionChange={setWorkflowDescription}
+            workflowStatus={workflowStatus}
+            onWorkflowStatusChange={setWorkflowStatus}
+          />
           <Button className="hover:bg-gray-300">
             <UploadIcon />
             匯出

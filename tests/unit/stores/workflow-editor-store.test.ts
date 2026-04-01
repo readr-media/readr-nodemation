@@ -1,4 +1,6 @@
 import type { Edge, Node } from "@xyflow/react";
+import fs from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { createWorkflowEditorStore } from "@/stores/workflow-editor/store";
 
@@ -18,6 +20,12 @@ const initialEdges: Edge[] = [
     target: "node-2",
   },
 ];
+
+const repoRoot = path.resolve(__dirname, "../../..");
+const workflowEditorStorePath = path.join(
+  repoRoot,
+  "stores/workflow-editor/store.ts",
+);
 
 describe("workflow editor store", () => {
   it("hydrates metadata and starts clean", () => {
@@ -210,5 +218,17 @@ describe("workflow editor store", () => {
         name: "另存新流程",
       },
     });
+  });
+
+  it("uses cached graph fingerprints instead of serializing in computeIsDirty", () => {
+    const source = fs.readFileSync(workflowEditorStorePath, "utf8");
+    const computeIsDirtySource = source.slice(
+      source.indexOf("const computeIsDirty"),
+      source.indexOf("const createWorkflowEditorState"),
+    );
+
+    expect(computeIsDirtySource).not.toContain("JSON.stringify");
+    expect(computeIsDirtySource).toContain("nodesFingerprint");
+    expect(computeIsDirtySource).toContain("edgesFingerprint");
   });
 });

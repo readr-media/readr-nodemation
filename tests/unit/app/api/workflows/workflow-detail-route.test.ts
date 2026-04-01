@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const prismaMock = {
@@ -10,6 +12,12 @@ const prismaMock = {
 vi.mock("@/lib/prisma", () => ({
   prisma: prismaMock,
 }));
+
+const repoRoot = path.resolve(__dirname, "../../../../..");
+const workflowDetailRoutePath = path.join(
+  repoRoot,
+  "app/api/workflows/[id]/route.ts",
+);
 
 describe("workflow detail route", () => {
   beforeEach(() => {
@@ -52,6 +60,13 @@ describe("workflow detail route", () => {
     await expect(response.json()).resolves.toEqual({
       error: "Workflow not found",
     });
+  });
+
+  it("uses Response.json consistently instead of importing NextResponse", () => {
+    const source = fs.readFileSync(workflowDetailRoutePath, "utf8");
+
+    expect(source).not.toContain('from "next/server"');
+    expect(source).not.toContain("NextResponse.json");
   });
 
   it("rejects invalid update payloads with 400", async () => {
@@ -124,6 +139,50 @@ describe("workflow detail route", () => {
         cron_expression: "0 9 * * *",
         next_run_at: new Date("2026-03-26T09:00:00.000Z"),
         last_run_at: new Date("2026-03-25T09:00:00.000Z"),
+      },
+    });
+  });
+
+  it("does not clear scheduling metadata when omitted from a put payload", async () => {
+    prismaMock.workflow.update.mockResolvedValue({
+      id: "workflow-123",
+      name: "更新後流程",
+      description: "更新後說明",
+      status: "published",
+      nodes: '[{"id":"node-2"}]',
+      edges: '[{"id":"edge-1"}]',
+      cron_expression: "0 9 * * *",
+      next_run_at: new Date("2026-03-26T09:00:00.000Z"),
+      last_run_at: new Date("2026-03-25T09:00:00.000Z"),
+    });
+
+    const { PUT } = await import("@/app/api/workflows/[id]/route");
+    const response = await PUT(
+      new Request("http://localhost/api/workflows/workflow-123", {
+        method: "PUT",
+        body: JSON.stringify({
+          name: "更新後流程",
+          description: "更新後說明",
+          status: "published",
+          nodes: [{ id: "node-2" }],
+          edges: [{ id: "edge-1" }],
+          cron_expression: "0 9 * * *",
+        }),
+        headers: { "content-type": "application/json" },
+      }),
+      { params: Promise.resolve({ id: "workflow-123" }) },
+    );
+
+    expect(response.status).toBe(200);
+    expect(prismaMock.workflow.update).toHaveBeenCalledWith({
+      where: { id: "workflow-123" },
+      data: {
+        name: "更新後流程",
+        description: "更新後說明",
+        status: "published",
+        nodes: '[{"id":"node-2"}]',
+        edges: '[{"id":"edge-1"}]',
+        cron_expression: "0 9 * * *",
       },
     });
   });

@@ -10,13 +10,18 @@ type WorkflowGraphSnapshot = {
   edges: Edge[];
 };
 
+type WorkflowGraphFingerprints = {
+  nodesFingerprint: string;
+  edgesFingerprint: string;
+};
+
 type WorkflowEditorBaseline = WorkflowGraphSnapshot & {
   workflowId: string | null;
   sourceWorkflowId: string | null;
   name: string;
   description: string;
   status: WorkflowStatus;
-};
+} & WorkflowGraphFingerprints;
 
 type HydrateWorkflowInput = WorkflowGraphSnapshot & {
   workflowId: string | null;
@@ -36,6 +41,8 @@ export type WorkflowEditorState = WorkflowGraphSnapshot & {
   name: string;
   description: string;
   status: WorkflowStatus;
+  nodesFingerprint: string;
+  edgesFingerprint: string;
   baseline: WorkflowEditorBaseline | null;
   isDirty: boolean;
   isHydrating: boolean;
@@ -49,12 +56,26 @@ export type WorkflowEditorState = WorkflowGraphSnapshot & {
 
 const serializeSnapshot = (value: unknown) => JSON.stringify(value);
 
+const fingerprintGraphSnapshot = (
+  snapshot: WorkflowGraphSnapshot,
+): WorkflowGraphFingerprints => ({
+  nodesFingerprint: serializeSnapshot(snapshot.nodes),
+  edgesFingerprint: serializeSnapshot(snapshot.edges),
+});
+
 const buildBaseline = (
   state: Pick<
     WorkflowEditorState,
-    "workflowId" | "sourceWorkflowId" | "name" | "description" | "status"
-  > &
-    WorkflowGraphSnapshot,
+    | "workflowId"
+    | "sourceWorkflowId"
+    | "name"
+    | "description"
+    | "status"
+    | "nodes"
+    | "edges"
+    | "nodesFingerprint"
+    | "edgesFingerprint"
+  >,
 ): WorkflowEditorBaseline => ({
   workflowId: state.workflowId,
   sourceWorkflowId: state.sourceWorkflowId,
@@ -63,6 +84,8 @@ const buildBaseline = (
   status: state.status,
   nodes: state.nodes,
   edges: state.edges,
+  nodesFingerprint: state.nodesFingerprint,
+  edgesFingerprint: state.edgesFingerprint,
 });
 
 const computeIsDirty = (
@@ -73,8 +96,8 @@ const computeIsDirty = (
     | "name"
     | "description"
     | "status"
-    | "nodes"
-    | "edges"
+    | "nodesFingerprint"
+    | "edgesFingerprint"
     | "baseline"
   >,
 ) => {
@@ -88,8 +111,8 @@ const computeIsDirty = (
     state.name !== state.baseline.name ||
     state.description !== state.baseline.description ||
     state.status !== state.baseline.status ||
-    serializeSnapshot(state.nodes) !== serializeSnapshot(state.baseline.nodes) ||
-    serializeSnapshot(state.edges) !== serializeSnapshot(state.baseline.edges)
+    state.nodesFingerprint !== state.baseline.nodesFingerprint ||
+    state.edgesFingerprint !== state.baseline.edgesFingerprint
   );
 };
 
@@ -104,11 +127,14 @@ const createWorkflowEditorState = (
   status: "draft",
   nodes: [],
   edges: [],
+  nodesFingerprint: serializeSnapshot([]),
+  edgesFingerprint: serializeSnapshot([]),
   baseline: null,
   isDirty: false,
   isHydrating: false,
   hydrateFromWorkflow: (workflow) => {
     const description = workflow.description ?? "";
+    const graphFingerprints = fingerprintGraphSnapshot(workflow);
     const baseline = {
       workflowId: workflow.workflowId,
       sourceWorkflowId: workflow.workflowId,
@@ -117,6 +143,7 @@ const createWorkflowEditorState = (
       status: workflow.status,
       nodes: workflow.nodes,
       edges: workflow.edges,
+      ...graphFingerprints,
     };
 
     set({
@@ -127,6 +154,7 @@ const createWorkflowEditorState = (
       status: workflow.status,
       nodes: workflow.nodes,
       edges: workflow.edges,
+      ...graphFingerprints,
       baseline,
       isDirty: false,
       isHydrating: false,
@@ -152,15 +180,18 @@ const createWorkflowEditorState = (
   },
   syncGraphSnapshot: (snapshot) => {
     set((state) => {
+      const graphFingerprints = fingerprintGraphSnapshot(snapshot);
       const nextState = {
         ...state,
         nodes: snapshot.nodes,
         edges: snapshot.edges,
+        ...graphFingerprints,
       };
 
       return {
         nodes: snapshot.nodes,
         edges: snapshot.edges,
+        ...graphFingerprints,
         isDirty: computeIsDirty(nextState),
       };
     });
@@ -169,12 +200,14 @@ const createWorkflowEditorState = (
     set((state) => {
       const workflowId = snapshot.workflowId ?? state.workflowId;
       const sourceWorkflowId = snapshot.sourceWorkflowId ?? workflowId;
+      const graphFingerprints = fingerprintGraphSnapshot(snapshot);
       const nextState = {
         ...state,
         workflowId,
         sourceWorkflowId,
         nodes: snapshot.nodes,
         edges: snapshot.edges,
+        ...graphFingerprints,
       };
       const baseline = buildBaseline(nextState);
 
@@ -183,6 +216,7 @@ const createWorkflowEditorState = (
         sourceWorkflowId,
         nodes: snapshot.nodes,
         edges: snapshot.edges,
+        ...graphFingerprints,
         baseline,
         isDirty: false,
         isHydrating: false,

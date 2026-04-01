@@ -5,7 +5,6 @@ import {
   PutWorkflowSchema,
 } from "@/lib/workflow-api-payload";
 import { handleWorkflowUpdate } from "@/lib/workflow-route-update";
-import { NextResponse } from "next/server";
 
 export async function DELETE(
   _request: Request,
@@ -45,16 +44,16 @@ export async function GET(_request: Request, context: RouteContext) {
     });
 
     if (!workflow) {
-      return NextResponse.json(
+      return Response.json(
         { error: "Workflow not found" },
         { status: 404 },
       );
     }
 
-    return NextResponse.json(workflow);
+    return Response.json(workflow);
   } catch (error) {
     console.error("Error fetching workflow:", error);
-    return NextResponse.json(
+    return Response.json(
       { error: "Failed to fetch workflow" },
       { status: 500 },
     );

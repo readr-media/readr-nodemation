@@ -25,9 +25,12 @@ export async function DELETE(
     ) {
       return Response.json({ error: "Workflow not found" }, { status: 404 });
     }
-  }
 
-  return Response.json({ error: "Failed to delete workflow" }, { status: 500 });
+    return Response.json(
+      { error: "Failed to delete workflow" },
+      { status: 500 },
+    );
+  }
 }
 
 type RouteContext = {

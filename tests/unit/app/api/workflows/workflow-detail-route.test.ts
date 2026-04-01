@@ -69,6 +69,14 @@ describe("workflow detail route", () => {
     expect(source).not.toContain("NextResponse.json");
   });
 
+  it("keeps the delete 500 fallback inside the catch block", () => {
+    const source = fs.readFileSync(workflowDetailRoutePath, "utf8");
+
+    expect(source).not.toContain(
+      '  }\n\n  return Response.json({ error: "Failed to delete workflow" }, { status: 500 });',
+    );
+  });
+
   it("rejects invalid update payloads with 400", async () => {
     const { PUT } = await import("@/app/api/workflows/[id]/route");
     const response = await PUT(

@@ -5,6 +5,7 @@ export default function Home() {
     <div className="flex h-fit gap-4">
       <Link href="/workflow-builder">workflow-builder</Link>
       <Link href="/module-management">module-management</Link>
+      <Link href="/dashboard">dashboard</Link>
     </div>
   );
 }

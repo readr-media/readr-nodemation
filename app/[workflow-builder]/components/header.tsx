@@ -16,17 +16,26 @@ import {
   Clock3Icon,
   MoreHorizontalIcon,
   PlayIcon,
-  SaveIcon,
   SendIcon,
   UploadIcon,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
 import ScheduleDialog from "./schedule-dialog";
+import SaveWorkflowDialog from "./save-workflow-dialog";
+
+const statusLabels = {
+  template: "模板",
+  draft: "草稿",
+  published: "已發佈",
+  running: "執行中",
+} as const;
 
 function InlineEditableText() {
   const [isEditing, setIsEditing] = useState(false);
-  const [value, setValue] = useState("文章自動分類與標記");
   const inputRef = useRef<HTMLInputElement>(null);
+  const workflowName = useWorkflowEditorStore((state) => state.name);
+  const setWorkflowName = useWorkflowEditorStore((state) => state.setName);
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -38,8 +47,9 @@ function InlineEditableText() {
     <div>
       <Input
         ref={inputRef}
-        value={value}
-        onChange={(event) => setValue(event.target.value)}
+        aria-label="Workflow 名稱"
+        value={workflowName}
+        onChange={(event) => setWorkflowName(event.target.value)}
         onFocus={() => setIsEditing(true)}
         onBlur={() => setIsEditing(false)}
         className={`transition-all w-36 body-1 px-2 py-1 ${
@@ -54,35 +64,60 @@ function InlineEditableText() {
 
 export default function Header() {
   const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
+  const workflowName = useWorkflowEditorStore((state) => state.name);
+  const workflowDescription = useWorkflowEditorStore(
+    (state) => state.description,
+  );
+  const workflowStatus = useWorkflowEditorStore((state) => state.status);
+  const isDirty = useWorkflowEditorStore((state) => state.isDirty);
+  const setWorkflowName = useWorkflowEditorStore((state) => state.setName);
+  const setWorkflowDescription = useWorkflowEditorStore(
+    (state) => state.setDescription,
+  );
+  const setWorkflowStatus = useWorkflowEditorStore((state) => state.setStatus);
 
   return (
     <header>
       <div className="flex h-16 w-full items-center justify-between border-b border-b-[#e8e7e2/80] bg-white/80 px-6 text-base font-normal">
         <div className="flex items-center gap-x-4">
-          <Button className="has-[>svg]:px-2 border-none hover:bg-gray-300">
+          <Button
+            aria-label="返回 Dashboard"
+            className="has-[>svg]:px-2 border-none hover:bg-gray-300"
+          >
             <ArrowLeftIcon />
           </Button>
           <InlineEditableText />
-          <Badge variant="draft">草稿</Badge>
+          <Badge variant={workflowStatus}>{statusLabels[workflowStatus]}</Badge>
         </div>
 
         <div className="flex items-center gap-x-3">
-          <p className="body-3 text-gray-700">未儲存變更</p>
+          {isDirty ? (
+            <p className="body-3 text-gray-700" aria-live="polite">
+              未儲存變更
+            </p>
+          ) : null}
           <Button className="border-gray-100 text-gray-600">
             <BugIcon />
             測試節點
           </Button>
-          <Button className="hover:bg-gray-300">
-            <SaveIcon />
-            儲存
-          </Button>
+          <SaveWorkflowDialog
+            workflowName={workflowName}
+            onWorkflowNameChange={setWorkflowName}
+            workflowDescription={workflowDescription}
+            onWorkflowDescriptionChange={setWorkflowDescription}
+            workflowStatus={workflowStatus}
+            onWorkflowStatusChange={setWorkflowStatus}
+          />
           <Button className="hover:bg-gray-300">
             <UploadIcon />
             匯出
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="has-[>svg]:px-2 hover:bg-gray-300">
+              <Button
+                aria-label="更多操作"
+                className="has-[>svg]:px-2 hover:bg-gray-300"
+              >
                 <MoreHorizontalIcon size={16} />
               </Button>
             </DropdownMenuTrigger>

@@ -1,7 +1,8 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { SaveIcon } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +27,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { WORKFLOW_STATUSES, type WorkflowStatus } from "@/lib/workflow-status";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
+import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
+import { saveWorkflow } from "./save-workflow-action";
+import {
+  getInitialSaveMode,
+  getSaveWorkflowSubmitLabel,
+  shouldShowSaveModeSelector,
+  type SaveMode,
+} from "./save-workflow-dialog-state";
 
 const dialogContentStyle =
   "max-w-[560px] h-[387px] border border-gray-400 rounded-xl p-6 bg-gray-200 gap-y-5 overscroll-contain overflow-y-auto scrollbar-hidden";
@@ -63,45 +72,65 @@ const SaveWorkflowDialog = ({
   workflowStatus,
   onWorkflowStatusChange,
 }: SaveWorkflowDialogProps) => {
+  const router = useRouter();
   const { nodes, edges } = useNodesStore(
     useShallow((state) => ({
       nodes: state.nodes,
       edges: state.edges,
     })),
   );
+  const workflowId = useWorkflowEditorStore((state) => state.workflowId);
+  const resetBaseline = useWorkflowEditorStore((state) => state.resetBaseline);
   const [isOpen, setIsOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [saveMode, setSaveMode] = useState<SaveMode>(
+    getInitialSaveMode(workflowId),
+  );
+  const hasExistingWorkflow = shouldShowSaveModeSelector(workflowId);
 
   const nodesJson = useMemo(() => JSON.stringify(nodes, null, 2), [nodes]);
   const edgesJson = useMemo(() => JSON.stringify(edges, null, 2), [edges]);
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  useEffect(() => {
+    setSaveMode(getInitialSaveMode(workflowId));
+  }, [workflowId, isOpen]);
+
+  const performSave = async (mode: SaveMode) => {
     setIsSaving(true);
     setErrorMessage(null);
     setSuccessMessage(null);
 
     try {
-      const res = await fetch("/api/workflows", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: workflowName,
-          description: workflowDescription || undefined,
-          status: workflowStatus,
-          nodes: nodesJson,
-          edges: edgesJson,
-        }),
-      });
-
-      if (!res.ok) {
-        const payload = (await res.json()) as { error?: string };
-        throw new Error(payload.error ?? "Failed to save workflow");
+      if (
+        mode === "update" &&
+        typeof window !== "undefined" &&
+        !window.confirm("確定要更新原 workflow 嗎？")
+      ) {
+        setIsSaving(false);
+        return;
       }
 
-      setSuccessMessage("已儲存到 SQLite");
+      const result = await saveWorkflow({
+        mode,
+        workflowId,
+        name: workflowName,
+        description: workflowDescription,
+        status: workflowStatus,
+        nodes,
+        edges,
+        fetchImpl: fetch,
+        resetBaseline,
+      });
+
+      if (mode === "save-as-new") {
+        router.replace(`/workflow-builder?workflowId=${result.workflowId}`);
+      }
+
+      setSuccessMessage(
+        mode === "update" ? "已更新原 workflow" : "已另存為新 workflow",
+      );
       setIsOpen(false);
     } catch (err) {
       const message = err instanceof Error ? err.message : "未知錯誤";
@@ -109,6 +138,11 @@ const SaveWorkflowDialog = ({
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await performSave(saveMode);
   };
 
   return (
@@ -132,6 +166,30 @@ const SaveWorkflowDialog = ({
         </DialogHeader>
 
         <form className="flex flex-col gap-y-4" onSubmit={handleSubmit}>
+          {hasExistingWorkflow ? (
+            <div className="grid gap-2">
+              <Label className={labelStyle}>儲存方式</Label>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant={saveMode === "update" ? "default" : "outline"}
+                  className="flex-1"
+                  onClick={() => setSaveMode("update")}
+                >
+                  更新原 workflow
+                </Button>
+                <Button
+                  type="button"
+                  variant={saveMode === "save-as-new" ? "default" : "outline"}
+                  className="flex-1"
+                  onClick={() => setSaveMode("save-as-new")}
+                >
+                  另存新 workflow
+                </Button>
+              </div>
+            </div>
+          ) : null}
+
           <div>
             <Label htmlFor="workflow-name" className={labelStyle}>
               Workflow 名稱
@@ -263,7 +321,7 @@ const SaveWorkflowDialog = ({
               className="flex-1 px-3 border-gray-400 text-white bg-green-500 hover:bg-green-700"
               disabled={isSaving}
             >
-              {isSaving ? "儲存中…" : "確認儲存"}
+              {getSaveWorkflowSubmitLabel({ saveMode, isSaving })}
             </Button>
           </DialogFooter>
         </form>

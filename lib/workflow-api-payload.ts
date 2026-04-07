@@ -62,8 +62,12 @@ export function buildWorkflowUpdateData(
       edges: toJsonString(putData.edges),
       status: putData.status,
       cron_expression: putData.cron_expression ?? null,
-      next_run_at: putData.next_run_at ? new Date(putData.next_run_at) : null,
-      last_run_at: putData.last_run_at ? new Date(putData.last_run_at) : null,
+      ...(putData.next_run_at !== undefined && {
+        next_run_at: new Date(putData.next_run_at),
+      }),
+      ...(putData.last_run_at !== undefined && {
+        last_run_at: new Date(putData.last_run_at),
+      }),
     };
   }
 

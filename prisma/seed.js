@@ -84,6 +84,69 @@ const templateSeed = [
   },
 ];
 
+const demoArticleClassificationNodes = JSON.stringify([
+  {
+    id: "cmsInput-node",
+    type: "cmsInput",
+    position: { x: 80, y: 160 },
+    data: {
+      label: "CMS 輸入",
+      cmsSource: "demo-cms",
+      contentType: "article",
+      enabledFields: {
+        title: true,
+        content: true,
+      },
+    },
+  },
+  {
+    id: "aiCall-node",
+    type: "aiCall",
+    position: { x: 360, y: 160 },
+    data: {
+      label: "AI 分類與標記",
+      provider: "demo-ai",
+      model: "gpt-demo",
+      prompt:
+        "請根據文章標題與內文，輸出一個分類與兩個標籤，並保留 demo 用 placeholder 欄位名稱。",
+      targetField: "{{ cms.article.content }}",
+    },
+  },
+  {
+    id: "cmsOutput-node",
+    type: "cmsOutput",
+    position: { x: 640, y: 160 },
+    data: {
+      label: "CMS 輸出",
+      cmsDestination: "demo-cms",
+      contentType: "article",
+      mappings: [
+        {
+          sourceField: "{{ ai.category }}",
+          targetField: "category",
+        },
+        {
+          sourceField: "{{ ai.tags }}",
+          targetField: "tags",
+        },
+      ],
+    },
+  },
+]);
+
+const demoArticleClassificationEdges = JSON.stringify([
+  {
+    id: "cmsInput-node->aiCall-node",
+    source: "cmsInput-node",
+    target: "aiCall-node",
+  },
+  {
+    id: "aiCall-node->cmsOutput-node",
+    source: "aiCall-node",
+    target: "cmsOutput-node",
+  },
+]);
+
 const workflowSeed = [
   {
     id: "sample-workflow-1",
@@ -108,10 +171,10 @@ const workflowSeed = [
   {
     id: "sample-workflow-3",
     name: "文章自動分類與標記",
-    description: "1 天前編輯",
-    status: "running",
-    nodes: "[]",
-    edges: "[]",
+    description: "PM demo：從 CMS 取文後交給 AI 自動分類並回寫標記",
+    status: "published",
+    nodes: demoArticleClassificationNodes,
+    edges: demoArticleClassificationEdges,
     last_run_at: new Date("2026-02-03T09:00:00Z"),
     updated_at: new Date("2026-02-05T09:00:00Z"),
   },

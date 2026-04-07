@@ -33,6 +33,36 @@ export async function DELETE(
   }
 }
 
+type RouteContext = {
+  params: Promise<{
+    id: string;
+  }>;
+};
+
+export async function GET(_request: Request, context: RouteContext) {
+  try {
+    const { id } = await context.params;
+    const workflow = await prisma.workflow.findUnique({
+      where: { id },
+    });
+
+    if (!workflow) {
+      return Response.json(
+        { error: "Workflow not found" },
+        { status: 404 },
+      );
+    }
+
+    return Response.json(workflow);
+  } catch (error) {
+    console.error("Error fetching workflow:", error);
+    return Response.json(
+      { error: "Failed to fetch workflow" },
+      { status: 500 },
+    );
+  }
+}
+
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> },

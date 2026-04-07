@@ -1,11 +1,12 @@
 import { cva, type VariantProps } from "class-variance-authority";
+import type { LucideIcon } from "lucide-react";
 import { CircleCheck, CircleX } from "lucide-react";
 import Image from "next/image";
 import * as React from "react";
+import type { ModuleUnitData } from "@/lib/module-types";
 import { cn } from "@/lib/utils";
 import toggleActive from "@/public/module-management/toggle-active.svg";
 import toggleInactive from "@/public/module-management/toggle-inactive.svg";
-import type { ModuleType } from "./module-section";
 import ModuleSettingPopUpLayout from "./module-setting-popup-layout";
 
 const actionIconVariants = cva(
@@ -39,6 +40,11 @@ const actionCodeVariants = cva("absolute top-0 left-4 w-12 h-1 rounded-b-md", {
   },
 });
 
+type ModuleUnitProps = Omit<ModuleUnitData, "iconKey"> & {
+  actionIcon: LucideIcon;
+  popUpChild: React.ReactElement<{ action?: string }>;
+};
+
 export default function ModuleUnit({
   action,
   actionIcon: ActionIcon,
@@ -46,7 +52,7 @@ export default function ModuleUnit({
   description,
   active,
   popUpChild,
-}: ModuleType["units"][number] &
+}: ModuleUnitProps &
   VariantProps<typeof actionIconVariants> &
   VariantProps<typeof actionCodeVariants>) {
   const activeUnit = (

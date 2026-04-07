@@ -9,7 +9,6 @@ import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
 import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
-import type { ReportNodeData } from "@/components/flow/nodes/report-node";
 import {
   Sidebar,
   SidebarContent,
@@ -23,7 +22,6 @@ import CmsNodeSetting from "./node-settings/cms-node-setting";
 import CmsOutputNodeSetting from "./node-settings/cms-output-node-setting";
 import CodeNodeSetting from "./node-settings/code-node-setting";
 import ExportNodeSetting from "./node-settings/export-node-setting";
-import ReportNodeSetting from "./node-settings/report-node-setting";
 
 const EmptyState = () => (
   <div className="flex w-40 flex-col items-center gap-4 text-center">
@@ -89,14 +87,6 @@ const NodeSettingSidebar = () => {
         />
       );
       break;
-    case "reportRecord":
-      content = (
-        <ReportNodeSetting
-          nodeId={selectedNode.id}
-          data={selectedNode.data as ReportNodeData}
-        />
-      );
-      break;
     default:
       content = <EmptyState />;
   }
@@ -104,7 +94,7 @@ const NodeSettingSidebar = () => {
   return (
     <Sidebar
       side="right"
-      className="border-l border-module-border bg-white"
+      className="border-l border-module-border bg-white md:top-16 md:h-[calc(100svh-4rem)]"
       style={{ "--sidebar-width": "18rem" } as CSSProperties}
     >
       <SidebarHeader className="node-settings-header">

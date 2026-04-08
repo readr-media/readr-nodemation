@@ -66,15 +66,15 @@ A workflow is a composed structure built from modules.
 
 A workflow-level config is what makes the graph meaningful and executable. In practice, workflow-level data includes:
 
-- the modules themselves
-- the edges between modules
+- the `nodes` array that stores the modules
+- the `edges` array that stores the connections between them
 - schedule metadata, when automatic execution is enabled
 
 Example:
 
 ```json
 {
-  "modules": [
+  "nodes": [
     {
       "id": "module-fetch-1",
       "type": "fetch-article",
@@ -116,7 +116,7 @@ Example:
 
 The exact persisted shape may differ across API or storage boundaries, but this example shows the conceptual split:
 
-- modules define building blocks
+- nodes define building blocks
 - edges define relationships
 - schedule defines when the workflow should run
 

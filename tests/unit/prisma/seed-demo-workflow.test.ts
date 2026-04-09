@@ -85,18 +85,29 @@ describe("demo article classification workflow seed", () => {
     const aiCallNode = nodes[1];
     const cmsOutputNode = nodes[2];
 
-    expect(cmsInputNode.data?.enabledFields).toEqual({
+    expect(cmsInputNode.data?.title).toBe("從 CMS 輸入");
+    expect(cmsInputNode.data?.fields).toEqual({
       title: true,
       content: true,
+      author: false,
+      category: false,
     });
-    expect(aiCallNode.data?.prompt).toEqual(expect.any(String));
-    expect(aiCallNode.data?.prompt).not.toHaveLength(0);
-    expect(aiCallNode.data?.targetField).toEqual(expect.any(String));
-    expect(aiCallNode.data?.targetField).not.toHaveLength(0);
+    expect(aiCallNode.data?.title).toBe("呼叫 AI");
+    expect(aiCallNode.data?.promptTemplate).toEqual(expect.any(String));
+    expect(aiCallNode.data?.promptTemplate).not.toHaveLength(0);
+    expect(aiCallNode.data?.cmsField).toEqual(expect.any(String));
+    expect(aiCallNode.data?.cmsField).not.toHaveLength(0);
+    expect(cmsOutputNode.data?.title).toBe("輸出到 CMS");
     expect(cmsOutputNode.data?.mappings).toEqual(
       expect.arrayContaining([
-        expect.objectContaining({ targetField: expect.any(String) }),
-        expect.objectContaining({ targetField: expect.any(String) }),
+        expect.objectContaining({
+          id: expect.any(String),
+          targetField: expect.any(String),
+        }),
+        expect.objectContaining({
+          id: expect.any(String),
+          targetField: expect.any(String),
+        }),
       ]),
     );
   });

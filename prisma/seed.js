@@ -90,13 +90,16 @@ const demoArticleClassificationNodes = JSON.stringify([
     type: "cmsInput",
     position: { x: 80, y: 160 },
     data: {
-      label: "CMS 輸入",
-      cmsSource: "demo-cms",
-      contentType: "article",
-      enabledFields: {
+      title: "從 CMS 輸入",
+      source: "demo-cms",
+      entryId: "",
+      fields: {
         title: true,
         content: true,
+        author: false,
+        category: false,
       },
+      outputFormat: "JSON",
     },
   },
   {
@@ -104,12 +107,18 @@ const demoArticleClassificationNodes = JSON.stringify([
     type: "aiCall",
     position: { x: 360, y: 160 },
     data: {
-      label: "AI 分類與標記",
-      provider: "demo-ai",
+      title: "呼叫 AI",
       model: "gpt-demo",
-      prompt:
+      inputs: {
+        title: true,
+        content: true,
+        summary: false,
+      },
+      outputFormat: "JSON",
+      promptTemplate:
         "請根據文章標題與內文，輸出一個分類與兩個標籤，並保留 demo 用 placeholder 欄位名稱。",
-      targetField: "{{ cms.article.content }}",
+      cmsField: "{{ cms.article.content }}",
+      testInput: "",
     },
   },
   {
@@ -117,19 +126,22 @@ const demoArticleClassificationNodes = JSON.stringify([
     type: "cmsOutput",
     position: { x: 640, y: 160 },
     data: {
-      label: "CMS 輸出",
-      cmsDestination: "demo-cms",
-      contentType: "article",
+      title: "輸出到 CMS",
+      cmsLocation: "demo-cms",
+      articleIdOrSlug: "",
       mappings: [
         {
+          id: "ai-category-to-category",
           sourceField: "{{ ai.category }}",
           targetField: "category",
         },
         {
+          id: "ai-tags-to-tags",
           sourceField: "{{ ai.tags }}",
           targetField: "tags",
         },
       ],
+      mode: "overwrite",
     },
   },
 ]);

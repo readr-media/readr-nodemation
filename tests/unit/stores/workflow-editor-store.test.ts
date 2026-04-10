@@ -1,6 +1,6 @@
-import type { Edge, Node } from "@xyflow/react";
 import fs from "node:fs";
 import path from "node:path";
+import type { Edge, Node } from "@xyflow/react";
 import { describe, expect, it } from "vitest";
 import { createWorkflowEditorStore } from "@/stores/workflow-editor/store";
 

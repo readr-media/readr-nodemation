@@ -47,10 +47,7 @@ export async function GET(_request: Request, context: RouteContext) {
     });
 
     if (!workflow) {
-      return Response.json(
-        { error: "Workflow not found" },
-        { status: 404 },
-      );
+      return Response.json({ error: "Workflow not found" }, { status: 404 });
     }
 
     return Response.json(workflow);

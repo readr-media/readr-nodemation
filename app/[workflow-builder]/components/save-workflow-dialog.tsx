@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { SaveIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
@@ -32,8 +32,8 @@ import { saveWorkflow } from "./save-workflow-action";
 import {
   getInitialSaveMode,
   getSaveWorkflowSubmitLabel,
-  shouldShowSaveModeSelector,
   type SaveMode,
+  shouldShowSaveModeSelector,
 } from "./save-workflow-dialog-state";
 
 const dialogContentStyle =
@@ -95,7 +95,7 @@ const SaveWorkflowDialog = ({
 
   useEffect(() => {
     setSaveMode(getInitialSaveMode(workflowId));
-  }, [workflowId, isOpen]);
+  }, [workflowId]);
 
   const performSave = async (mode: SaveMode) => {
     setIsSaving(true);

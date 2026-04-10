@@ -39,7 +39,9 @@ export type WorkflowLoadResult =
   | { status: "missing" }
   | { status: "error" };
 
-const normalizeCmsInputData = (data: Record<string, unknown>): CmsInputNodeData => ({
+const normalizeCmsInputData = (
+  data: Record<string, unknown>,
+): CmsInputNodeData => ({
   title:
     typeof data.title === "string"
       ? data.title
@@ -63,10 +65,18 @@ const normalizeCmsInputData = (data: Record<string, unknown>): CmsInputNodeData 
         }
       : typeof data.enabledFields === "object" && data.enabledFields !== null
         ? {
-            title: Boolean((data.enabledFields as Record<string, unknown>).title),
-            content: Boolean((data.enabledFields as Record<string, unknown>).content),
-            author: Boolean((data.enabledFields as Record<string, unknown>).author),
-            category: Boolean((data.enabledFields as Record<string, unknown>).category),
+            title: Boolean(
+              (data.enabledFields as Record<string, unknown>).title,
+            ),
+            content: Boolean(
+              (data.enabledFields as Record<string, unknown>).content,
+            ),
+            author: Boolean(
+              (data.enabledFields as Record<string, unknown>).author,
+            ),
+            category: Boolean(
+              (data.enabledFields as Record<string, unknown>).category,
+            ),
           }
         : {
             title: true,
@@ -74,10 +84,13 @@ const normalizeCmsInputData = (data: Record<string, unknown>): CmsInputNodeData 
             author: false,
             category: false,
           },
-  outputFormat: typeof data.outputFormat === "string" ? data.outputFormat : "JSON",
+  outputFormat:
+    typeof data.outputFormat === "string" ? data.outputFormat : "JSON",
 });
 
-const normalizeAiCallData = (data: Record<string, unknown>): AiCallNodeData => ({
+const normalizeAiCallData = (
+  data: Record<string, unknown>,
+): AiCallNodeData => ({
   title:
     typeof data.title === "string"
       ? data.title
@@ -97,7 +110,8 @@ const normalizeAiCallData = (data: Record<string, unknown>): AiCallNodeData => (
           content: true,
           summary: false,
         },
-  outputFormat: typeof data.outputFormat === "string" ? data.outputFormat : "JSON",
+  outputFormat:
+    typeof data.outputFormat === "string" ? data.outputFormat : "JSON",
   promptTemplate:
     typeof data.promptTemplate === "string"
       ? data.promptTemplate
@@ -109,7 +123,7 @@ const normalizeAiCallData = (data: Record<string, unknown>): AiCallNodeData => (
       ? data.cmsField
       : typeof data.targetField === "string"
         ? data.targetField
-      : "",
+        : "",
   testInput: typeof data.testInput === "string" ? data.testInput : "",
 });
 
@@ -169,8 +183,7 @@ const normalizeExportResultData = (
       : typeof data.label === "string"
         ? data.label
         : "匯出結果",
-  source:
-    typeof data.source === "string" ? data.source : "AI Tagging → tags",
+  source: typeof data.source === "string" ? data.source : "AI Tagging → tags",
   format: typeof data.format === "string" ? data.format : "JSON",
   fileNamePattern:
     typeof data.fileNamePattern === "string" ? data.fileNamePattern : "",

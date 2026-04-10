@@ -1,10 +1,10 @@
-import Link from "next/link";
 import {
   ClockIcon,
   MoreVerticalIcon,
   PlayIcon,
   SparklesIcon,
 } from "lucide-react";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 

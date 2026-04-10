@@ -1,8 +1,7 @@
 export type SaveMode = "update" | "save-as-new";
 
-export const getInitialSaveMode = (
-  workflowId: string | null,
-): SaveMode => (workflowId ? "update" : "save-as-new");
+export const getInitialSaveMode = (workflowId: string | null): SaveMode =>
+  workflowId ? "update" : "save-as-new";
 
 export const shouldShowSaveModeSelector = (
   workflowId: string | null,

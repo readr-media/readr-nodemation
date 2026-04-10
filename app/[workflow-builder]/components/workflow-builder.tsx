@@ -1,12 +1,15 @@
 "use client";
 
-import FlowEditor from "@/components/flow/flow-editor";
-import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
 import { useEffect, useState } from "react";
+import FlowEditor from "@/components/flow/flow-editor";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
+import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
 import FlowDebugControls from "./flow-debug-controls";
-import { loadWorkflowIntoStores, type WorkflowLoadResult } from "./workflow-loader";
 import WorkFlowControls from "./workflow-controls";
+import {
+  loadWorkflowIntoStores,
+  type WorkflowLoadResult,
+} from "./workflow-loader";
 
 type WorkflowBuilderProps = {
   workflowId?: string | null;
@@ -54,9 +57,9 @@ const WorkflowBuilder = ({ workflowId = null }: WorkflowBuilderProps) => {
   if (loadState === "loading") {
     return (
       <div className="flex min-h-svh w-full items-center justify-center bg-background px-6">
-        <p className="body-2 text-gray-700" role="status" aria-live="polite">
+        <output className="body-2 text-gray-700" aria-live="polite">
           載入 workflow…
-        </p>
+        </output>
       </div>
     );
   }

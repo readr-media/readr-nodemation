@@ -25,8 +25,14 @@ const loadWorkflowSeed = (): SeedWorkflow[] => {
         return {
           PrismaClient: class PrismaClient {
             moduleUnit = { deleteMany: async () => undefined };
-            moduleType = { deleteMany: async () => undefined, create: async () => undefined };
-            workflowTemplate = { deleteMany: async () => undefined, create: async () => undefined };
+            moduleType = {
+              deleteMany: async () => undefined,
+              create: async () => undefined,
+            };
+            workflowTemplate = {
+              deleteMany: async () => undefined,
+              create: async () => undefined,
+            };
             workflow = { upsert: async () => undefined };
             $disconnect = async () => undefined;
           },
@@ -59,12 +65,15 @@ describe("demo article classification workflow seed", () => {
     );
 
     expect(workflow).toBeDefined();
+    if (!workflow) {
+      throw new Error("Expected workflow seed to include 文章自動分類與標記");
+    }
 
-    const nodes = JSON.parse(workflow!.nodes) as Array<{
+    const nodes = JSON.parse(workflow.nodes) as Array<{
       type: string;
       data?: Record<string, unknown>;
     }>;
-    const edges = JSON.parse(workflow!.edges) as Array<{
+    const edges = JSON.parse(workflow.edges) as Array<{
       source: string;
       target: string;
     }>;

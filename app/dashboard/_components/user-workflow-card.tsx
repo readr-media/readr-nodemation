@@ -33,8 +33,8 @@ export default function UserWorkflowCard({
   status,
 }: CardProps) {
   return (
-    <Link href={`/workflow-builder?workflowId=${id}`} className="block">
-      <Card className="relative p-4 pt-5 bg-white border-module-border rounded-xl min-w-[344px] hover:shadow-2">
+    <Link href={`/workflow-builder?workflowId=${id}`} className="block w-full">
+      <Card className="relative w-full min-w-0 rounded-xl border-module-border bg-white p-4 pt-5 hover:shadow-2">
         <div className="absolute top-0 left-5 w-12 h-1 bg-green-500 rounded-b-md opacity-100" />
         <CardContent className="p-0">
           <div className="flex items-center justify-between">

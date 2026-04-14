@@ -3,11 +3,11 @@ export const getSafeReturnTo = (value: string | null): string => {
     return "/";
   }
 
-  if (!value.startsWith("/")) {
-    return "/";
-  }
-
-  if (value.startsWith("//")) {
+  if (
+    !value.startsWith("/") ||
+    value.startsWith("//") ||
+    value.startsWith("/\\")
+  ) {
     return "/";
   }
 

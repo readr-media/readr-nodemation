@@ -472,4 +472,22 @@ describe("module management header", () => {
       root.unmount();
     });
   });
+
+  it("falls back to home when returnTo starts with slash-backslash", async () => {
+    searchParamsState.returnTo = "/\\example.com";
+
+    const { container, root } = await renderHeader();
+    const button = findFirstButton(container);
+
+    expect(button).not.toBeNull();
+
+    button?.click();
+
+    expect(routerMock.back).not.toHaveBeenCalled();
+    expect(routerMock.push).toHaveBeenCalledWith("/");
+
+    act(() => {
+      root.unmount();
+    });
+  });
 });

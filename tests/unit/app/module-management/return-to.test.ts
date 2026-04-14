@@ -23,6 +23,10 @@ describe("getSafeReturnTo", () => {
     expect(getSafeReturnTo("//example.com")).toBe("/");
   });
 
+  it("returns / for a slash-backslash protocol-relative URL", () => {
+    expect(getSafeReturnTo("/\\example.com")).toBe("/");
+  });
+
   it("returns / for a non-path string", () => {
     expect(getSafeReturnTo("dashboard")).toBe("/");
   });

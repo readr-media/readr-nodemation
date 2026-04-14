@@ -7,6 +7,22 @@ export const shouldShowSaveModeSelector = (
   workflowId: string | null,
 ): boolean => Boolean(workflowId);
 
+export const getSaveModeForDialogOpenState = ({
+  workflowId,
+  isOpen,
+  currentSaveMode,
+}: {
+  workflowId: string | null;
+  isOpen: boolean;
+  currentSaveMode: SaveMode;
+}): SaveMode => {
+  if (!isOpen) {
+    return currentSaveMode;
+  }
+
+  return getInitialSaveMode(workflowId);
+};
+
 export const getSaveWorkflowSubmitLabel = ({
   saveMode,
   isSaving,

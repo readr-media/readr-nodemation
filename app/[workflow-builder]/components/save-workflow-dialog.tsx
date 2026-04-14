@@ -31,6 +31,7 @@ import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
 import { saveWorkflow } from "./save-workflow-action";
 import {
   getInitialSaveMode,
+  getSaveModeForDialogOpenState,
   getSaveWorkflowSubmitLabel,
   type SaveMode,
   shouldShowSaveModeSelector,
@@ -94,8 +95,14 @@ const SaveWorkflowDialog = ({
   const edgesJson = useMemo(() => JSON.stringify(edges, null, 2), [edges]);
 
   useEffect(() => {
-    setSaveMode(getInitialSaveMode(workflowId));
-  }, [workflowId]);
+    setSaveMode((currentSaveMode) =>
+      getSaveModeForDialogOpenState({
+        workflowId,
+        isOpen,
+        currentSaveMode,
+      }),
+    );
+  }, [workflowId, isOpen]);
 
   const performSave = async (mode: SaveMode) => {
     setIsSaving(true);

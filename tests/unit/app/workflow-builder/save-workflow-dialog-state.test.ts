@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   getInitialSaveMode,
+  getSaveModeForDialogOpenState,
   getSaveWorkflowSubmitLabel,
   shouldShowSaveModeSelector,
 } from "@/app/[workflow-builder]/components/save-workflow-dialog-state";
@@ -27,6 +28,34 @@ describe("save workflow dialog state", () => {
         isSaving: false,
       }),
     ).toBe("另存新 workflow");
+  });
+
+  it("resets save mode to the workflow default when the dialog opens", () => {
+    expect(
+      getSaveModeForDialogOpenState({
+        workflowId: "workflow-123",
+        isOpen: true,
+        currentSaveMode: "save-as-new",
+      }),
+    ).toBe("update");
+
+    expect(
+      getSaveModeForDialogOpenState({
+        workflowId: null,
+        isOpen: true,
+        currentSaveMode: "update",
+      }),
+    ).toBe("save-as-new");
+  });
+
+  it("preserves the current save mode while the dialog is closed", () => {
+    expect(
+      getSaveModeForDialogOpenState({
+        workflowId: "workflow-123",
+        isOpen: false,
+        currentSaveMode: "save-as-new",
+      }),
+    ).toBe("save-as-new");
   });
 
   it("shows a saving label while a request is in flight", () => {

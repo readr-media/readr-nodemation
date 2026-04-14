@@ -94,15 +94,14 @@ export const saveWorkflow = async ({
   });
 
   if (!response.ok) {
-    const payload = (await response.json().catch(() => null)) as
-      | { error?: string }
-      | null;
+    const payload = (await response.json().catch(() => null)) as {
+      error?: string;
+    } | null;
     throw new Error(payload?.error ?? "Failed to save workflow");
   }
 
   const savedWorkflow = (await response.json()) as SavedWorkflowResponse;
-  const nextWorkflowId =
-    mode === "update" ? workflowId : savedWorkflow.id;
+  const nextWorkflowId = mode === "update" ? workflowId : savedWorkflow.id;
 
   if (!nextWorkflowId) {
     throw new Error("Saved workflow id is missing");

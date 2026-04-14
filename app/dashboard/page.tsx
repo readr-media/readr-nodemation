@@ -50,9 +50,9 @@ export default async function Page() {
           建立新工作流
         </Button>
       </div>
-      <div className="flex gap-x-6 mt-4">
+      <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {userCards.length === 0 ? (
-          <p className="body-2 text-gray-500">尚無工作流</p>
+          <p className="body-2 col-span-full text-gray-500">尚無工作流</p>
         ) : (
           userCards.map((card) => (
             <UserWorkflowCard

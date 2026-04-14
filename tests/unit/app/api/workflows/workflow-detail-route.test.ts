@@ -37,9 +37,12 @@ describe("workflow detail route", () => {
     prismaMock.workflow.findUnique.mockResolvedValue(workflow);
 
     const { GET } = await import("@/app/api/workflows/[id]/route");
-    const response = await GET(new Request("http://localhost/api/workflows/workflow-123"), {
-      params: Promise.resolve({ id: "workflow-123" }),
-    });
+    const response = await GET(
+      new Request("http://localhost/api/workflows/workflow-123"),
+      {
+        params: Promise.resolve({ id: "workflow-123" }),
+      },
+    );
 
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual(workflow);
@@ -52,9 +55,12 @@ describe("workflow detail route", () => {
     prismaMock.workflow.findUnique.mockResolvedValue(null);
 
     const { GET } = await import("@/app/api/workflows/[id]/route");
-    const response = await GET(new Request("http://localhost/api/workflows/missing"), {
-      params: Promise.resolve({ id: "missing" }),
-    });
+    const response = await GET(
+      new Request("http://localhost/api/workflows/missing"),
+      {
+        params: Promise.resolve({ id: "missing" }),
+      },
+    );
 
     expect(response.status).toBe(404);
     await expect(response.json()).resolves.toEqual({

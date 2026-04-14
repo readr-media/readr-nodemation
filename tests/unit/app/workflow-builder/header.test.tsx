@@ -12,7 +12,9 @@ const workflowEditorState = vi.hoisted(() => ({
 }));
 
 vi.mock("next/image", () => ({
-  default: (props: Record<string, unknown>) => <img alt="" {...props} />,
+  default: (props: Record<string, unknown>) => (
+    <span data-next-image="true" {...props} />
+  ),
 }));
 
 vi.mock("@/components/layout/user-info", () => ({
@@ -35,8 +37,9 @@ vi.mock("@/app/[workflow-builder]/components/save-workflow-dialog", () => ({
 }));
 
 vi.mock("@/stores/workflow-editor/store", () => ({
-  useWorkflowEditorStore: (selector: (state: typeof workflowEditorState) => unknown) =>
-    selector(workflowEditorState),
+  useWorkflowEditorStore: (
+    selector: (state: typeof workflowEditorState) => unknown,
+  ) => selector(workflowEditorState),
 }));
 
 describe("workflow builder header", () => {

@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import { loadWorkflowIntoStores } from "@/app/[workflow-builder]/components/workflow-loader";
 
+const legacyFileNamePattern = `\${workflow_name}_\${date}.json`;
+
 describe("loadWorkflowIntoStores", () => {
   it("normalizes legacy workflow nodes before hydrating the stores", async () => {
     const loadSnapshot = vi.fn();
@@ -413,7 +415,7 @@ describe("loadWorkflowIntoStores", () => {
               position: { x: 240, y: 160 },
               data: {
                 title: "匯出結果",
-                fileNamePattern: "${workflow_name}_${date}.json",
+                fileNamePattern: legacyFileNamePattern,
                 destination: "google_drive",
                 autoDownload: false,
                 zipFiles: true,
@@ -447,7 +449,7 @@ describe("loadWorkflowIntoStores", () => {
             title: "匯出結果",
             source: "AI Tagging → tags",
             format: "JSON",
-            fileNamePattern: "${workflow_name}_${date}.json",
+            fileNamePattern: legacyFileNamePattern,
             destination: "google_drive",
             autoDownload: false,
             zipFiles: true,
@@ -470,7 +472,7 @@ describe("loadWorkflowIntoStores", () => {
             title: "匯出結果",
             source: "AI Tagging → tags",
             format: "JSON",
-            fileNamePattern: "${workflow_name}_${date}.json",
+            fileNamePattern: legacyFileNamePattern,
             destination: "google_drive",
             autoDownload: false,
             zipFiles: true,

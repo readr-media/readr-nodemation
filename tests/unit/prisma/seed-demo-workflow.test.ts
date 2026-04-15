@@ -116,6 +116,7 @@ describe("demo article classification workflow seed", () => {
       },
       outputFormat: "json",
     });
+    expect(cmsInputNode.data).not.toHaveProperty("source");
     expect(cmsInputNode.data).not.toHaveProperty("entryId");
     expect(cmsInputNode.data).not.toHaveProperty("fields");
     expect(cmsInputNode.data).not.toHaveProperty("author");

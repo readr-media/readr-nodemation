@@ -8,7 +8,27 @@ const nodes: Node[] = [
     id: "node-1",
     type: "cmsInput",
     position: { x: 0, y: 0 },
-    data: { label: "從 CMS 輸入" },
+    data: {
+      title: "從CMS輸入",
+      cmsConfigId: "demo-cms-config",
+      cmsName: "Readr CMS",
+      cmsList: "Posts",
+      cmsPostIds: "3310",
+      cmsPostSlugs: "",
+      sourceFields: {
+        title: true,
+        category: false,
+        content: true,
+        tags: false,
+      },
+      outputFields: {
+        title: "string",
+        categories: "array[string]",
+        content: "string",
+        tags: "array[string]",
+      },
+      outputFormat: "json",
+    },
   },
 ];
 
@@ -59,6 +79,39 @@ describe("saveWorkflow", () => {
         edges,
       }),
     });
+    const requestBody = JSON.parse(
+      fetchImpl.mock.calls[0]?.[1]?.body as string,
+    ) as {
+      nodes: Array<{
+        type: string;
+        data?: Record<string, unknown>;
+      }>;
+    };
+    expect(requestBody.nodes[0].data).toMatchObject({
+      title: "從CMS輸入",
+      cmsConfigId: expect.any(String),
+      cmsName: expect.any(String),
+      cmsList: "Posts",
+      cmsPostIds: expect.any(String),
+      cmsPostSlugs: expect.any(String),
+      sourceFields: {
+        title: expect.any(Boolean),
+        category: expect.any(Boolean),
+        content: expect.any(Boolean),
+        tags: expect.any(Boolean),
+      },
+      outputFields: {
+        title: "string",
+        categories: "array[string]",
+        content: "string",
+        tags: "array[string]",
+      },
+      outputFormat: "json",
+    });
+    expect(requestBody.nodes[0].data).not.toHaveProperty("source");
+    expect(requestBody.nodes[0].data).not.toHaveProperty("entryId");
+    expect(requestBody.nodes[0].data).not.toHaveProperty("fields");
+    expect(requestBody.nodes[0].data).not.toHaveProperty("author");
     expect(resetBaseline).toHaveBeenCalledWith({
       workflowId: "workflow-123",
       sourceWorkflowId: "workflow-123",

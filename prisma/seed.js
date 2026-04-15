@@ -90,16 +90,25 @@ const demoArticleClassificationNodes = JSON.stringify([
     type: "cmsInput",
     position: { x: 80, y: 160 },
     data: {
-      title: "從 CMS 輸入",
-      source: "demo-cms",
-      entryId: "",
-      fields: {
+      title: "從CMS輸入",
+      cmsConfigId: "demo-cms-config",
+      cmsName: "Readr CMS",
+      cmsList: "Posts",
+      cmsPostIds: "",
+      cmsPostSlugs: "",
+      sourceFields: {
         title: true,
-        content: true,
-        author: false,
         category: false,
+        content: true,
+        tags: false,
       },
-      outputFormat: "JSON",
+      outputFields: {
+        title: "string",
+        categories: "array[string]",
+        content: "string",
+        tags: "array[string]",
+      },
+      outputFormat: "json",
     },
   },
   {

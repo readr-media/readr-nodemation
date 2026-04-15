@@ -8,15 +8,24 @@ import { cn } from "@/lib/utils";
 
 export type CmsInputNodeData = {
   title: string;
-  source: string;
-  entryId: string;
-  fields: {
+  cmsConfigId: string;
+  cmsName: string;
+  cmsList: string;
+  cmsPostIds: string;
+  cmsPostSlugs: string;
+  sourceFields: {
     title: boolean;
-    content: boolean;
-    author: boolean;
     category: boolean;
+    content: boolean;
+    tags: boolean;
   };
-  outputFormat: string;
+  outputFields: {
+    title: "string";
+    categories: "array[string]";
+    content: "string";
+    tags: "array[string]";
+  };
+  outputFormat: "json";
 };
 export type CmsInputNodeType = Node<CmsInputNodeData, "cmsInput">;
 

@@ -4,8 +4,6 @@ import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import { Input } from "@/components/ui/input";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 
-const sources = ["READr CMS", "Custom API"];
-const outputFormats = ["JSON", "Text"];
 const labelClass =
   "text-sm font-medium leading-6 text-module-title tracking-tight";
 const helperClass = "text-xs text-module-muted";
@@ -46,17 +44,22 @@ const CmsNodeSetting = ({
 }) => {
   const updateCmsNodeData = useNodesStore((state) => state.updateCmsNodeData);
 
-  const handleSourceChange = (value: string) =>
-    updateCmsNodeData(nodeId, { source: value });
-  const handleEntryChange = (value: string) =>
-    updateCmsNodeData(nodeId, { entryId: value });
-  const handleFieldToggle = (field: keyof CmsInputNodeData["fields"]) => {
+  const handleFieldToggle = (
+    field: keyof CmsInputNodeData["sourceFields"],
+  ) => {
     updateCmsNodeData(nodeId, {
-      fields: { ...data.fields, [field]: !data.fields[field] },
+      sourceFields: {
+        ...data.sourceFields,
+        [field]: !data.sourceFields[field],
+      },
     });
   };
-  const handleOutputFormatChange = (value: string) =>
-    updateCmsNodeData(nodeId, { outputFormat: value });
+  const handleCmsNameChange = (value: string) =>
+    updateCmsNodeData(nodeId, { cmsName: value });
+  const handleCmsPostIdsChange = (value: string) =>
+    updateCmsNodeData(nodeId, { cmsPostIds: value });
+  const handleCmsPostSlugsChange = (value: string) =>
+    updateCmsNodeData(nodeId, { cmsPostSlugs: value });
 
   return (
     <div className="flex flex-1 flex-col overflow-y-auto px-6 py-6">
@@ -69,28 +72,41 @@ const CmsNodeSetting = ({
         </div>
 
         <section className="space-y-2">
-          <p className={labelClass}>資料來源</p>
-          <select
-            value={data.source}
-            onChange={(event) => handleSourceChange(event.target.value)}
-            className="h-10 w-full rounded-lg border border-module-border bg-white px-3 text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)] focus-visible:border-[#00967d] focus-visible:ring-0"
-          >
-            {sources.map((source) => (
-              <option key={source} value={source}>
-                {source}
-              </option>
-            ))}
-          </select>
+          <p className={labelClass}>來源CMS名稱</p>
+          <Input
+            value={data.cmsName}
+            onChange={(event) => handleCmsNameChange(event.target.value)}
+            className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
+          />
         </section>
 
         <section className="space-y-2">
-          <p className={labelClass}>文章 ID 或 slug</p>
+          <p className={labelClass}>來源CMS List</p>
           <Input
-            value={data.entryId}
-            onChange={(event) => handleEntryChange(event.target.value)}
+            value={data.cmsList}
+            readOnly
+            disabled
             className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
           />
-          <p className={helperClass}>指定要回寫到 CMS 的欄位名稱</p>
+          <p className={helperClass}>本期固定使用 Posts</p>
+        </section>
+
+        <section className="space-y-2">
+          <p className={labelClass}>文章ID</p>
+          <Input
+            value={data.cmsPostIds}
+            onChange={(event) => handleCmsPostIdsChange(event.target.value)}
+            className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
+          />
+        </section>
+
+        <section className="space-y-2">
+          <p className={labelClass}>文章slug</p>
+          <Input
+            value={data.cmsPostSlugs}
+            onChange={(event) => handleCmsPostSlugsChange(event.target.value)}
+            className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
+          />
         </section>
 
         <section className="space-y-3">
@@ -98,40 +114,25 @@ const CmsNodeSetting = ({
           <div className="space-y-2">
             <FieldToggle
               label="標題"
-              checked={data.fields.title}
+              checked={data.sourceFields.title}
               onToggle={() => handleFieldToggle("title")}
             />
             <FieldToggle
+              label="分類"
+              checked={data.sourceFields.category}
+              onToggle={() => handleFieldToggle("category")}
+            />
+            <FieldToggle
               label="內文"
-              checked={data.fields.content}
+              checked={data.sourceFields.content}
               onToggle={() => handleFieldToggle("content")}
             />
             <FieldToggle
-              label="作者"
-              checked={data.fields.author}
-              onToggle={() => handleFieldToggle("author")}
-            />
-            <FieldToggle
-              label="分類"
-              checked={data.fields.category}
-              onToggle={() => handleFieldToggle("category")}
+              label="標籤"
+              checked={data.sourceFields.tags}
+              onToggle={() => handleFieldToggle("tags")}
             />
           </div>
-        </section>
-
-        <section className="space-y-2">
-          <p className={labelClass}>輸出格式</p>
-          <select
-            value={data.outputFormat}
-            onChange={(event) => handleOutputFormatChange(event.target.value)}
-            className="h-10 w-full rounded-lg border border-module-border bg-white px-3 text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)] focus-visible:border-[#00967d] focus-visible:ring-0"
-          >
-            {outputFormats.map((format) => (
-              <option key={format} value={format}>
-                {format}
-              </option>
-            ))}
-          </select>
         </section>
       </div>
     </div>

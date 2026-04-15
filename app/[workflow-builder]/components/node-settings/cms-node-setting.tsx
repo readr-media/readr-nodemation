@@ -84,6 +84,7 @@ const CmsNodeSetting = ({
           <select
             value={data.cmsList}
             onChange={() => undefined}
+            disabled
             className="h-10 w-full rounded-lg border border-module-border bg-white px-3 text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)] focus-visible:border-[#00967d] focus-visible:ring-0"
           >
             <option value="Posts">Posts</option>

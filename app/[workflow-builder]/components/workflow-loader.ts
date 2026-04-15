@@ -47,16 +47,17 @@ const normalizeCmsInputData = (
 
   return {
     ...defaults,
-    title:
-      typeof data.title === "string"
-        ? data.title
-        : defaults.title,
+    title: typeof data.title === "string" ? data.title : defaults.title,
     cmsConfigId:
-      typeof data.cmsConfigId === "string" ? data.cmsConfigId : defaults.cmsConfigId,
+      typeof data.cmsConfigId === "string"
+        ? data.cmsConfigId
+        : defaults.cmsConfigId,
     cmsName: typeof data.cmsName === "string" ? data.cmsName : defaults.cmsName,
     cmsList: typeof data.cmsList === "string" ? data.cmsList : defaults.cmsList,
     cmsPostIds:
-      typeof data.cmsPostIds === "string" ? data.cmsPostIds : defaults.cmsPostIds,
+      typeof data.cmsPostIds === "string"
+        ? data.cmsPostIds
+        : defaults.cmsPostIds,
     cmsPostSlugs:
       typeof data.cmsPostSlugs === "string"
         ? data.cmsPostSlugs

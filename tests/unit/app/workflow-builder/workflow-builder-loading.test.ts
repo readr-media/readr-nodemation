@@ -1,8 +1,9 @@
-import { createStore } from "zustand/vanilla";
 import { describe, expect, it, vi } from "vitest";
+import { createStore } from "zustand/vanilla";
 
 import { loadWorkflowIntoStores } from "@/app/[workflow-builder]/components/workflow-loader";
 import { createCmsNodeSlice } from "@/stores/flow-editor/slices/cms-node-slice";
+import type { NodesStore } from "@/stores/flow-editor/types";
 
 const legacyFileNamePattern = `\${workflow_name}_\${date}.json`;
 
@@ -112,7 +113,7 @@ describe("loadWorkflowIntoStores", () => {
   });
 
   it("creates new cmsInput nodes with the approved defaults", () => {
-    const store = createStore<any>()((set, get, api) => ({
+    const store = createStore<NodesStore>()((set, get, api) => ({
       nodes: [],
       edges: [],
       selectedNodeId: null,

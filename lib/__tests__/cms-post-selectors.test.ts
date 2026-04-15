@@ -1,7 +1,4 @@
-import {
-  parseCmsPostIds,
-  parseCmsPostSlugs,
-} from "@/lib/cms-post-selectors";
+import { parseCmsPostIds, parseCmsPostSlugs } from "@/lib/cms-post-selectors";
 
 describe("cms post selectors", () => {
   it("parses cms post ids with comma-separated values, numeric ranges, and trimming", () => {

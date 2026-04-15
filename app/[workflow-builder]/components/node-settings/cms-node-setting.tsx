@@ -44,9 +44,7 @@ const CmsNodeSetting = ({
 }) => {
   const updateCmsNodeData = useNodesStore((state) => state.updateCmsNodeData);
 
-  const handleFieldToggle = (
-    field: keyof CmsInputNodeData["sourceFields"],
-  ) => {
+  const handleFieldToggle = (field: keyof CmsInputNodeData["sourceFields"]) => {
     updateCmsNodeData(nodeId, {
       sourceFields: {
         ...data.sourceFields,

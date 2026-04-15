@@ -7,6 +7,7 @@ import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node"
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
 import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
 import type { WorkflowStatus } from "@/lib/workflow-status";
+import { createCmsInputNodeData } from "@/stores/flow-editor/slices/cms-node-slice";
 import { generateId } from "@/utils/generate-id";
 
 type WorkflowRecord = {
@@ -41,52 +42,43 @@ export type WorkflowLoadResult =
 
 const normalizeCmsInputData = (
   data: Record<string, unknown>,
-): CmsInputNodeData => ({
-  title:
-    typeof data.title === "string"
-      ? data.title
-      : typeof data.label === "string"
-        ? data.label
-        : "從 CMS 輸入",
-  source:
-    typeof data.source === "string"
-      ? data.source
-      : typeof data.cmsSource === "string"
-        ? data.cmsSource
-        : "READr CMS",
-  entryId: typeof data.entryId === "string" ? data.entryId : "",
-  fields:
-    typeof data.fields === "object" && data.fields !== null
-      ? {
-          title: Boolean((data.fields as Record<string, unknown>).title),
-          content: Boolean((data.fields as Record<string, unknown>).content),
-          author: Boolean((data.fields as Record<string, unknown>).author),
-          category: Boolean((data.fields as Record<string, unknown>).category),
-        }
-      : typeof data.enabledFields === "object" && data.enabledFields !== null
+): CmsInputNodeData => {
+  const defaults = createCmsInputNodeData();
+
+  return {
+    ...defaults,
+    title:
+      typeof data.title === "string"
+        ? data.title
+        : defaults.title,
+    cmsConfigId:
+      typeof data.cmsConfigId === "string" ? data.cmsConfigId : defaults.cmsConfigId,
+    cmsName: typeof data.cmsName === "string" ? data.cmsName : defaults.cmsName,
+    cmsList: typeof data.cmsList === "string" ? data.cmsList : defaults.cmsList,
+    cmsPostIds:
+      typeof data.cmsPostIds === "string" ? data.cmsPostIds : defaults.cmsPostIds,
+    cmsPostSlugs:
+      typeof data.cmsPostSlugs === "string"
+        ? data.cmsPostSlugs
+        : defaults.cmsPostSlugs,
+    sourceFields:
+      typeof data.sourceFields === "object" && data.sourceFields !== null
         ? {
+            ...defaults.sourceFields,
             title: Boolean(
-              (data.enabledFields as Record<string, unknown>).title,
-            ),
-            content: Boolean(
-              (data.enabledFields as Record<string, unknown>).content,
-            ),
-            author: Boolean(
-              (data.enabledFields as Record<string, unknown>).author,
+              (data.sourceFields as Record<string, unknown>).title,
             ),
             category: Boolean(
-              (data.enabledFields as Record<string, unknown>).category,
+              (data.sourceFields as Record<string, unknown>).category,
             ),
+            content: Boolean(
+              (data.sourceFields as Record<string, unknown>).content,
+            ),
+            tags: Boolean((data.sourceFields as Record<string, unknown>).tags),
           }
-        : {
-            title: true,
-            content: true,
-            author: false,
-            category: false,
-          },
-  outputFormat:
-    typeof data.outputFormat === "string" ? data.outputFormat : "JSON",
-});
+        : defaults.sourceFields,
+  };
+};
 
 const normalizeAiCallData = (
   data: Record<string, unknown>,

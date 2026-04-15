@@ -1,6 +1,8 @@
+import { createStore } from "zustand/vanilla";
 import { describe, expect, it, vi } from "vitest";
 
 import { loadWorkflowIntoStores } from "@/app/[workflow-builder]/components/workflow-loader";
+import { createCmsNodeSlice } from "@/stores/flow-editor/slices/cms-node-slice";
 
 const legacyFileNamePattern = `\${workflow_name}_\${date}.json`;
 
@@ -109,6 +111,45 @@ describe("loadWorkflowIntoStores", () => {
     });
   });
 
+  it("creates new cmsInput nodes with the approved defaults", () => {
+    const store = createStore<any>()((set, get, api) => ({
+      nodes: [],
+      edges: [],
+      selectedNodeId: null,
+      ...createCmsNodeSlice(set, get, api),
+    }));
+
+    store.getState().addCmsNode();
+
+    const [createdNode] = store.getState().nodes;
+
+    expect(createdNode).toMatchObject({
+      type: "cmsInput",
+      data: {
+        title: "從CMS輸入",
+        cmsConfigId: "",
+        cmsName: "Readr CMS",
+        cmsList: "Posts",
+        cmsPostIds: "",
+        cmsPostSlugs: "",
+        sourceFields: {
+          title: true,
+          category: false,
+          content: true,
+          tags: false,
+        },
+        outputFields: {
+          title: "string",
+          categories: "array[string]",
+          content: "string",
+          tags: "array[string]",
+        },
+        outputFormat: "json",
+      },
+    });
+    expect(store.getState().selectedNodeId).toBe(createdNode.id);
+  });
+
   it("maps legacy sample workflow fields into the current node schema", async () => {
     const loadSnapshot = vi.fn();
     const hydrateFromWorkflow = vi.fn();
@@ -192,16 +233,25 @@ describe("loadWorkflowIntoStores", () => {
           type: "cmsInput",
           position: { x: 80, y: 160 },
           data: {
-            title: "CMS 輸入",
-            source: "demo-cms",
-            entryId: "",
-            fields: {
+            title: "從CMS輸入",
+            cmsConfigId: "",
+            cmsName: "Readr CMS",
+            cmsList: "Posts",
+            cmsPostIds: "",
+            cmsPostSlugs: "",
+            sourceFields: {
               title: true,
-              content: true,
-              author: false,
               category: false,
+              content: true,
+              tags: false,
             },
-            outputFormat: "JSON",
+            outputFields: {
+              title: "string",
+              categories: "array[string]",
+              content: "string",
+              tags: "array[string]",
+            },
+            outputFormat: "json",
           },
         },
         {

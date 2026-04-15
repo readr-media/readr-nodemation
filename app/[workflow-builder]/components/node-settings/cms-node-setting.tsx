@@ -1,12 +1,12 @@
 "use client";
 
+import { Check } from "lucide-react";
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import { Input } from "@/components/ui/input";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 
 const labelClass =
   "text-sm font-medium leading-6 text-module-title tracking-tight";
-const helperClass = "text-xs text-module-muted";
 
 const FieldToggle = ({
   label,
@@ -25,13 +25,15 @@ const FieldToggle = ({
     <span
       className={`flex size-4 items-center justify-center rounded border text-white transition ${
         checked
-          ? "border-[#00967d] bg-[#00967d]"
-          : "border-[#d4d3cc] bg-white text-transparent"
+          ? "size-4 rounded border-[#00967d] bg-[#00967d]"
+          : "size-4 rounded border-[#d4d3cc] bg-white text-transparent"
       }`}
     >
-      <span className="size-2 rounded-sm bg-white" />
+      <Check className="size-3" strokeWidth={3} />
     </span>
-    {label}
+    <span className="text-base font-medium leading-none text-module-title">
+      {label}
+    </span>
   </button>
 );
 
@@ -52,8 +54,6 @@ const CmsNodeSetting = ({
       },
     });
   };
-  const handleCmsNameChange = (value: string) =>
-    updateCmsNodeData(nodeId, { cmsName: value });
   const handleCmsPostIdsChange = (value: string) =>
     updateCmsNodeData(nodeId, { cmsPostIds: value });
   const handleCmsPostSlugsChange = (value: string) =>
@@ -72,21 +72,22 @@ const CmsNodeSetting = ({
         <section className="space-y-2">
           <p className={labelClass}>來源CMS名稱</p>
           <Input
-            value={data.cmsName}
-            onChange={(event) => handleCmsNameChange(event.target.value)}
+            value="Readr CMS"
+            disabled
+            readOnly
             className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
           />
         </section>
 
         <section className="space-y-2">
           <p className={labelClass}>來源CMS List</p>
-          <Input
+          <select
             value={data.cmsList}
-            readOnly
-            disabled
-            className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
-          />
-          <p className={helperClass}>本期固定使用 Posts</p>
+            onChange={() => undefined}
+            className="h-10 w-full rounded-lg border border-module-border bg-white px-3 text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)] focus-visible:border-[#00967d] focus-visible:ring-0"
+          >
+            <option value="Posts">Posts</option>
+          </select>
         </section>
 
         <section className="space-y-2">

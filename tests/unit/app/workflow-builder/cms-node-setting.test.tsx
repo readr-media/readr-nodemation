@@ -51,6 +51,10 @@ describe("cms node setting", () => {
     expect(markup).toContain("來源CMS List");
     expect(markup).toContain("文章ID");
     expect(markup).toContain("文章slug");
+    expect(markup).toContain('value="Readr CMS"');
+    expect(markup).toContain("disabled");
+    expect(markup).toContain("<select");
+    expect(markup).toContain(">Posts<");
     expect(markup).toContain("標題");
     expect(markup).toContain("分類");
     expect(markup).toContain("內文");

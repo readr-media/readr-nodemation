@@ -94,13 +94,32 @@ describe("demo article classification workflow seed", () => {
     const aiCallNode = nodes[1];
     const cmsOutputNode = nodes[2];
 
-    expect(cmsInputNode.data?.title).toBe("從 CMS 輸入");
-    expect(cmsInputNode.data?.fields).toEqual({
-      title: true,
-      content: true,
-      author: false,
-      category: false,
+    expect(cmsInputNode.data?.title).toBe("從CMS輸入");
+    expect(cmsInputNode.data).toMatchObject({
+      title: "從CMS輸入",
+      cmsConfigId: expect.any(String),
+      cmsName: expect.any(String),
+      cmsList: "Posts",
+      cmsPostIds: expect.any(String),
+      cmsPostSlugs: expect.any(String),
+      sourceFields: {
+        title: expect.any(Boolean),
+        category: expect.any(Boolean),
+        content: expect.any(Boolean),
+        tags: expect.any(Boolean),
+      },
+      outputFields: {
+        title: "string",
+        categories: "array[string]",
+        content: "string",
+        tags: "array[string]",
+      },
+      outputFormat: "json",
     });
+    expect(cmsInputNode.data).not.toHaveProperty("source");
+    expect(cmsInputNode.data).not.toHaveProperty("entryId");
+    expect(cmsInputNode.data).not.toHaveProperty("fields");
+    expect(cmsInputNode.data).not.toHaveProperty("author");
     expect(aiCallNode.data?.title).toBe("呼叫 AI");
     expect(aiCallNode.data?.promptTemplate).toEqual(expect.any(String));
     expect(aiCallNode.data?.promptTemplate).not.toHaveLength(0);

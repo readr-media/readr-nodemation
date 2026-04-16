@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
+import { createStore } from "zustand/vanilla";
 
 import { loadWorkflowIntoStores } from "@/app/[workflow-builder]/components/workflow-loader";
+import { createCmsNodeSlice } from "@/stores/flow-editor/slices/cms-node-slice";
+import type { NodesStore } from "@/stores/flow-editor/types";
 
 const legacyFileNamePattern = `\${workflow_name}_\${date}.json`;
 
@@ -44,21 +47,34 @@ describe("loadWorkflowIntoStores", () => {
           type: "cmsInput",
           position: { x: 0, y: 0 },
           data: {
-            title: "從 CMS 輸入",
-            source: "READr CMS",
-            entryId: "",
-            fields: {
-              title: true,
-              content: true,
-              author: false,
-              category: false,
+            title: "從CMS輸入",
+            cmsConfigId: expect.any(String),
+            cmsName: expect.any(String),
+            cmsList: "Posts",
+            cmsPostIds: expect.any(String),
+            cmsPostSlugs: expect.any(String),
+            sourceFields: {
+              title: expect.any(Boolean),
+              category: expect.any(Boolean),
+              content: expect.any(Boolean),
+              tags: expect.any(Boolean),
             },
-            outputFormat: "JSON",
+            outputFields: {
+              title: "string",
+              categories: "array[string]",
+              content: "string",
+              tags: "array[string]",
+            },
+            outputFormat: "json",
           },
         },
       ],
       edges: [{ id: "edge-1", source: "node-1", target: "node-2" }],
     });
+    const firstLoadedNode = loadSnapshot.mock.calls[0]?.[0]?.nodes[0];
+    expect(firstLoadedNode.data).not.toHaveProperty("entryId");
+    expect(firstLoadedNode.data).not.toHaveProperty("fields");
+    expect(firstLoadedNode.data).not.toHaveProperty("author");
     expect(hydrateFromWorkflow).toHaveBeenCalledWith({
       workflowId: "workflow-123",
       name: "文章自動分類與標記",
@@ -70,21 +86,69 @@ describe("loadWorkflowIntoStores", () => {
           type: "cmsInput",
           position: { x: 0, y: 0 },
           data: {
-            title: "從 CMS 輸入",
-            source: "READr CMS",
-            entryId: "",
-            fields: {
-              title: true,
-              content: true,
-              author: false,
-              category: false,
+            title: "從CMS輸入",
+            cmsConfigId: expect.any(String),
+            cmsName: expect.any(String),
+            cmsList: "Posts",
+            cmsPostIds: expect.any(String),
+            cmsPostSlugs: expect.any(String),
+            sourceFields: {
+              title: expect.any(Boolean),
+              category: expect.any(Boolean),
+              content: expect.any(Boolean),
+              tags: expect.any(Boolean),
             },
-            outputFormat: "JSON",
+            outputFields: {
+              title: "string",
+              categories: "array[string]",
+              content: "string",
+              tags: "array[string]",
+            },
+            outputFormat: "json",
           },
         },
       ],
       edges: [{ id: "edge-1", source: "node-1", target: "node-2" }],
     });
+  });
+
+  it("creates new cmsInput nodes with the approved defaults", () => {
+    const store = createStore<NodesStore>()((set, get, api) => ({
+      nodes: [],
+      edges: [],
+      selectedNodeId: null,
+      ...createCmsNodeSlice(set, get, api),
+    }));
+
+    store.getState().addCmsNode();
+
+    const [createdNode] = store.getState().nodes;
+
+    expect(createdNode).toMatchObject({
+      type: "cmsInput",
+      data: {
+        title: "從CMS輸入",
+        cmsConfigId: "",
+        cmsName: "Readr CMS",
+        cmsList: "Posts",
+        cmsPostIds: "",
+        cmsPostSlugs: "",
+        sourceFields: {
+          title: true,
+          category: false,
+          content: true,
+          tags: false,
+        },
+        outputFields: {
+          title: "string",
+          categories: "array[string]",
+          content: "string",
+          tags: "array[string]",
+        },
+        outputFormat: "json",
+      },
+    });
+    expect(store.getState().selectedNodeId).toBe(createdNode.id);
   });
 
   it("maps legacy sample workflow fields into the current node schema", async () => {
@@ -170,16 +234,25 @@ describe("loadWorkflowIntoStores", () => {
           type: "cmsInput",
           position: { x: 80, y: 160 },
           data: {
-            title: "CMS 輸入",
-            source: "demo-cms",
-            entryId: "",
-            fields: {
+            title: "從CMS輸入",
+            cmsConfigId: "",
+            cmsName: "Readr CMS",
+            cmsList: "Posts",
+            cmsPostIds: "",
+            cmsPostSlugs: "",
+            sourceFields: {
               title: true,
-              content: true,
-              author: false,
               category: false,
+              content: true,
+              tags: false,
             },
-            outputFormat: "JSON",
+            outputFields: {
+              title: "string",
+              categories: "array[string]",
+              content: "string",
+              tags: "array[string]",
+            },
+            outputFormat: "json",
           },
         },
         {
@@ -281,21 +354,34 @@ describe("loadWorkflowIntoStores", () => {
           type: "cmsInput",
           position: { x: 80, y: 160 },
           data: {
-            title: "CMS 輸入",
-            source: "demo-cms",
-            entryId: "",
-            fields: {
-              title: true,
-              content: true,
-              author: false,
-              category: false,
+            title: "從CMS輸入",
+            cmsConfigId: expect.any(String),
+            cmsName: expect.any(String),
+            cmsList: "Posts",
+            cmsPostIds: expect.any(String),
+            cmsPostSlugs: expect.any(String),
+            sourceFields: {
+              title: expect.any(Boolean),
+              category: expect.any(Boolean),
+              content: expect.any(Boolean),
+              tags: expect.any(Boolean),
             },
-            outputFormat: "JSON",
+            outputFields: {
+              title: "string",
+              categories: "array[string]",
+              content: "string",
+              tags: "array[string]",
+            },
+            outputFormat: "json",
           },
         },
       ],
       edges: [],
     });
+    const legacyLoadedNode = loadSnapshot.mock.calls[0]?.[0]?.nodes[0];
+    expect(legacyLoadedNode.data).not.toHaveProperty("entryId");
+    expect(legacyLoadedNode.data).not.toHaveProperty("fields");
+    expect(legacyLoadedNode.data).not.toHaveProperty("author");
     expect(hydrateFromWorkflow).toHaveBeenCalledWith({
       workflowId: "legacy-cms-input-workflow",
       name: "legacy cms input",
@@ -307,16 +393,25 @@ describe("loadWorkflowIntoStores", () => {
           type: "cmsInput",
           position: { x: 80, y: 160 },
           data: {
-            title: "CMS 輸入",
-            source: "demo-cms",
-            entryId: "",
-            fields: {
-              title: true,
-              content: true,
-              author: false,
-              category: false,
+            title: "從CMS輸入",
+            cmsConfigId: expect.any(String),
+            cmsName: expect.any(String),
+            cmsList: "Posts",
+            cmsPostIds: expect.any(String),
+            cmsPostSlugs: expect.any(String),
+            sourceFields: {
+              title: expect.any(Boolean),
+              category: expect.any(Boolean),
+              content: expect.any(Boolean),
+              tags: expect.any(Boolean),
             },
-            outputFormat: "JSON",
+            outputFields: {
+              title: "string",
+              categories: "array[string]",
+              content: "string",
+              tags: "array[string]",
+            },
+            outputFormat: "json",
           },
         },
       ],

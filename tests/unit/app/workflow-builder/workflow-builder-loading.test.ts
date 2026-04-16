@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { createStore } from "zustand/vanilla";
 
 import { loadWorkflowIntoStores } from "@/app/[workflow-builder]/components/workflow-loader";
+import { createAiClassifierTaggerNodeSlice } from "@/stores/flow-editor/slices/ai-classifier-tagger-node-slice";
 import { createCmsNodeSlice } from "@/stores/flow-editor/slices/cms-node-slice";
 import type { NodesStore } from "@/stores/flow-editor/types";
 
@@ -146,6 +147,45 @@ describe("loadWorkflowIntoStores", () => {
           tags: "array[string]",
         },
         outputFormat: "json",
+      },
+    });
+    expect(store.getState().selectedNodeId).toBe(createdNode.id);
+  });
+
+  it("creates new aiClassifierTagger nodes with the approved defaults", () => {
+    const store = createStore<NodesStore>()((set, get, api) => ({
+      nodes: [],
+      edges: [],
+      selectedNodeId: null,
+      ...createAiClassifierTaggerNodeSlice(set, get, api),
+    }));
+
+    store.getState().addAiClassifierTaggerNode();
+
+    const [createdNode] = store.getState().nodes;
+
+    expect(createdNode).toMatchObject({
+      type: "aiClassifierTagger",
+      data: {
+        title: "AI自動分類與標籤",
+        model: "gemini-1.5-flash",
+        inputFields: {
+          title: "source.title",
+          content: "source.content",
+        },
+        categoryAmount: 1,
+        tagAmount: 3,
+        responseFormat: {
+          type: "json",
+          schema: {
+            categories: "array[string]",
+            tags: "array[string]",
+          },
+        },
+        outputFields: {
+          categories: "array[string]",
+          tags: "array[string]",
+        },
       },
     });
     expect(store.getState().selectedNodeId).toBe(createdNode.id);

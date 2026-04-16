@@ -3,6 +3,7 @@ import { Code2, Database, Download, Share2, Sparkles } from "lucide-react";
 
 export type ModuleNodeType =
   | "aiCall"
+  | "aiClassifierTagger"
   | "codeBlock"
   | "cmsInput"
   | "cmsOutput"
@@ -26,6 +27,13 @@ export const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
         icon: Sparkles,
         accent: "ai",
         nodeType: "aiCall",
+      },
+      {
+        title: "AI自動分類與標籤",
+        description: "專用於文章分類與標籤產生",
+        icon: Sparkles,
+        accent: "ai",
+        nodeType: "aiClassifierTagger",
       },
     ],
   },

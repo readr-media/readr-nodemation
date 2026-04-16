@@ -1,11 +1,18 @@
-import { act } from "react";
+import { act, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { AiClassifierTaggerNodeData } from "@/components/flow/nodes/ai-classifier-tagger-node";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
-const updateAiClassifierTaggerNodeData = vi.fn();
+let applyNodeUpdate:
+  | ((data: Partial<AiClassifierTaggerNodeData>) => void)
+  | null = null;
+const updateAiClassifierTaggerNodeData = vi.fn(
+  (_nodeId: string, data: Partial<AiClassifierTaggerNodeData>) => {
+    applyNodeUpdate?.(data);
+  },
+);
 
 const mockStoreState = {
   nodes: [] as Array<{
@@ -453,6 +460,7 @@ const originalDomGlobals = {
 type RenderedTree = {
   container: MockElement;
   root: Root;
+  rerender?: () => Promise<void>;
 };
 
 const sampleData: AiClassifierTaggerNodeData = {
@@ -512,6 +520,7 @@ function resetDomGlobals() {
   updateAiClassifierTaggerNodeData.mockClear();
   mockStoreState.nodes = [];
   mockStoreState.selectedNodeId = null;
+  applyNodeUpdate = null;
 }
 
 function restoreDomGlobals() {
@@ -586,6 +595,51 @@ async function renderClassifierTaggerSettings(): Promise<RenderedTree> {
   });
 
   return { container, root };
+}
+
+async function renderControlledClassifierTaggerSettings(): Promise<RenderedTree> {
+  const container = document.createElement("div") as MockElement;
+  const root = createRoot(container);
+
+  const { default: AiClassifierTaggerNodeSetting } = await import(
+    "@/app/[workflow-builder]/components/node-settings/ai-classifier-tagger-node-setting"
+  );
+
+  const ControlledHarness = () => {
+    const [data, setData] = useState(sampleData);
+
+    applyNodeUpdate = (nextData) => {
+      setData((current) => ({
+        ...current,
+        ...nextData,
+        inputFields: nextData.inputFields
+          ? {
+              ...current.inputFields,
+              ...nextData.inputFields,
+            }
+          : current.inputFields,
+        responseFormat: nextData.responseFormat ?? current.responseFormat,
+        outputFields: nextData.outputFields ?? current.outputFields,
+      }));
+    };
+
+    return (
+      <AiClassifierTaggerNodeSetting
+        nodeId="aiClassifierTagger-node"
+        data={data}
+      />
+    );
+  };
+
+  const rerender = async () => {
+    await act(async () => {
+      root.render(<ControlledHarness />);
+    });
+  };
+
+  await rerender();
+
+  return { container, root, rerender };
 }
 
 describe("ai classifier tagger node setting", () => {
@@ -765,6 +819,29 @@ describe("ai classifier tagger node setting", () => {
     });
 
     expect(container.textContent).toContain("AI自動分類與標籤設定");
+
+    act(() => {
+      root.unmount();
+    });
+  });
+
+  it("keeps the count input cleared while editing before a valid integer is committed", async () => {
+    const { container, root, rerender } =
+      await renderControlledClassifierTaggerSettings();
+
+    const inputs = findAllByTagName(container, "input");
+    const categoryInput = inputs[2];
+
+    expect((categoryInput as HTMLInputElement).value).toBe("1");
+
+    act(() => {
+      categoryInput.value = "";
+      categoryInput.dispatchEvent(new MockEvent("input", { bubbles: true }));
+    });
+
+    await rerender?.();
+
+    expect((categoryInput as HTMLInputElement).value).toBe("");
 
     act(() => {
       root.unmount();

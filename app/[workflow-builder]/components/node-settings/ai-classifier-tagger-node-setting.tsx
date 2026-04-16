@@ -1,8 +1,9 @@
 "use client";
 
-import { Separator } from "@radix-ui/react-separator";
+import { useEffect, useState } from "react";
 import type { AiClassifierTaggerNodeData } from "@/components/flow/nodes/ai-classifier-tagger-node";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 
@@ -57,6 +58,18 @@ const AiClassifierTaggerNodeSetting = ({
   const updateAiClassifierTaggerNodeData = useNodesStore(
     (state) => state.updateAiClassifierTaggerNodeData,
   );
+  const [categoryAmountInput, setCategoryAmountInput] = useState(
+    String(data.categoryAmount),
+  );
+  const [tagAmountInput, setTagAmountInput] = useState(String(data.tagAmount));
+
+  useEffect(() => {
+    setCategoryAmountInput(String(data.categoryAmount));
+  }, [data.categoryAmount]);
+
+  useEffect(() => {
+    setTagAmountInput(String(data.tagAmount));
+  }, [data.tagAmount]);
 
   const updateInputFields = (
     field: keyof AiClassifierTaggerNodeData["inputFields"],
@@ -130,9 +143,12 @@ const AiClassifierTaggerNodeSetting = ({
             className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
             type="number"
             min={0}
-            value={String(data.categoryAmount)}
+            value={categoryAmountInput}
             onInput={(event) => {
-              const nextValue = parsePositiveIntegerInput(event.target.value);
+              const nextInput = event.target.value;
+              setCategoryAmountInput(nextInput);
+
+              const nextValue = parsePositiveIntegerInput(nextInput);
               if (nextValue === null) {
                 return;
               }
@@ -150,9 +166,12 @@ const AiClassifierTaggerNodeSetting = ({
             className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
             type="number"
             min={0}
-            value={String(data.tagAmount)}
+            value={tagAmountInput}
             onInput={(event) => {
-              const nextValue = parsePositiveIntegerInput(event.target.value);
+              const nextInput = event.target.value;
+              setTagAmountInput(nextInput);
+
+              const nextValue = parsePositiveIntegerInput(nextInput);
               if (nextValue === null) {
                 return;
               }

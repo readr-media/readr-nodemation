@@ -11,6 +11,7 @@ import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
 import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
+import type { PodcastGenerationNodeData } from "./slices/podcast-generation-node-slice";
 
 export type FlowSlice = {
   nodes: Node[];
@@ -63,10 +64,19 @@ export type ExportNodeSlice = {
   ) => void;
 };
 
+export type PodcastGenerationNodeSlice = {
+  addPodcastGenerationNode: () => void;
+  updatePodcastGenerationNodeData: (
+    nodeId: string,
+    data: Partial<PodcastGenerationNodeData>,
+  ) => void;
+};
+
 export type NodesStore = FlowSlice &
   AiNodeSlice &
   AiClassifierTaggerNodeSlice &
   CodeNodeSlice &
   CmsNodeSlice &
   CmsOutputNodeSlice &
-  ExportNodeSlice;
+  ExportNodeSlice &
+  PodcastGenerationNodeSlice;

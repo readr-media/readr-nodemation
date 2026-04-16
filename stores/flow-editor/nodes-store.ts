@@ -7,6 +7,7 @@ import { createCmsOutputNodeSlice } from "./slices/cms-output-node-slice";
 import { createCodeNodeSlice } from "./slices/code-node-slice";
 import { createExportNodeSlice } from "./slices/export-node-slice";
 import { createFlowSlice } from "./slices/flow-slice";
+import { createPodcastGenerationNodeSlice } from "./slices/podcast-generation-node-slice";
 import type { NodesStore } from "./types";
 
 export const useNodesStore = create<NodesStore>()(
@@ -19,6 +20,7 @@ export const useNodesStore = create<NodesStore>()(
       ...createCmsNodeSlice(set, get, store),
       ...createCmsOutputNodeSlice(set, get, store),
       ...createExportNodeSlice(set, get, store),
+      ...createPodcastGenerationNodeSlice(set, get, store),
     }),
     { name: "FlowNodesStore" },
   ),

@@ -7,7 +7,8 @@ export type ModuleNodeType =
   | "codeBlock"
   | "cmsInput"
   | "cmsOutput"
-  | "exportResult";
+  | "exportResult"
+  | "podcastGeneration";
 
 export type ModuleItem = {
   title: string;
@@ -34,6 +35,13 @@ export const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
         icon: Sparkles,
         accent: "ai",
         nodeType: "aiClassifierTagger",
+      },
+      {
+        title: "Podcast 生成",
+        description: "將報導轉為 Podcast",
+        icon: Sparkles,
+        accent: "ai",
+        nodeType: "podcastGeneration",
       },
     ],
   },

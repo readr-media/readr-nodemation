@@ -8,9 +8,12 @@ import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node"
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
 import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
 import type { WorkflowStatus } from "@/lib/workflow-status";
+import type { PodcastGenerationNodeData } from "@/stores/flow-editor/slices/podcast-generation-node-slice";
+
 import { createAiClassifierTaggerNodeData } from "@/stores/flow-editor/slices/ai-classifier-tagger-node-slice";
 import { createCmsInputNodeData } from "@/stores/flow-editor/slices/cms-node-slice";
 import { createCmsOutputNodeData } from "@/stores/flow-editor/slices/cms-output-node-slice";
+import { generateId } from "@/utils/generate-id";
 
 type WorkflowRecord = {
   id: string;
@@ -206,6 +209,37 @@ const normalizeExportResultData = (
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
+const normalizePodcastGenerationData = (
+  data: Record<string, unknown>,
+): PodcastGenerationNodeData => ({
+  title:
+    typeof data.title === "string"
+      ? data.title
+      : typeof data.label === "string"
+        ? data.label
+        : "Podcast 生成",
+  model: typeof data.model === "string" ? data.model : "gemini-1.5-flash",
+  promptTemplate:
+    typeof data.promptTemplate === "string"
+      ? data.promptTemplate
+      : typeof data.prompt === "string"
+        ? data.prompt
+        : "",
+  podcastMode:
+    data.podcastMode === "summary" ||
+    data.podcastMode === "commentary" ||
+    data.podcastMode === "debate" ||
+    data.podcastMode === "deepDive"
+      ? data.podcastMode
+      : "deepDive",
+  podcastLength:
+    data.podcastLength === "short" ||
+    data.podcastLength === "medium" ||
+    data.podcastLength === "long"
+      ? data.podcastLength
+      : "medium",
+});
+
 const normalizeNode = (node: Node): Node => {
   if (node.type === "aiClassifierTagger") {
     return {
@@ -233,6 +267,8 @@ const normalizeNode = (node: Node): Node => {
       return { ...node, data: normalizeCodeData(data) };
     case "exportResult":
       return { ...node, data: normalizeExportResultData(data) };
+    case "podcastGeneration":
+      return { ...node, data: normalizePodcastGenerationData(data) };
     default:
       return node;
   }

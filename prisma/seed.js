@@ -15,6 +15,14 @@ const moduleSeed = [
         icon_key: "Sparkles",
         sort_order: 1,
       },
+      {
+        action: "Podcast 生成",
+        action_code: "podcast_generation",
+        description: "將報導轉為 Podcast",
+        active: true,
+        icon_key: "Sparkles",
+        sort_order: 4,
+      },
     ],
   },
   {

@@ -10,6 +10,7 @@ import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
 import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
+import type { PodcastGenerationNodeData } from "@/stores/flow-editor/slices/podcast-generation-node-slice";
 import {
   Sidebar,
   SidebarContent,
@@ -24,6 +25,7 @@ import CmsNodeSetting from "./node-settings/cms-node-setting";
 import CmsOutputNodeSetting from "./node-settings/cms-output-node-setting";
 import CodeNodeSetting from "./node-settings/code-node-setting";
 import ExportNodeSetting from "./node-settings/export-node-setting";
+import PodcastGenerationNodeSetting from "./node-settings/podcast-generation-node-setting";
 
 const EmptyState = () => (
   <div className="flex w-40 flex-col items-center gap-4 text-center">
@@ -47,6 +49,7 @@ const NodeSettingSidebar = () => {
     })),
   );
   const selectedNode = nodes.find((node) => node.id === selectedNodeId) ?? null;
+  console.log(selectedNode);
   let content: ReactNode;
   switch (selectedNode?.type) {
     case "aiCall":
@@ -94,6 +97,14 @@ const NodeSettingSidebar = () => {
         <ExportNodeSetting
           nodeId={selectedNode.id}
           data={selectedNode.data as ExportResultNodeData}
+        />
+      );
+      break;
+    case "podcastGeneration":
+      content = (
+        <PodcastGenerationNodeSetting
+          nodeId={selectedNode.id}
+          data={selectedNode.data as PodcastGenerationNodeData}
         />
       );
       break;

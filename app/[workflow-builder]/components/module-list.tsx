@@ -12,6 +12,7 @@ const ModuleList = () => {
     addCmsNode,
     addCmsOutputNode,
     addExportNode,
+    addPodcastGenerationNode,
   } = useNodesStore();
 
   return (
@@ -44,6 +45,9 @@ const ModuleList = () => {
                   }
                   if (nodeType === "exportResult") {
                     addExportNode();
+                  }
+                  if (nodeType === "podcastGeneration") {
+                    addPodcastGenerationNode();
                   }
                 }}
               />

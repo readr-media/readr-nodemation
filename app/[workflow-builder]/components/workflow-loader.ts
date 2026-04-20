@@ -3,6 +3,7 @@
 import type { Edge, Node } from "@xyflow/react";
 import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
 import type { AiClassifierTaggerNodeData } from "@/components/flow/nodes/ai-classifier-tagger-node";
+import type { CmsAudioFieldMapping, CmsOutputAudioNodeData, CmsOutputAudioTargetField } from "@/components/flow/nodes/cms-output-audio-node";
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
@@ -176,6 +177,57 @@ const normalizeCmsOutputData = (
   _data: Record<string, unknown>,
 ): CmsOutputNodeData => createCmsOutputNodeData();
 
+const getDefaultAudioMappings = (): CmsAudioFieldMapping[] => [
+  {
+    id: generateId(),
+    sourceField: "{{ ai.podcastTitle }}",
+    targetField: "title",
+  },
+  {
+    id: generateId(),
+    sourceField: "{{ ai.podcastScript }}",
+    targetField: "description",
+  },
+  {
+    id: generateId(),
+    sourceField: "{{ ai.audioFile }}",
+    targetField: "audioFile",
+  },
+];
+
+const normalizeCmsOutputAudioData = (
+  data: Record<string, unknown>,
+): CmsOutputAudioNodeData => ({
+  title:
+    typeof data.title === "string"
+      ? data.title
+      : typeof data.label === "string"
+        ? data.label
+        : "輸出音檔到CMS",
+  cmsConfigId: typeof data.cmsConfigId === "string" ? data.cmsConfigId : "",
+  cmsName: typeof data.cmsName === "string" ? data.cmsName : "Readr CMS",
+  cmsList: typeof data.cmsList === "string" ? data.cmsList : "Audio Files",
+  cmsAudioFileIds:
+    typeof data.cmsAudioFileIds === "string" ? data.cmsAudioFileIds : "",
+  mappings: Array.isArray(data.mappings)
+    ? data.mappings.map((mapping): CmsAudioFieldMapping => ({
+        id:
+          typeof (mapping as Record<string, unknown>).id === "string"
+            ? ((mapping as Record<string, unknown>).id as string)
+            : generateId(),
+        sourceField:
+          typeof (mapping as Record<string, unknown>).sourceField === "string"
+            ? ((mapping as Record<string, unknown>).sourceField as string)
+            : "",
+        targetField:
+          typeof (mapping as Record<string, unknown>).targetField === "string"
+            ? ((mapping as Record<string, unknown>).targetField as CmsOutputAudioTargetField)
+            : "title",
+      }))
+    : getDefaultAudioMappings(),
+  mode: "create",
+});
+
 const normalizeCodeData = (data: Record<string, unknown>): CodeNodeData => ({
   title:
     typeof data.title === "string"
@@ -263,6 +315,8 @@ const normalizeNode = (node: Node): Node => {
       return { ...node, data: normalizeAiCallData(data) };
     case "cmsOutput":
       return { ...node, data: normalizeCmsOutputData(data) };
+    case "cmsOutputAudio":
+      return { ...node, data: normalizeCmsOutputAudioData(data) };
     case "codeBlock":
       return { ...node, data: normalizeCodeData(data) };
     case "exportResult":

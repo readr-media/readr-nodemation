@@ -3,6 +3,7 @@ import { devtools } from "zustand/middleware";
 import { createAiClassifierTaggerNodeSlice } from "./slices/ai-classifier-tagger-node-slice";
 import { createAiNodeSlice } from "./slices/ai-node-slice";
 import { createCmsNodeSlice } from "./slices/cms-node-slice";
+import { createCmsOutputAudioNodeSlice } from "./slices/cms-output-audio-node-slice";
 import { createCmsOutputNodeSlice } from "./slices/cms-output-node-slice";
 import { createCodeNodeSlice } from "./slices/code-node-slice";
 import { createExportNodeSlice } from "./slices/export-node-slice";
@@ -19,6 +20,7 @@ export const useNodesStore = create<NodesStore>()(
       ...createCodeNodeSlice(set, get, store),
       ...createCmsNodeSlice(set, get, store),
       ...createCmsOutputNodeSlice(set, get, store),
+      ...createCmsOutputAudioNodeSlice(set, get, store),
       ...createExportNodeSlice(set, get, store),
       ...createPodcastGenerationNodeSlice(set, get, store),
     }),

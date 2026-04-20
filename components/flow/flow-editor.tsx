@@ -19,6 +19,7 @@ import CmsOutputNode from "./nodes/cms-output-node";
 import CodeNode from "./nodes/code-node";
 import ExportResultNode from "./nodes/export-result-node";
 import PodcastGenerationNode from "./nodes/podcast-generation-node";
+import CmsOutputAudioNode from "./nodes/cms-output-audio-node";
 
 const panOnDrag = [1, 2];
 
@@ -38,6 +39,7 @@ const FlowEditor = ({ controlsSlot }: FlowEditorProps) => {
       codeBlock: CodeNode,
       cmsInput: CmsInputNode,
       cmsOutput: CmsOutputNode,
+      cmsOutputAudio: CmsOutputAudioNode,
       exportResult: ExportResultNode,
       podcastGeneration: PodcastGenerationNode,
     }),

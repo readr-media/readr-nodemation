@@ -10,6 +10,7 @@ const ModuleList = () => {
     addAiClassifierTaggerNode,
     addCodeNode,
     addCmsNode,
+    addCmsOutputAudioNode,
     addCmsOutputNode,
     addExportNode,
     addPodcastGenerationNode,
@@ -42,6 +43,9 @@ const ModuleList = () => {
                   }
                   if (nodeType === "cmsOutput") {
                     addCmsOutputNode();
+                  }
+                  if (nodeType === "cmsOutputAudio") {
+                    addCmsOutputAudioNode();
                   }
                   if (nodeType === "exportResult") {
                     addExportNode();

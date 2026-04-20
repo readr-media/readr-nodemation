@@ -8,7 +8,8 @@ export type ModuleNodeType =
   | "cmsInput"
   | "cmsOutput"
   | "exportResult"
-  | "podcastGeneration";
+  | "podcastGeneration"
+  | "cmsOutputAudio";
 
 export type ModuleItem = {
   title: string;
@@ -73,6 +74,13 @@ export const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
         icon: Share2,
         accent: "cms",
         nodeType: "cmsOutput",
+      },
+      {
+        title: "輸出音檔到 CMS",
+        description: "將音檔輸出到 CMS 系統",
+        icon: Share2,
+        accent: "cms",
+        nodeType: "cmsOutputAudio",
       },
     ],
   },

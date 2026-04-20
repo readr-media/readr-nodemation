@@ -5,6 +5,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
+import type { AiClassifierTaggerNodeData } from "@/components/flow/nodes/ai-classifier-tagger-node";
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
@@ -17,6 +18,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
+import AiClassifierTaggerNodeSetting from "./node-settings/ai-classifier-tagger-node-setting";
 import AiNodeSettings from "./node-settings/ai-node-setting";
 import CmsNodeSetting from "./node-settings/cms-node-setting";
 import CmsOutputNodeSetting from "./node-settings/cms-output-node-setting";
@@ -52,6 +54,14 @@ const NodeSettingSidebar = () => {
         <AiNodeSettings
           nodeId={selectedNode.id}
           data={selectedNode.data as AiCallNodeData}
+        />
+      );
+      break;
+    case "aiClassifierTagger":
+      content = (
+        <AiClassifierTaggerNodeSetting
+          nodeId={selectedNode.id}
+          data={selectedNode.data as AiClassifierTaggerNodeData}
         />
       );
       break;

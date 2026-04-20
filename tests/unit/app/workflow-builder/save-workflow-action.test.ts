@@ -32,6 +32,39 @@ const nodes: Node[] = [
   },
 ];
 
+const aiClassifierTaggerNodes: Node[] = [
+  ...nodes,
+  {
+    id: "node-2",
+    type: "aiClassifierTagger",
+    position: { x: 240, y: 0 },
+    measured: { width: 240, height: 62 },
+    data: {
+      title: "AI自動分類與標籤",
+      model: "gemini-1.5-flash",
+      inputFields: {
+        title: "source.title",
+        content: "source.content",
+      },
+      promptTemplate:
+        '你是一個新聞編輯助理，請根據文章內容產出分類與標籤。\n\n請嚴格依照以下 JSON 格式輸出，且不要加入任何說明文字：\n\n{\n  "categories": ["string"],\n  "tags": ["string"]\n}\n\n文章標題：{{title}}\n文章內文：{{content}}\n\n請產出 {{categoryAmount}} 個分類與 {{tagAmount}} 個標籤。',
+      categoryAmount: 1,
+      tagAmount: 3,
+      responseFormat: {
+        type: "json",
+        schema: {
+          categories: "array[string]",
+          tags: "array[string]",
+        },
+      },
+      outputFields: {
+        categories: "array[string]",
+        tags: "array[string]",
+      },
+    },
+  },
+];
+
 const edges: Edge[] = [
   {
     id: "edge-1",
@@ -171,6 +204,74 @@ describe("saveWorkflow", () => {
     expect(result).toEqual({
       workflowId: "workflow-456",
       sourceWorkflowId: "workflow-456",
+    });
+  });
+
+  it("persists aiClassifierTagger nodes with the approved schema in the request body", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "workflow-789",
+          name: "AI 自動分類流程",
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        },
+      ),
+    );
+    const resetBaseline = vi.fn();
+
+    await saveWorkflow({
+      mode: "update",
+      workflowId: "workflow-789",
+      name: "AI 自動分類流程",
+      description: "含 aiClassifierTagger 節點",
+      status: "draft",
+      nodes: aiClassifierTaggerNodes,
+      edges,
+      fetchImpl,
+      resetBaseline,
+    });
+
+    const requestBody = JSON.parse(
+      fetchImpl.mock.calls[0]?.[1]?.body as string,
+    ) as {
+      nodes: Array<{
+        id: string;
+        type: string;
+        measured?: { width: number; height: number };
+        data?: Record<string, unknown>;
+      }>;
+    };
+
+    expect(requestBody.nodes[1]).toMatchObject({
+      id: "node-2",
+      type: "aiClassifierTagger",
+      measured: { width: 240, height: 62 },
+      data: {
+        title: "AI自動分類與標籤",
+        model: "gemini-1.5-flash",
+        inputFields: {
+          title: "source.title",
+          content: "source.content",
+        },
+        promptTemplate:
+          '你是一個新聞編輯助理，請根據文章內容產出分類與標籤。\n\n請嚴格依照以下 JSON 格式輸出，且不要加入任何說明文字：\n\n{\n  "categories": ["string"],\n  "tags": ["string"]\n}\n\n文章標題：{{title}}\n文章內文：{{content}}\n\n請產出 {{categoryAmount}} 個分類與 {{tagAmount}} 個標籤。',
+        categoryAmount: 1,
+        tagAmount: 3,
+        responseFormat: {
+          type: "json",
+          schema: {
+            categories: "array[string]",
+            tags: "array[string]",
+          },
+        },
+        outputFields: {
+          categories: "array[string]",
+          tags: "array[string]",
+        },
+      },
     });
   });
 });

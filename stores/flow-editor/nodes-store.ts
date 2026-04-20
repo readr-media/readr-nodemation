@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
+import { createAiClassifierTaggerNodeSlice } from "./slices/ai-classifier-tagger-node-slice";
 import { createAiNodeSlice } from "./slices/ai-node-slice";
 import { createCmsNodeSlice } from "./slices/cms-node-slice";
 import { createCmsOutputNodeSlice } from "./slices/cms-output-node-slice";
@@ -13,6 +14,7 @@ export const useNodesStore = create<NodesStore>()(
     (set, get, store) => ({
       ...createFlowSlice(set, get, store),
       ...createAiNodeSlice(set, get, store),
+      ...createAiClassifierTaggerNodeSlice(set, get, store),
       ...createCodeNodeSlice(set, get, store),
       ...createCmsNodeSlice(set, get, store),
       ...createCmsOutputNodeSlice(set, get, store),

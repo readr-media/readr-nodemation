@@ -2,11 +2,13 @@
 
 import type { Edge, Node } from "@xyflow/react";
 import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
+import type { AiClassifierTaggerNodeData } from "@/components/flow/nodes/ai-classifier-tagger-node";
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
 import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
 import type { WorkflowStatus } from "@/lib/workflow-status";
+import { createAiClassifierTaggerNodeData } from "@/stores/flow-editor/slices/ai-classifier-tagger-node-slice";
 import { createCmsInputNodeData } from "@/stores/flow-editor/slices/cms-node-slice";
 import { generateId } from "@/utils/generate-id";
 
@@ -120,6 +122,53 @@ const normalizeAiCallData = (
   testInput: typeof data.testInput === "string" ? data.testInput : "",
 });
 
+const normalizeAiClassifierTaggerData = (
+  data: Record<string, unknown>,
+): AiClassifierTaggerNodeData => {
+  const defaults = createAiClassifierTaggerNodeData();
+
+  return {
+    ...defaults,
+    title:
+      typeof data.title === "string"
+        ? data.title
+        : typeof data.label === "string"
+          ? data.label
+          : defaults.title,
+    model: typeof data.model === "string" ? data.model : defaults.model,
+    inputFields:
+      typeof data.inputFields === "object" && data.inputFields !== null
+        ? {
+            ...defaults.inputFields,
+            title:
+              typeof (data.inputFields as Record<string, unknown>).title ===
+              "string"
+                ? ((data.inputFields as Record<string, unknown>)
+                    .title as string)
+                : defaults.inputFields.title,
+            content:
+              typeof (data.inputFields as Record<string, unknown>).content ===
+              "string"
+                ? ((data.inputFields as Record<string, unknown>)
+                    .content as string)
+                : defaults.inputFields.content,
+          }
+        : defaults.inputFields,
+    promptTemplate:
+      typeof data.promptTemplate === "string"
+        ? data.promptTemplate
+        : defaults.promptTemplate,
+    categoryAmount:
+      typeof data.categoryAmount === "number"
+        ? data.categoryAmount
+        : defaults.categoryAmount,
+    tagAmount:
+      typeof data.tagAmount === "number" ? data.tagAmount : defaults.tagAmount,
+    responseFormat: defaults.responseFormat,
+    outputFields: defaults.outputFields,
+  };
+};
+
 const normalizeCmsOutputData = (
   data: Record<string, unknown>,
 ): CmsOutputNodeData => ({
@@ -186,7 +235,19 @@ const normalizeExportResultData = (
   zipFiles: Boolean(data.zipFiles),
 });
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
 const normalizeNode = (node: Node): Node => {
+  if (node.type === "aiClassifierTagger") {
+    return {
+      ...node,
+      data: normalizeAiClassifierTaggerData(
+        isRecord(node.data) ? node.data : {},
+      ),
+    };
+  }
+
   if (!node.data || typeof node.data !== "object") {
     return node;
   }

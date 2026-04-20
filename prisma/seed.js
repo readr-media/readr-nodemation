@@ -112,22 +112,32 @@ const demoArticleClassificationNodes = JSON.stringify([
     },
   },
   {
-    id: "aiCall-node",
-    type: "aiCall",
+    id: "aiClassifierTagger-node",
+    type: "aiClassifierTagger",
     position: { x: 360, y: 160 },
+    measured: { width: 240, height: 62 },
     data: {
-      title: "呼叫 AI",
-      model: "gpt-demo",
-      inputs: {
-        title: true,
-        content: true,
-        summary: false,
+      title: "AI自動分類與標籤",
+      model: "gemini-1.5-flash",
+      inputFields: {
+        title: "source.title",
+        content: "source.content",
       },
-      outputFormat: "JSON",
       promptTemplate:
-        "請根據文章標題與內文，輸出一個分類與兩個標籤，並保留 demo 用 placeholder 欄位名稱。",
-      cmsField: "{{ cms.article.content }}",
-      testInput: "",
+        '你是一個新聞編輯助理，請根據文章內容產出分類與標籤。\n\n請嚴格依照以下 JSON 格式輸出，且不要加入任何說明文字：\n\n{\n  "categories": ["string"],\n  "tags": ["string"]\n}\n\n文章標題：{{title}}\n文章內文：{{content}}\n\n請產出 {{categoryAmount}} 個分類與 {{tagAmount}} 個標籤。',
+      categoryAmount: 1,
+      tagAmount: 3,
+      responseFormat: {
+        type: "json",
+        schema: {
+          categories: "array[string]",
+          tags: "array[string]",
+        },
+      },
+      outputFields: {
+        categories: "array[string]",
+        tags: "array[string]",
+      },
     },
   },
   {
@@ -157,13 +167,13 @@ const demoArticleClassificationNodes = JSON.stringify([
 
 const demoArticleClassificationEdges = JSON.stringify([
   {
-    id: "cmsInput-node->aiCall-node",
+    id: "cmsInput-node->aiClassifierTagger-node",
     source: "cmsInput-node",
-    target: "aiCall-node",
+    target: "aiClassifierTagger-node",
   },
   {
-    id: "aiCall-node->cmsOutput-node",
-    source: "aiCall-node",
+    id: "aiClassifierTagger-node->cmsOutput-node",
+    source: "aiClassifierTagger-node",
     target: "cmsOutput-node",
   },
 ]);

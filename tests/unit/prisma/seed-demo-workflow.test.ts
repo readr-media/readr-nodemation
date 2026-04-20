@@ -81,17 +81,17 @@ describe("demo article classification workflow seed", () => {
     expect(nodes).toHaveLength(3);
     expect(nodes.map((node) => node.type)).toEqual([
       "cmsInput",
-      "aiCall",
+      "aiClassifierTagger",
       "cmsOutput",
     ]);
     expect(edges).toHaveLength(2);
     expect(edges.map((edge) => [edge.source, edge.target])).toEqual([
-      ["cmsInput-node", "aiCall-node"],
-      ["aiCall-node", "cmsOutput-node"],
+      ["cmsInput-node", "aiClassifierTagger-node"],
+      ["aiClassifierTagger-node", "cmsOutput-node"],
     ]);
 
     const cmsInputNode = nodes[0];
-    const aiCallNode = nodes[1];
+    const aiClassifierTaggerNode = nodes[1];
     const cmsOutputNode = nodes[2];
 
     expect(cmsInputNode.data?.title).toBe("從CMS輸入");
@@ -120,11 +120,35 @@ describe("demo article classification workflow seed", () => {
     expect(cmsInputNode.data).not.toHaveProperty("entryId");
     expect(cmsInputNode.data).not.toHaveProperty("fields");
     expect(cmsInputNode.data).not.toHaveProperty("author");
-    expect(aiCallNode.data?.title).toBe("呼叫 AI");
-    expect(aiCallNode.data?.promptTemplate).toEqual(expect.any(String));
-    expect(aiCallNode.data?.promptTemplate).not.toHaveLength(0);
-    expect(aiCallNode.data?.cmsField).toEqual(expect.any(String));
-    expect(aiCallNode.data?.cmsField).not.toHaveLength(0);
+    expect(aiClassifierTaggerNode.id).toBe("aiClassifierTagger-node");
+    expect(aiClassifierTaggerNode.measured).toEqual({
+      width: 240,
+      height: 62,
+    });
+    expect(aiClassifierTaggerNode.data?.title).toBe("AI自動分類與標籤");
+    expect(aiClassifierTaggerNode.data).toMatchObject({
+      model: "gemini-1.5-flash",
+      inputFields: {
+        title: "source.title",
+        content: "source.content",
+      },
+      categoryAmount: 1,
+      tagAmount: 3,
+      responseFormat: {
+        type: "json",
+        schema: {
+          categories: "array[string]",
+          tags: "array[string]",
+        },
+      },
+      outputFields: {
+        categories: "array[string]",
+        tags: "array[string]",
+      },
+    });
+    expect(aiClassifierTaggerNode.data?.promptTemplate).toBe(
+      '你是一個新聞編輯助理，請根據文章內容產出分類與標籤。\n\n請嚴格依照以下 JSON 格式輸出，且不要加入任何說明文字：\n\n{\n  "categories": ["string"],\n  "tags": ["string"]\n}\n\n文章標題：{{title}}\n文章內文：{{content}}\n\n請產出 {{categoryAmount}} 個分類與 {{tagAmount}} 個標籤。',
+    );
     expect(cmsOutputNode.data?.title).toBe("輸出到 CMS");
     expect(cmsOutputNode.data?.mappings).toEqual(
       expect.arrayContaining([

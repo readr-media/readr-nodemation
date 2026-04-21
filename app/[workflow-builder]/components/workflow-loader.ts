@@ -10,7 +10,7 @@ import type { ExportResultNodeData } from "@/components/flow/nodes/export-result
 import type { WorkflowStatus } from "@/lib/workflow-status";
 import { createAiClassifierTaggerNodeData } from "@/stores/flow-editor/slices/ai-classifier-tagger-node-slice";
 import { createCmsInputNodeData } from "@/stores/flow-editor/slices/cms-node-slice";
-import { generateId } from "@/utils/generate-id";
+import { createCmsOutputNodeData } from "@/stores/flow-editor/slices/cms-output-node-slice";
 
 type WorkflowRecord = {
   id: string;
@@ -170,40 +170,8 @@ const normalizeAiClassifierTaggerData = (
 };
 
 const normalizeCmsOutputData = (
-  data: Record<string, unknown>,
-): CmsOutputNodeData => ({
-  title:
-    typeof data.title === "string"
-      ? data.title
-      : typeof data.label === "string"
-        ? data.label
-        : "輸出到 CMS",
-  cmsLocation:
-    typeof data.cmsLocation === "string"
-      ? data.cmsLocation
-      : typeof data.cmsDestination === "string"
-        ? data.cmsDestination
-        : "READr",
-  articleIdOrSlug:
-    typeof data.articleIdOrSlug === "string" ? data.articleIdOrSlug : "",
-  mappings: Array.isArray(data.mappings)
-    ? data.mappings.map((mapping) => ({
-        id:
-          typeof (mapping as Record<string, unknown>).id === "string"
-            ? ((mapping as Record<string, unknown>).id as string)
-            : generateId(),
-        sourceField:
-          typeof (mapping as Record<string, unknown>).sourceField === "string"
-            ? ((mapping as Record<string, unknown>).sourceField as string)
-            : "",
-        targetField:
-          typeof (mapping as Record<string, unknown>).targetField === "string"
-            ? ((mapping as Record<string, unknown>).targetField as string)
-            : "",
-      }))
-    : [],
-  mode: data.mode === "append" ? "append" : "overwrite",
-});
+  _data: Record<string, unknown>,
+): CmsOutputNodeData => createCmsOutputNodeData();
 
 const normalizeCodeData = (data: Record<string, unknown>): CodeNodeData => ({
   title:

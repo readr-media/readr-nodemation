@@ -149,18 +149,33 @@ describe("demo article classification workflow seed", () => {
     expect(aiClassifierTaggerNode.data?.promptTemplate).toBe(
       '你是一個新聞編輯助理，請根據文章內容產出分類與標籤。\n\n請嚴格依照以下 JSON 格式輸出，且不要加入任何說明文字：\n\n{\n  "categories": ["string"],\n  "tags": ["string"]\n}\n\n文章標題：{{title}}\n文章內文：{{content}}\n\n請產出 {{categoryAmount}} 個分類與 {{tagAmount}} 個標籤。',
     );
-    expect(cmsOutputNode.data?.title).toBe("輸出到 CMS");
-    expect(cmsOutputNode.data?.mappings).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          id: expect.any(String),
-          targetField: expect.any(String),
-        }),
-        expect.objectContaining({
-          id: expect.any(String),
-          targetField: expect.any(String),
-        }),
-      ]),
-    );
+    expect(cmsOutputNode.measured).toEqual({
+      width: 240,
+      height: 62,
+    });
+    expect(cmsOutputNode.data).toMatchObject({
+      title: "輸出文字到CMS",
+      cmsConfigId: "",
+      cmsName: "Readr CMS",
+      cmsList: "Posts",
+      cmsPostIds: "",
+      cmsPostSlugs: "",
+      mappings: [
+        {
+          id: "ai-categories-to-categories",
+          sourceField: "{{ ai.categories }}",
+          targetField: "categories",
+        },
+        {
+          id: "ai-tags-to-tags",
+          sourceField: "{{ ai.tags }}",
+          targetField: "tags",
+        },
+      ],
+      mode: "overwrite",
+      postStatus: "draft",
+    });
+    expect(cmsOutputNode.data).not.toHaveProperty("cmsLocation");
+    expect(cmsOutputNode.data).not.toHaveProperty("articleIdOrSlug");
   });
 });

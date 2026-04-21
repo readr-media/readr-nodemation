@@ -144,15 +144,19 @@ const demoArticleClassificationNodes = JSON.stringify([
     id: "cmsOutput-node",
     type: "cmsOutput",
     position: { x: 640, y: 160 },
+    measured: { width: 240, height: 62 },
     data: {
-      title: "輸出到 CMS",
-      cmsLocation: "demo-cms",
-      articleIdOrSlug: "",
+      title: "輸出文字到CMS",
+      cmsConfigId: "",
+      cmsName: "Readr CMS",
+      cmsList: "Posts",
+      cmsPostIds: "",
+      cmsPostSlugs: "",
       mappings: [
         {
-          id: "ai-category-to-category",
-          sourceField: "{{ ai.category }}",
-          targetField: "category",
+          id: "ai-categories-to-categories",
+          sourceField: "{{ ai.categories }}",
+          targetField: "categories",
         },
         {
           id: "ai-tags-to-tags",
@@ -161,6 +165,7 @@ const demoArticleClassificationNodes = JSON.stringify([
         },
       ],
       mode: "overwrite",
+      postStatus: "draft",
     },
   },
 ]);

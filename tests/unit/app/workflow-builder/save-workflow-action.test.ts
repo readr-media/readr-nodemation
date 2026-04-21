@@ -65,11 +65,52 @@ const aiClassifierTaggerNodes: Node[] = [
   },
 ];
 
+const cmsOutputNodes: Node[] = [
+  ...aiClassifierTaggerNodes,
+  {
+    id: "node-3",
+    type: "cmsOutput",
+    position: { x: 480, y: 0 },
+    measured: { width: 240, height: 62 },
+    data: {
+      title: "輸出文字到CMS",
+      cmsConfigId: "",
+      cmsName: "Readr CMS",
+      cmsList: "Posts",
+      cmsPostIds: "",
+      cmsPostSlugs: "",
+      mappings: [
+        {
+          id: "mapping-1",
+          sourceField: "{{ ai.categories }}",
+          targetField: "categories",
+        },
+        {
+          id: "mapping-2",
+          sourceField: "{{ ai.tags }}",
+          targetField: "tags",
+        },
+      ],
+      mode: "overwrite",
+      postStatus: "draft",
+    },
+  },
+];
+
 const edges: Edge[] = [
   {
     id: "edge-1",
     source: "node-1",
     target: "node-2",
+  },
+];
+
+const cmsOutputEdges: Edge[] = [
+  ...edges,
+  {
+    id: "edge-2",
+    source: "node-2",
+    target: "node-3",
   },
 ];
 
@@ -273,5 +314,74 @@ describe("saveWorkflow", () => {
         },
       },
     });
+  });
+
+  it("persists cmsOutput nodes with the approved schema in the request body", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "workflow-999",
+          name: "CMS 輸出流程",
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        },
+      ),
+    );
+    const resetBaseline = vi.fn();
+
+    await saveWorkflow({
+      mode: "update",
+      workflowId: "workflow-999",
+      name: "CMS 輸出流程",
+      description: "含 cmsOutput 節點",
+      status: "draft",
+      nodes: cmsOutputNodes,
+      edges: cmsOutputEdges,
+      fetchImpl,
+      resetBaseline,
+    });
+
+    const requestBody = JSON.parse(
+      fetchImpl.mock.calls[0]?.[1]?.body as string,
+    ) as {
+      nodes: Array<{
+        id: string;
+        type: string;
+        measured?: { width: number; height: number };
+        data?: Record<string, unknown>;
+      }>;
+    };
+
+    expect(requestBody.nodes[2]).toMatchObject({
+      id: "node-3",
+      type: "cmsOutput",
+      measured: { width: 240, height: 62 },
+      data: {
+        title: "輸出文字到CMS",
+        cmsConfigId: "",
+        cmsName: "Readr CMS",
+        cmsList: "Posts",
+        cmsPostIds: "",
+        cmsPostSlugs: "",
+        mappings: [
+          {
+            id: "mapping-1",
+            sourceField: "{{ ai.categories }}",
+            targetField: "categories",
+          },
+          {
+            id: "mapping-2",
+            sourceField: "{{ ai.tags }}",
+            targetField: "tags",
+          },
+        ],
+        mode: "overwrite",
+        postStatus: "draft",
+      },
+    });
+    expect(requestBody.nodes[2].data).not.toHaveProperty("cmsLocation");
+    expect(requestBody.nodes[2].data).not.toHaveProperty("articleIdOrSlug");
   });
 });

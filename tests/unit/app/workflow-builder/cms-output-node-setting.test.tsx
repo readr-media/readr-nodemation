@@ -1,3 +1,4 @@
+import type { ReactElement, ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
@@ -10,6 +11,59 @@ vi.mock("@/stores/flow-editor/nodes-store", () => ({
 
 const mockStoreState = {
   updateCmsOutputNodeData,
+};
+
+const getTextContent = (node: ReactNode): string => {
+  if (typeof node === "string" || typeof node === "number") {
+    return String(node);
+  }
+
+  if (Array.isArray(node)) {
+    return node.map(getTextContent).join("");
+  }
+
+  if (node && typeof node === "object" && "props" in node) {
+    return getTextContent((node as ReactElement).props.children);
+  }
+
+  return "";
+};
+
+const findButtonByLabel = (
+  node: ReactNode,
+  label: string,
+): ReactElement | null => {
+  if (!node) {
+    return null;
+  }
+
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const match = findButtonByLabel(child, label);
+      if (match) return match;
+    }
+
+    return null;
+  }
+
+  if (typeof node === "object" && "props" in node) {
+    const element = node as ReactElement;
+
+    if (typeof element.type === "function") {
+      return findButtonByLabel(element.type(element.props), label);
+    }
+
+    if (
+      element.type === "button" &&
+      getTextContent(element.props.children).includes(label)
+    ) {
+      return element;
+    }
+
+    return findButtonByLabel(element.props.children, label);
+  }
+
+  return null;
 };
 
 describe("cms output node setting", () => {
@@ -127,5 +181,43 @@ describe("cms output node setting", () => {
     const mappings = toggleCmsOutputFieldMapping([], "title", true);
 
     expect(mappings).toEqual([]);
+  });
+
+  it("clicking categories updates the node data with the derived mapping", async () => {
+    updateCmsOutputNodeData.mockClear();
+
+    const { default: CmsOutputNodeSetting } = await import(
+      "@/app/[workflow-builder]/components/node-settings/cms-output-node-setting"
+    );
+
+    const tree = CmsOutputNodeSetting({
+      nodeId: "cmsOutput-node",
+      data: {
+        title: "輸出文字到CMS",
+        cmsConfigId: "",
+        cmsName: "Readr CMS",
+        cmsList: "Posts",
+        cmsPostIds: "",
+        cmsPostSlugs: "",
+        mappings: [],
+        mode: "overwrite",
+        postStatus: "draft",
+      },
+    });
+
+    const categoriesButton = findButtonByLabel(tree, "分類");
+
+    expect(categoriesButton).not.toBeNull();
+    categoriesButton?.props.onClick();
+
+    expect(updateCmsOutputNodeData).toHaveBeenCalledWith("cmsOutput-node", {
+      mappings: [
+        {
+          id: expect.any(String),
+          sourceField: "{{ ai.categories }}",
+          targetField: "categories",
+        },
+      ],
+    });
   });
 });

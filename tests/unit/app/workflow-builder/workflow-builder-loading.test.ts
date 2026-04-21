@@ -4,6 +4,7 @@ import { createStore } from "zustand/vanilla";
 import { loadWorkflowIntoStores } from "@/app/[workflow-builder]/components/workflow-loader";
 import { createAiClassifierTaggerNodeSlice } from "@/stores/flow-editor/slices/ai-classifier-tagger-node-slice";
 import { createCmsNodeSlice } from "@/stores/flow-editor/slices/cms-node-slice";
+import { createCmsOutputNodeSlice } from "@/stores/flow-editor/slices/cms-output-node-slice";
 import type { NodesStore } from "@/stores/flow-editor/types";
 
 const legacyFileNamePattern = `\${workflow_name}_\${date}.json`;
@@ -190,6 +191,112 @@ describe("loadWorkflowIntoStores", () => {
       },
     });
     expect(store.getState().selectedNodeId).toBe(createdNode.id);
+  });
+
+  it("creates new cmsOutput nodes with the approved defaults", () => {
+    const store = createStore<NodesStore>()((set, get, api) => ({
+      nodes: [],
+      edges: [],
+      selectedNodeId: null,
+      ...createCmsOutputNodeSlice(set, get, api),
+    }));
+
+    store.getState().addCmsOutputNode();
+
+    const [createdNode] = store.getState().nodes;
+
+    expect(createdNode).toMatchObject({
+      type: "cmsOutput",
+      measured: {
+        width: 240,
+        height: 62,
+      },
+      data: {
+        title: "輸出文字到CMS",
+        cmsConfigId: "",
+        cmsName: "Readr CMS",
+        cmsList: "Posts",
+        cmsPostIds: "",
+        cmsPostSlugs: "",
+        mappings: [],
+        mode: "overwrite",
+        postStatus: "draft",
+      },
+    });
+    expect(store.getState().selectedNodeId).toBe(createdNode.id);
+  });
+
+  it("normalizes cmsOutput workflow nodes into the new schema", async () => {
+    const loadSnapshot = vi.fn();
+    const hydrateFromWorkflow = vi.fn();
+    const fetchImpl = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "cms-output-workflow",
+          name: "CMS 輸出流程",
+          description: "既有流程",
+          status: "draft",
+          nodes: JSON.stringify([
+            {
+              id: "cmsOutput-node",
+              type: "cmsOutput",
+              position: { x: 640, y: 160 },
+              data: {
+                label: "CMS 輸出",
+                cmsLocation: "demo-cms",
+                articleIdOrSlug: "3310",
+                mappings: [
+                  {
+                    sourceField: "{{ ai.tags }}",
+                    targetField: "tags",
+                  },
+                ],
+                mode: "append",
+              },
+            },
+          ]),
+          edges: JSON.stringify([]),
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        },
+      ),
+    );
+
+    const result = await loadWorkflowIntoStores({
+      workflowId: "cms-output-workflow",
+      fetchImpl,
+      loadSnapshot,
+      hydrateFromWorkflow,
+    });
+
+    expect(result).toEqual({ status: "loaded" });
+    expect(loadSnapshot).toHaveBeenCalledWith({
+      nodes: [
+        {
+          id: "cmsOutput-node",
+          type: "cmsOutput",
+          position: { x: 640, y: 160 },
+          data: {
+            title: "輸出文字到CMS",
+            cmsConfigId: "",
+            cmsName: "Readr CMS",
+            cmsList: "Posts",
+            cmsPostIds: "",
+            cmsPostSlugs: "",
+            mappings: [],
+            mode: "overwrite",
+            postStatus: "draft",
+          },
+        },
+      ],
+      edges: [],
+    });
+
+    const normalizedNode = loadSnapshot.mock.calls[0]?.[0]?.nodes[0];
+    expect(normalizedNode.data).not.toHaveProperty("cmsLocation");
+    expect(normalizedNode.data).not.toHaveProperty("articleIdOrSlug");
   });
 
   it("normalizes aiClassifierTagger workflow nodes before hydrating the stores", async () => {
@@ -698,22 +805,15 @@ describe("loadWorkflowIntoStores", () => {
           type: "cmsOutput",
           position: { x: 640, y: 160 },
           data: {
-            title: "CMS 輸出",
-            cmsLocation: "demo-cms",
-            articleIdOrSlug: "",
-            mappings: [
-              {
-                id: expect.any(String),
-                sourceField: "{{ ai.category }}",
-                targetField: "category",
-              },
-              {
-                id: expect.any(String),
-                sourceField: "{{ ai.category }}",
-                targetField: "category",
-              },
-            ],
+            title: "輸出文字到CMS",
+            cmsConfigId: "",
+            cmsName: "Readr CMS",
+            cmsList: "Posts",
+            cmsPostIds: "",
+            cmsPostSlugs: "",
+            mappings: [],
             mode: "overwrite",
+            postStatus: "draft",
           },
         },
       ],
@@ -725,8 +825,7 @@ describe("loadWorkflowIntoStores", () => {
 
     const snapshot = loadSnapshot.mock.calls[0]?.[0];
     const cmsOutputMappings = snapshot.nodes[2].data.mappings;
-    expect(cmsOutputMappings).toHaveLength(2);
-    expect(cmsOutputMappings[0].id).not.toBe(cmsOutputMappings[1].id);
+    expect(cmsOutputMappings).toEqual([]);
   });
 
   it("falls back to the current cmsInput defaults when legacy field settings are missing", async () => {

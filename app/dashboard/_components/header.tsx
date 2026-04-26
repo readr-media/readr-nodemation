@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import IconLogo from "@/public/logo.svg";
+import { UserInfo } from "@/components/layout/user-info";
 import { Button } from "@/components/ui/button";
 import {
   InputGroup,
@@ -13,7 +14,6 @@ import {
   SparklesIcon,
   DownloadIcon,
 } from "lucide-react";
-import { UserInfo } from "@/components/layout/user-info";
 
 export default function Header() {
   return (

@@ -6,11 +6,11 @@ import type {
   NodeChange,
 } from "@xyflow/react";
 import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
+import type { AiClassifierTaggerNodeData } from "@/components/flow/nodes/ai-classifier-tagger-node";
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
 import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
-import type { ReportNodeData } from "@/components/flow/nodes/report-node";
 
 export type FlowSlice = {
   nodes: Node[];
@@ -27,6 +27,14 @@ export type FlowSlice = {
 export type AiNodeSlice = {
   addAiNode: () => void;
   updateNodeData: (nodeId: string, data: Partial<AiCallNodeData>) => void;
+};
+
+export type AiClassifierTaggerNodeSlice = {
+  addAiClassifierTaggerNode: () => void;
+  updateAiClassifierTaggerNodeData: (
+    nodeId: string,
+    data: Partial<AiClassifierTaggerNodeData>,
+  ) => void;
 };
 
 export type CodeNodeSlice = {
@@ -55,15 +63,10 @@ export type ExportNodeSlice = {
   ) => void;
 };
 
-export type ReportNodeSlice = {
-  addReportNode: () => void;
-  updateReportNodeData: (nodeId: string, data: Partial<ReportNodeData>) => void;
-};
-
 export type NodesStore = FlowSlice &
   AiNodeSlice &
+  AiClassifierTaggerNodeSlice &
   CodeNodeSlice &
   CmsNodeSlice &
   CmsOutputNodeSlice &
-  ExportNodeSlice &
-  ReportNodeSlice;
+  ExportNodeSlice;

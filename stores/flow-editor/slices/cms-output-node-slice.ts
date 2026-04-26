@@ -1,31 +1,30 @@
 import type { Node } from "@xyflow/react";
 import type { StateCreator } from "zustand";
-import type {
-  CmsFieldMapping,
-  CmsOutputNodeData,
-} from "@/components/flow/nodes/cms-output-node";
+import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
+import { generateId } from "@/utils/generate-id";
 import { NODE_OFFSET_STEP } from "../constants";
 import type { CmsOutputNodeSlice, NodesStore } from "../types";
 
-const createDefaultMapping = (): CmsFieldMapping => ({
-  id: crypto.randomUUID(),
-  sourceField: "AI output",
-  targetField: "CMS tags",
+export const createCmsOutputNodeData = (): CmsOutputNodeData => ({
+  title: "輸出文字到CMS",
+  cmsConfigId: "",
+  cmsName: "Readr CMS",
+  cmsList: "Posts",
+  cmsPostIds: "",
+  cmsPostSlugs: "",
+  mappings: [],
+  mode: "overwrite",
+  postStatus: "draft",
 });
 
 const createCmsOutputNode = (
   offset: number,
 ): Node<CmsOutputNodeData, "cmsOutput"> => ({
-  id: crypto.randomUUID(),
+  id: generateId(),
   type: "cmsOutput",
   position: { x: offset, y: offset },
-  data: {
-    title: "輸出到 CMS",
-    cmsLocation: "READr",
-    articleIdOrSlug: "",
-    mappings: [createDefaultMapping()],
-    mode: "overwrite",
-  },
+  measured: { width: 240, height: 62 },
+  data: createCmsOutputNodeData(),
 });
 
 export const createCmsOutputNodeSlice: StateCreator<

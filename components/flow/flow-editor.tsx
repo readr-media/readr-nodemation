@@ -13,11 +13,11 @@ import {
 import { type ReactNode, useCallback, useMemo } from "react";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import AiCallNode from "./nodes/ai-call-node";
+import AiClassifierTaggerNode from "./nodes/ai-classifier-tagger-node";
 import CmsInputNode from "./nodes/cms-input-node";
 import CmsOutputNode from "./nodes/cms-output-node";
 import CodeNode from "./nodes/code-node";
 import ExportResultNode from "./nodes/export-result-node";
-import ReportNode from "./nodes/report-node";
 
 const panOnDrag = [1, 2];
 
@@ -33,11 +33,11 @@ const FlowEditor = ({ controlsSlot }: FlowEditorProps) => {
   const nodeTypes = useMemo<NodeTypes>(
     () => ({
       aiCall: AiCallNode,
+      aiClassifierTagger: AiClassifierTaggerNode,
       codeBlock: CodeNode,
       cmsInput: CmsInputNode,
       cmsOutput: CmsOutputNode,
       exportResult: ExportResultNode,
-      reportRecord: ReportNode,
     }),
     [],
   );

@@ -22,9 +22,17 @@ const statusFilters = [
   { label: "失敗", value: "failed" },
 ];
 
-export default function WorkflowSearchBar() {
-  const [timeRange, setTimeRange] = useState("all");
-
+export default function WorkflowSearchBar({
+  timeRange,
+  onTimeRangeChange,
+  status,
+  onStatusChange,
+}: {
+  timeRange: string;
+  onTimeRangeChange: (value: string) => void;
+  status: string;
+  onStatusChange: (value: string) => void;
+}) {
   return (
     <div className="rounded-xl p-6 border border-gray-400 bg-white">
       <div className="flex flex-col gap-y-4">
@@ -46,9 +54,12 @@ export default function WorkflowSearchBar() {
             {timeFilters.map((item) => (
               <Button
                 key={item.value}
-                className="px-3 h-8"
-                variant={timeRange === item.value ? "default" : "outline"}
-                onClick={() => setTimeRange(item.value)}
+                className={`px-3 h-8 ${
+                  timeRange === item.value &&
+                  "bg-green-500 text-white hover:bg-green-500 hover:text-white"
+                }`}
+                variant="outline"
+                onClick={() => onTimeRangeChange(item.value)}
               >
                 {item.label}
               </Button>
@@ -62,9 +73,12 @@ export default function WorkflowSearchBar() {
             {statusFilters.map((item) => (
               <Button
                 key={item.value}
-                className="px-3 h-8"
-                variant={timeRange === item.value ? "default" : "outline"}
-                onClick={() => setTimeRange(item.value)}
+                className={`px-3 h-8 ${
+                  status === item.value &&
+                  "bg-green-500 text-white hover:bg-green-500 hover:text-white"
+                }`}
+                variant="outline"
+                onClick={() => onStatusChange(item.value)}
               >
                 {item.label}
               </Button>

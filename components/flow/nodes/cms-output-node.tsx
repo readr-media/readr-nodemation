@@ -6,18 +6,31 @@ import { memo } from "react";
 
 import { cn } from "@/lib/utils";
 
+export type CmsOutputTargetField =
+  | "title"
+  | "recommendedTitle"
+  | "content"
+  | "summary"
+  | "categories"
+  | "tags"
+  | "recommendedPoll";
+
 export type CmsFieldMapping = {
   id: string;
   sourceField: string;
-  targetField: string;
+  targetField: CmsOutputTargetField;
 };
 
 export type CmsOutputNodeData = {
   title: string;
-  cmsLocation: string;
-  articleIdOrSlug: string;
+  cmsConfigId: string;
+  cmsName: string;
+  cmsList: string;
+  cmsPostIds: string;
+  cmsPostSlugs: string;
   mappings: CmsFieldMapping[];
   mode: "overwrite" | "append";
+  postStatus: "draft" | "published";
 };
 export type CmsOutputNodeType = Node<CmsOutputNodeData, "cmsOutput">;
 

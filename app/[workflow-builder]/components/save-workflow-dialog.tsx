@@ -1,7 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { SaveIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { Button } from "@/components/ui/button";
@@ -31,9 +31,10 @@ import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
 import { saveWorkflow } from "./save-workflow-action";
 import {
   getInitialSaveMode,
+  getSaveModeForDialogOpenState,
   getSaveWorkflowSubmitLabel,
-  shouldShowSaveModeSelector,
   type SaveMode,
+  shouldShowSaveModeSelector,
 } from "./save-workflow-dialog-state";
 
 const dialogContentStyle =
@@ -94,7 +95,13 @@ const SaveWorkflowDialog = ({
   const edgesJson = useMemo(() => JSON.stringify(edges, null, 2), [edges]);
 
   useEffect(() => {
-    setSaveMode(getInitialSaveMode(workflowId));
+    setSaveMode((currentSaveMode) =>
+      getSaveModeForDialogOpenState({
+        workflowId,
+        isOpen,
+        currentSaveMode,
+      }),
+    );
   }, [workflowId, isOpen]);
 
   const performSave = async (mode: SaveMode) => {

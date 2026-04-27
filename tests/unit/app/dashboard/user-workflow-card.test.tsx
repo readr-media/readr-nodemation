@@ -14,7 +14,9 @@ describe("UserWorkflowCard", () => {
       />,
     );
 
-    expect(markup).toContain('href="/workflow-builder?workflowId=workflow-123"');
+    expect(markup).toContain(
+      'href="/workflow-builder?workflowId=workflow-123"',
+    );
     expect(markup).toContain("<a");
     expect(markup).toContain("晨間自動發稿");
     expect(markup).toContain("編輯於 2026/03/25");

@@ -12,10 +12,10 @@ const Page = async ({ searchParams }: PageProps) => {
     : { workflowId: undefined };
 
   return (
-  <div className="flex flex-1 min-h-svh">
-    <WorkflowBuilder workflowId={resolvedSearchParams.workflowId ?? null} />
-  </div>
-);
+    <div className="flex flex-1 min-h-svh">
+      <WorkflowBuilder workflowId={resolvedSearchParams.workflowId ?? null} />
+    </div>
+  );
 };
 
 export default Page;

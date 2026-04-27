@@ -90,59 +90,95 @@ const demoArticleClassificationNodes = JSON.stringify([
     type: "cmsInput",
     position: { x: 80, y: 160 },
     data: {
-      label: "CMS 輸入",
-      cmsSource: "demo-cms",
-      contentType: "article",
-      enabledFields: {
+      title: "從CMS輸入",
+      cmsConfigId: "demo-cms-config",
+      cmsName: "Readr CMS",
+      cmsList: "Posts",
+      cmsPostIds: "",
+      cmsPostSlugs: "",
+      sourceFields: {
         title: true,
+        category: false,
         content: true,
+        tags: false,
       },
+      outputFields: {
+        title: "string",
+        categories: "array[string]",
+        content: "string",
+        tags: "array[string]",
+      },
+      outputFormat: "json",
     },
   },
   {
-    id: "aiCall-node",
-    type: "aiCall",
+    id: "aiClassifierTagger-node",
+    type: "aiClassifierTagger",
     position: { x: 360, y: 160 },
+    measured: { width: 240, height: 62 },
     data: {
-      label: "AI 分類與標記",
-      provider: "demo-ai",
-      model: "gpt-demo",
-      prompt:
-        "請根據文章標題與內文，輸出一個分類與兩個標籤，並保留 demo 用 placeholder 欄位名稱。",
-      targetField: "{{ cms.article.content }}",
+      title: "AI自動分類與標籤",
+      model: "gemini-1.5-flash",
+      inputFields: {
+        title: "source.title",
+        content: "source.content",
+      },
+      promptTemplate:
+        '你是一個新聞編輯助理，請根據文章內容產出分類與標籤。\n\n請嚴格依照以下 JSON 格式輸出，且不要加入任何說明文字：\n\n{\n  "categories": ["string"],\n  "tags": ["string"]\n}\n\n文章標題：{{title}}\n文章內文：{{content}}\n\n請產出 {{categoryAmount}} 個分類與 {{tagAmount}} 個標籤。',
+      categoryAmount: 1,
+      tagAmount: 3,
+      responseFormat: {
+        type: "json",
+        schema: {
+          categories: "array[string]",
+          tags: "array[string]",
+        },
+      },
+      outputFields: {
+        categories: "array[string]",
+        tags: "array[string]",
+      },
     },
   },
   {
     id: "cmsOutput-node",
     type: "cmsOutput",
     position: { x: 640, y: 160 },
+    measured: { width: 240, height: 62 },
     data: {
-      label: "CMS 輸出",
-      cmsDestination: "demo-cms",
-      contentType: "article",
+      title: "輸出文字到CMS",
+      cmsConfigId: "",
+      cmsName: "Readr CMS",
+      cmsList: "Posts",
+      cmsPostIds: "",
+      cmsPostSlugs: "",
       mappings: [
         {
-          sourceField: "{{ ai.category }}",
-          targetField: "category",
+          id: "ai-categories-to-categories",
+          sourceField: "{{ ai.categories }}",
+          targetField: "categories",
         },
         {
+          id: "ai-tags-to-tags",
           sourceField: "{{ ai.tags }}",
           targetField: "tags",
         },
       ],
+      mode: "overwrite",
+      postStatus: "draft",
     },
   },
 ]);
 
 const demoArticleClassificationEdges = JSON.stringify([
   {
-    id: "cmsInput-node->aiCall-node",
+    id: "cmsInput-node->aiClassifierTagger-node",
     source: "cmsInput-node",
-    target: "aiCall-node",
+    target: "aiClassifierTagger-node",
   },
   {
-    id: "aiCall-node->cmsOutput-node",
-    source: "aiCall-node",
+    id: "aiClassifierTagger-node->cmsOutput-node",
+    source: "aiClassifierTagger-node",
     target: "cmsOutput-node",
   },
 ]);

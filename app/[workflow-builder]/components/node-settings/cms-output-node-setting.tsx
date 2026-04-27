@@ -1,12 +1,10 @@
 "use client";
 
-import { ArrowRight, Play, Plus, Trash2 } from "lucide-react";
-
+import { Check } from "lucide-react";
 import type {
-  CmsFieldMapping,
   CmsOutputNodeData,
+  CmsOutputTargetField,
 } from "@/components/flow/nodes/cms-output-node";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
@@ -14,73 +12,151 @@ import { generateId } from "@/utils/generate-id";
 
 const labelClass =
   "text-sm font-medium leading-6 text-module-title tracking-tight";
-const helperClass = "text-xs text-module-muted";
-const selectClass =
-  "h-10 w-full rounded-lg border border-module-border bg-white px-3 text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)] focus-visible:border-[#00967d] focus-visible:ring-0";
+const fieldToggleLabelClass =
+  "text-base font-medium leading-none text-module-title";
 
-const cmsLocations = ["READr", "Custom CMS"];
-const modeOptions: Array<{
-  value: CmsOutputNodeData["mode"];
+const cmsOutputFieldOptions: Array<{
   label: string;
-  description: string;
+  targetField: CmsOutputTargetField;
+  disabled: boolean;
 }> = [
+  { label: "標題", targetField: "title", disabled: true },
   {
-    value: "overwrite",
-    label: "Overwrite（覆寫）",
-    description: "新資料會完全取代現有資料",
+    label: "建議標題",
+    targetField: "recommendedTitle",
+    disabled: true,
   },
+  { label: "內文", targetField: "content", disabled: true },
+  { label: "重點摘要", targetField: "summary", disabled: true },
+  { label: "分類", targetField: "categories", disabled: false },
+  { label: "標籤", targetField: "tags", disabled: false },
   {
-    value: "append",
-    label: "Append（附加）",
-    description: "新資料將附加在原有內容後方",
+    label: "建議投票選項",
+    targetField: "recommendedPoll",
+    disabled: true,
   },
 ];
 
-const FieldMappingRow = ({
-  mapping,
-  onChange,
-  onRemove,
-  disableRemove,
+const cmsOutputMappingTemplates: Partial<Record<CmsOutputTargetField, string>> =
+  {
+    categories: "{{ ai.categories }}",
+    tags: "{{ ai.tags }}",
+  };
+
+const modeOptions: Array<{
+  value: CmsOutputNodeData["mode"];
+  label: string;
+}> = [
+  { value: "overwrite", label: "Overwrite（覆寫）" },
+  { value: "append", label: "Append（附加）" },
+];
+
+const postStatusOptions: Array<{
+  value: NonNullable<CmsOutputNodeData["postStatus"]>;
+  label: string;
+}> = [
+  { value: "draft", label: "Draft（草稿）" },
+  { value: "published", label: "Published（發布）" },
+];
+
+const isTargetFieldSelected = (
+  mappings: CmsOutputNodeData["mappings"],
+  targetField: CmsOutputTargetField,
+) => mappings.some((mapping) => mapping.targetField === targetField);
+
+const toggleCmsOutputFieldMapping = (
+  mappings: CmsOutputNodeData["mappings"],
+  targetField: CmsOutputTargetField,
+  checked: boolean,
+): CmsOutputNodeData["mappings"] => {
+  const sourceField = cmsOutputMappingTemplates[targetField];
+
+  if (!sourceField) {
+    return mappings;
+  }
+
+  if (!checked) {
+    return mappings.filter((mapping) => mapping.targetField !== targetField);
+  }
+
+  const existingMapping = mappings.find(
+    (mapping) => mapping.targetField === targetField,
+  );
+
+  if (existingMapping) {
+    return mappings;
+  }
+
+  return [
+    ...mappings,
+    {
+      id: generateId(),
+      sourceField,
+      targetField,
+    },
+  ];
+};
+
+const FieldToggle = ({
+  label,
+  checked,
+  disabled,
+  onToggle,
 }: {
-  mapping: CmsFieldMapping;
-  onChange: (
-    mappingId: string,
-    field: "sourceField" | "targetField",
-    value: string,
-  ) => void;
-  onRemove: (mappingId: string) => void;
-  disableRemove: boolean;
+  label: string;
+  checked: boolean;
+  disabled: boolean;
+  onToggle: () => void;
 }) => (
-  <div className="flex w-full items-center gap-2">
-    <Input
-      value={mapping.sourceField}
-      placeholder="AI output"
-      className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
-      onChange={(event) =>
-        onChange(mapping.id, "sourceField", event.target.value)
-      }
-    />
-    <ArrowRight className="size-4 text-[#a09d92]" strokeWidth={1.75} />
-    <Input
-      value={mapping.targetField}
-      placeholder="CMS tags"
-      className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
-      onChange={(event) =>
-        onChange(mapping.id, "targetField", event.target.value)
-      }
-    />
-    <Button
-      type="button"
-      size="icon-sm"
-      variant="ghost"
-      aria-label="移除欄位對應"
-      disabled={disableRemove}
-      className="text-[#6e6b5e] hover:bg-transparent hover:text-[#2a2822] disabled:text-[#d4d3cc]"
-      onClick={() => onRemove(mapping.id)}
+  <button
+    type="button"
+    disabled={disabled}
+    onClick={onToggle}
+    className="flex items-center gap-3 text-sm text-module-title disabled:cursor-not-allowed disabled:opacity-50"
+  >
+    <span
+      className={cn(
+        "flex size-4 items-center justify-center rounded border text-white transition",
+        checked
+          ? "border-[#00967d] bg-[#00967d]"
+          : "border-[#d4d3cc] bg-white text-transparent",
+      )}
     >
-      <Trash2 className="size-4" strokeWidth={1.5} />
-    </Button>
-  </div>
+      <Check className="size-3" strokeWidth={3} />
+    </span>
+    <span className={fieldToggleLabelClass}>{label}</span>
+  </button>
+);
+
+const RadioOption = ({
+  label,
+  checked,
+  onSelect,
+}: {
+  label: string;
+  checked: boolean;
+  onSelect: () => void;
+}) => (
+  <button
+    type="button"
+    onClick={onSelect}
+    className="flex w-full items-center gap-2 text-sm text-module-title"
+  >
+    <span
+      className={cn(
+        "flex size-4 items-center justify-center rounded-full border transition",
+        checked ? "border-[#00967d]" : "border-[#d4d3cc]",
+      )}
+    >
+      <span
+        className={cn(
+          "size-2 rounded-full bg-[#00967d] transition",
+          checked ? "opacity-100" : "opacity-0",
+        )}
+      />
+    </span>
+    <span className={fieldToggleLabelClass}>{label}</span>
+  </button>
 );
 
 const CmsOutputNodeSetting = ({
@@ -98,48 +174,14 @@ const CmsOutputNodeSetting = ({
     updateCmsOutputNodeData(nodeId, payload);
   };
 
-  const handleLocationChange = (value: string) => {
-    handleDataChange({ cmsLocation: value });
-  };
-
-  const handleArticleIdChange = (value: string) => {
-    handleDataChange({ articleIdOrSlug: value });
-  };
-
-  const handleMappingChange = (
-    mappingId: string,
-    field: "sourceField" | "targetField",
-    value: string,
-  ) => {
+  const handleFieldToggle = (targetField: CmsOutputTargetField) => {
     handleDataChange({
-      mappings: data.mappings.map((mapping) =>
-        mapping.id === mappingId ? { ...mapping, [field]: value } : mapping,
+      mappings: toggleCmsOutputFieldMapping(
+        data.mappings,
+        targetField,
+        !isTargetFieldSelected(data.mappings, targetField),
       ),
     });
-  };
-
-  const handleAddMapping = () => {
-    handleDataChange({
-      mappings: [
-        ...data.mappings,
-        {
-          id: generateId(),
-          sourceField: "",
-          targetField: "",
-        },
-      ],
-    });
-  };
-
-  const handleRemoveMapping = (mappingId: string) => {
-    if (data.mappings.length === 1) return;
-    handleDataChange({
-      mappings: data.mappings.filter((mapping) => mapping.id !== mappingId),
-    });
-  };
-
-  const handleModeChange = (mode: CmsOutputNodeData["mode"]) => {
-    handleDataChange({ mode });
   };
 
   return (
@@ -147,115 +189,85 @@ const CmsOutputNodeSetting = ({
       <div className="space-y-6">
         <div className="space-y-2">
           <p className="text-lg font-medium text-module-title">
-            輸出到 CMS 設定
+            輸出文字到 CMS 設定
           </p>
         </div>
 
         <section className="space-y-2">
-          <p className={labelClass}>CMS 寫入位置</p>
+          <p className={labelClass}>輸入CMS名稱</p>
+          <Input
+            value={data.cmsName ?? "Readr CMS"}
+            disabled
+            readOnly
+            className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
+          />
+        </section>
+
+        <section className="space-y-2">
+          <p className={labelClass}>輸入 CMS List</p>
           <select
-            value={data.cmsLocation}
-            onChange={(event) => handleLocationChange(event.target.value)}
-            className={selectClass}
+            value={data.cmsList ?? "Posts"}
+            onChange={() => undefined}
+            disabled
+            className="h-10 w-full rounded-lg border border-module-border bg-white px-3 text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)] focus-visible:border-[#00967d] focus-visible:ring-0"
           >
-            {cmsLocations.map((location) => (
-              <option key={location} value={location}>
-                {location}
-              </option>
-            ))}
+            <option value="Posts">Posts</option>
           </select>
         </section>
 
         <section className="space-y-3">
-          <p className={labelClass}>文章 ID 或 slug</p>
-          <Input
-            value={data.articleIdOrSlug}
-            placeholder="輸入目標文章的 ID 或 slug"
-            className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
-            onChange={(event) => handleArticleIdChange(event.target.value)}
-          />
-        </section>
-
-        <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <p className={labelClass}>欄位對應</p>
-            <button
-              type="button"
-              onClick={handleAddMapping}
-              className="flex items-center gap-2 text-sm font-medium text-module-title"
-            >
-              <Plus className="size-4 text-[#6e6b5e]" strokeWidth={1.75} />
-              新增對應
-            </button>
-          </div>
+          <p className={labelClass}>回寫欄位</p>
           <div className="space-y-2">
-            {data.mappings.map((mapping) => (
-              <FieldMappingRow
-                key={mapping.id}
-                mapping={mapping}
-                disableRemove={data.mappings.length === 1}
-                onChange={handleMappingChange}
-                onRemove={handleRemoveMapping}
+            {cmsOutputFieldOptions.map((field) => (
+              <FieldToggle
+                key={field.targetField}
+                label={field.label}
+                checked={isTargetFieldSelected(
+                  data.mappings,
+                  field.targetField,
+                )}
+                disabled={field.disabled}
+                onToggle={() => handleFieldToggle(field.targetField)}
               />
             ))}
           </div>
-          <p className={helperClass}>
-            設定 AI 輸出欄位對應到 CMS 欄位的對應關係
-          </p>
         </section>
 
         <section className="space-y-3">
-          <p className={labelClass}>寫入模式</p>
+          <p className={labelClass}>回寫模式</p>
           <div className="space-y-2">
             {modeOptions.map((option) => (
-              <button
+              <RadioOption
                 key={option.value}
-                type="button"
-                onClick={() => handleModeChange(option.value)}
-                className="flex w-full items-center gap-2 text-sm text-module-title"
-              >
-                <span
-                  className={cn(
-                    "flex size-4 items-center justify-center rounded-full border transition",
-                    option.value === data.mode
-                      ? "border-[#00967d]"
-                      : "border-[#d4d3cc]",
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "size-2 rounded-full bg-[#00967d] transition",
-                      option.value === data.mode ? "opacity-100" : "opacity-0",
-                    )}
-                  />
-                </span>
-                {option.label}
-              </button>
+                label={option.label}
+                checked={option.value === data.mode}
+                onSelect={() => handleDataChange({ mode: option.value })}
+              />
             ))}
           </div>
-          <p className={helperClass}>
-            {
-              modeOptions.find((option) => option.value === data.mode)
-                ?.description
-            }
-          </p>
         </section>
 
-        <section className="space-y-2">
-          <p className={labelClass}>驗證 API Key</p>
-          <Button
-            type="button"
-            variant="outline"
-            disabled
-            className="flex w-full items-center justify-center rounded-[10px] border-module-border bg-white text-sm text-module-title"
-          >
-            <Play className="size-4 text-[#2a2822]" strokeWidth={1.5} />
-            測試 CMS 權限連線
-          </Button>
+        <section className="space-y-3">
+          <p className={labelClass}>CMS 狀態</p>
+          <div className="space-y-2">
+            {postStatusOptions.map((option) => (
+              <RadioOption
+                key={option.value}
+                label={option.label}
+                checked={option.value === (data.postStatus ?? "draft")}
+                onSelect={() => handleDataChange({ postStatus: option.value })}
+              />
+            ))}
+          </div>
         </section>
       </div>
     </div>
   );
 };
 
+export {
+  cmsOutputFieldOptions,
+  isTargetFieldSelected,
+  toggleCmsOutputFieldMapping,
+};
 export default CmsOutputNodeSetting;

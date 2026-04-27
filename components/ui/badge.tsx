@@ -10,13 +10,17 @@ const badgeVariants = cva(
     variants: {
       variant: {
         published:
-          "border-transparent bg-green-100 border-green-300 text-green-700 font-normal",
+          "bg-green-100 border-green-300 text-green-700",
         draft:
-          "border-transparent bg-yellow-100 border-yellow-300 text-yellow-700 font-normal",
+          "bg-yellow-100 border-yellow-300 text-yellow-700",
         template:
-          "border-transparent bg-gray-300 border-gray-400 text-gray-700 font-normal",
+          "bg-gray-300 border-gray-400 text-gray-700",
         running:
-          "border-transparent bg-red-100 border-red-300 text-red-700 font-normal",
+          "bg-red-100 border-red-300 text-red-700",
+        success:
+          "border-0 bg-green-100 px-3 text-green-500 py-1 text-sm",
+        failed:
+          "border-0 bg-red-100 px-3 bg-red-100 text-red-500 py-1 text-sm",
       },
     },
     defaultVariants: {

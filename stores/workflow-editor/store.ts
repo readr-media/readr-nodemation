@@ -1,8 +1,8 @@
 "use client";
 
 import type { Edge, Node } from "@xyflow/react";
-import { create } from "zustand";
 import type { StoreApi, UseBoundStore } from "zustand";
+import { create } from "zustand";
 import type { WorkflowStatus } from "@/lib/workflow-status";
 
 type WorkflowGraphSnapshot = {
@@ -118,7 +118,7 @@ const computeIsDirty = (
 
 const createWorkflowEditorState = (
   set: StoreApi<WorkflowEditorState>["setState"],
-  get: StoreApi<WorkflowEditorState>["getState"],
+  _get: StoreApi<WorkflowEditorState>["getState"],
 ): WorkflowEditorState => ({
   workflowId: null,
   sourceWorkflowId: null,
@@ -227,6 +227,9 @@ const createWorkflowEditorState = (
 
 export const createWorkflowEditorStore = (): UseBoundStore<
   StoreApi<WorkflowEditorState>
-> => create<WorkflowEditorState>()((set, get) => createWorkflowEditorState(set, get));
+> =>
+  create<WorkflowEditorState>()((set, get) =>
+    createWorkflowEditorState(set, get),
+  );
 
 export const useWorkflowEditorStore = createWorkflowEditorStore();

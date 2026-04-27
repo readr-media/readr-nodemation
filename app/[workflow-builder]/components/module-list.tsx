@@ -7,6 +7,7 @@ import { moduleGroups } from "./module-list-config";
 const ModuleList = () => {
   const {
     addAiNode,
+    addAiClassifierTaggerNode,
     addCodeNode,
     addCmsNode,
     addCmsOutputNode,
@@ -28,6 +29,9 @@ const ModuleList = () => {
                 onClick={() => {
                   if (nodeType === "aiCall") {
                     addAiNode();
+                  }
+                  if (nodeType === "aiClassifierTagger") {
+                    addAiClassifierTaggerNode();
                   }
                   if (nodeType === "codeBlock") {
                     addCodeNode();

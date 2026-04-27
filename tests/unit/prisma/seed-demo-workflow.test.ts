@@ -25,8 +25,14 @@ const loadWorkflowSeed = (): SeedWorkflow[] => {
         return {
           PrismaClient: class PrismaClient {
             moduleUnit = { deleteMany: async () => undefined };
-            moduleType = { deleteMany: async () => undefined, create: async () => undefined };
-            workflowTemplate = { deleteMany: async () => undefined, create: async () => undefined };
+            moduleType = {
+              deleteMany: async () => undefined,
+              create: async () => undefined,
+            };
+            workflowTemplate = {
+              deleteMany: async () => undefined,
+              create: async () => undefined,
+            };
             workflow = { upsert: async () => undefined };
             $disconnect = async () => undefined;
           },
@@ -59,12 +65,15 @@ describe("demo article classification workflow seed", () => {
     );
 
     expect(workflow).toBeDefined();
+    if (!workflow) {
+      throw new Error("Expected workflow seed to include 文章自動分類與標記");
+    }
 
-    const nodes = JSON.parse(workflow!.nodes) as Array<{
+    const nodes = JSON.parse(workflow.nodes) as Array<{
       type: string;
       data?: Record<string, unknown>;
     }>;
-    const edges = JSON.parse(workflow!.edges) as Array<{
+    const edges = JSON.parse(workflow.edges) as Array<{
       source: string;
       target: string;
     }>;
@@ -72,32 +81,101 @@ describe("demo article classification workflow seed", () => {
     expect(nodes).toHaveLength(3);
     expect(nodes.map((node) => node.type)).toEqual([
       "cmsInput",
-      "aiCall",
+      "aiClassifierTagger",
       "cmsOutput",
     ]);
     expect(edges).toHaveLength(2);
     expect(edges.map((edge) => [edge.source, edge.target])).toEqual([
-      ["cmsInput-node", "aiCall-node"],
-      ["aiCall-node", "cmsOutput-node"],
+      ["cmsInput-node", "aiClassifierTagger-node"],
+      ["aiClassifierTagger-node", "cmsOutput-node"],
     ]);
 
     const cmsInputNode = nodes[0];
-    const aiCallNode = nodes[1];
+    const aiClassifierTaggerNode = nodes[1];
     const cmsOutputNode = nodes[2];
 
-    expect(cmsInputNode.data?.enabledFields).toEqual({
-      title: true,
-      content: true,
+    expect(cmsInputNode.data?.title).toBe("從CMS輸入");
+    expect(cmsInputNode.data).toMatchObject({
+      title: "從CMS輸入",
+      cmsConfigId: expect.any(String),
+      cmsName: expect.any(String),
+      cmsList: "Posts",
+      cmsPostIds: expect.any(String),
+      cmsPostSlugs: expect.any(String),
+      sourceFields: {
+        title: expect.any(Boolean),
+        category: expect.any(Boolean),
+        content: expect.any(Boolean),
+        tags: expect.any(Boolean),
+      },
+      outputFields: {
+        title: "string",
+        categories: "array[string]",
+        content: "string",
+        tags: "array[string]",
+      },
+      outputFormat: "json",
     });
-    expect(aiCallNode.data?.prompt).toEqual(expect.any(String));
-    expect(aiCallNode.data?.prompt).not.toHaveLength(0);
-    expect(aiCallNode.data?.targetField).toEqual(expect.any(String));
-    expect(aiCallNode.data?.targetField).not.toHaveLength(0);
-    expect(cmsOutputNode.data?.mappings).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ targetField: expect.any(String) }),
-        expect.objectContaining({ targetField: expect.any(String) }),
-      ]),
+    expect(cmsInputNode.data).not.toHaveProperty("source");
+    expect(cmsInputNode.data).not.toHaveProperty("entryId");
+    expect(cmsInputNode.data).not.toHaveProperty("fields");
+    expect(cmsInputNode.data).not.toHaveProperty("author");
+    expect(aiClassifierTaggerNode.id).toBe("aiClassifierTagger-node");
+    expect(aiClassifierTaggerNode.measured).toEqual({
+      width: 240,
+      height: 62,
+    });
+    expect(aiClassifierTaggerNode.data?.title).toBe("AI自動分類與標籤");
+    expect(aiClassifierTaggerNode.data).toMatchObject({
+      model: "gemini-1.5-flash",
+      inputFields: {
+        title: "source.title",
+        content: "source.content",
+      },
+      categoryAmount: 1,
+      tagAmount: 3,
+      responseFormat: {
+        type: "json",
+        schema: {
+          categories: "array[string]",
+          tags: "array[string]",
+        },
+      },
+      outputFields: {
+        categories: "array[string]",
+        tags: "array[string]",
+      },
+    });
+    expect(aiClassifierTaggerNode.data?.promptTemplate).toBe(
+      '你是一個新聞編輯助理，請根據文章內容產出分類與標籤。\n\n請嚴格依照以下 JSON 格式輸出，且不要加入任何說明文字：\n\n{\n  "categories": ["string"],\n  "tags": ["string"]\n}\n\n文章標題：{{title}}\n文章內文：{{content}}\n\n請產出 {{categoryAmount}} 個分類與 {{tagAmount}} 個標籤。',
     );
+    expect(cmsOutputNode.measured).toEqual({
+      width: 240,
+      height: 62,
+    });
+    expect(cmsOutputNode.data).toMatchObject({
+      title: "輸出文字到CMS",
+      cmsConfigId: "",
+      cmsName: "Readr CMS",
+      cmsList: "Posts",
+      cmsPostIds: "",
+      cmsPostSlugs: "",
+      mappings: [
+        {
+          id: "ai-categories-to-categories",
+          sourceField: "{{ ai.categories }}",
+          targetField: "categories",
+        },
+        {
+          id: "ai-tags-to-tags",
+          sourceField: "{{ ai.tags }}",
+          targetField: "tags",
+        },
+      ],
+      mode: "overwrite",
+      postStatus: "draft",
+    });
+    expect(cmsOutputNode.data).not.toHaveProperty("cmsLocation");
+    expect(cmsOutputNode.data).not.toHaveProperty("articleIdOrSlug");
   });
 });

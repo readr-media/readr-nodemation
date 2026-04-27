@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
 import type { AiClassifierTaggerNodeData } from "@/components/flow/nodes/ai-classifier-tagger-node";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -109,7 +110,9 @@ const AiClassifierTaggerNodeSetting = ({
           <Input
             className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
             value={data.inputFields.title}
-            onInput={(event) => updateInputFields("title", event.target.value)}
+            onInput={(event: FormEvent<HTMLInputElement>) =>
+              updateInputFields("title", event.currentTarget.value)
+            }
           />
         </section>
 
@@ -118,8 +121,8 @@ const AiClassifierTaggerNodeSetting = ({
           <Input
             className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
             value={data.inputFields.content}
-            onInput={(event) =>
-              updateInputFields("content", event.target.value)
+            onInput={(event: FormEvent<HTMLInputElement>) =>
+              updateInputFields("content", event.currentTarget.value)
             }
           />
         </section>
@@ -129,9 +132,9 @@ const AiClassifierTaggerNodeSetting = ({
           <Textarea
             className="min-h-[140px] rounded-[10px] border-module-border bg-white text-sm leading-6 text-module-title"
             value={data.promptTemplate ?? ""}
-            onInput={(event) =>
+            onInput={(event: FormEvent<HTMLTextAreaElement>) =>
               updateAiClassifierTaggerNodeData(nodeId, {
-                promptTemplate: event.target.value,
+                promptTemplate: event.currentTarget.value,
               })
             }
           />
@@ -144,8 +147,8 @@ const AiClassifierTaggerNodeSetting = ({
             type="number"
             min={0}
             value={categoryAmountInput}
-            onInput={(event) => {
-              const nextInput = event.target.value;
+            onInput={(event: FormEvent<HTMLInputElement>) => {
+              const nextInput = event.currentTarget.value;
               setCategoryAmountInput(nextInput);
 
               const nextValue = parsePositiveIntegerInput(nextInput);
@@ -167,8 +170,8 @@ const AiClassifierTaggerNodeSetting = ({
             type="number"
             min={0}
             value={tagAmountInput}
-            onInput={(event) => {
-              const nextInput = event.target.value;
+            onInput={(event: FormEvent<HTMLInputElement>) => {
+              const nextInput = event.currentTarget.value;
               setTagAmountInput(nextInput);
 
               const nextValue = parsePositiveIntegerInput(nextInput);

@@ -50,7 +50,7 @@ const selectTriggerStyle =
 const emptyDisplay = "(空白)";
 
 const statusLabels: Record<WorkflowStatus, string> = {
-  template: "範本",
+  template: "模板",
   draft: "草稿",
   published: "已發佈",
   running: "執行中",

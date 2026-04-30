@@ -6,10 +6,10 @@ import {
   Clock3Icon,
   MoreHorizontalIcon,
   PlayIcon,
-  SendIcon,
+  SaveIcon,
   UploadIcon,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { UserInfo } from "@/components/layout/user-info";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,8 +21,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
-import SaveWorkflowDialog from "./save-workflow-dialog";
-import ScheduleDialog from "./schedule-dialog";
+import SaveWorkflowDialog from "@/app/[workflow-builder]/components/save-workflow-dialog";
+import ScheduleDialog from "@/app/[workflow-builder]/components/schedule-dialog";
+import { useFlowJSON } from "@/hooks/use-flow-json";
+import { useRouter } from "next/navigation";
 
 const statusLabels = {
   template: "模板",
@@ -31,38 +33,40 @@ const statusLabels = {
   running: "執行中",
 } as const;
 
-function InlineEditableText() {
-  const [isEditing, setIsEditing] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const workflowName = useWorkflowEditorStore((state) => state.name);
-  const setWorkflowName = useWorkflowEditorStore((state) => state.setName);
+// function InlineEditableText() {
+//   const [isEditing, setIsEditing] = useState(false);
+//   const inputRef = useRef<HTMLInputElement>(null);
+//   const workflowName = useWorkflowEditorStore((state) => state.name);
+//   const setWorkflowName = useWorkflowEditorStore((state) => state.setName);
 
-  useEffect(() => {
-    if (isEditing && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isEditing]);
+//   useEffect(() => {
+//     if (isEditing && inputRef.current) {
+//       inputRef.current.focus();
+//     }
+//   }, [isEditing]);
 
-  return (
-    <div>
-      <Input
-        ref={inputRef}
-        aria-label="Workflow 名稱"
-        value={workflowName}
-        onChange={(event) => setWorkflowName(event.target.value)}
-        onFocus={() => setIsEditing(true)}
-        onBlur={() => setIsEditing(false)}
-        className={`transition-all w-36 body-1 px-2 py-1 ${
-          isEditing
-            ? "border-gray-600 w-[200px]"
-            : "shadow-none border-none hover:bg-gray-300 cursor-pointer"
-        }`}
-      />
-    </div>
-  );
-}
+//   return (
+//     <div>
+//       <Input
+//         ref={inputRef}
+//         aria-label="Workflow 名稱"
+//         value={workflowName}
+//         onChange={(event) => setWorkflowName(event.target.value)}
+//         onFocus={() => setIsEditing(true)}
+//         onBlur={() => setIsEditing(false)}
+//         className={`transition-all w-36 body-1 px-2 py-1 ${
+//           isEditing
+//             ? "border-gray-600 w-[200px]"
+//             : "shadow-none border-none hover:bg-gray-300 cursor-pointer"
+//         }`}
+//       />
+//     </div>
+//   );
+// }
 
-export default function Header() {
+export default function WorkflowBuilderHeader() {
+  const { handleExport } = useFlowJSON();
+  const router = useRouter();
   const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
   const workflowName = useWorkflowEditorStore((state) => state.name);
   const workflowDescription = useWorkflowEditorStore(
@@ -76,6 +80,14 @@ export default function Header() {
   );
   const setWorkflowStatus = useWorkflowEditorStore((state) => state.setStatus);
 
+  const handleBack = useCallback(() => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+    } else {
+      router.push("/dashboard");
+    }
+  }, [router]);
+
   return (
     <header>
       <div className="flex h-16 w-full items-center justify-between border-b border-b-[#e8e7e2/80] bg-white/80 px-6 text-base font-normal">
@@ -83,33 +95,27 @@ export default function Header() {
           <Button
             aria-label="返回 Dashboard"
             className="has-[>svg]:px-2 border-none hover:bg-gray-300"
+            onClick={handleBack}
           >
             <ArrowLeftIcon />
           </Button>
-          <InlineEditableText />
-          <Badge variant={workflowStatus}>{statusLabels[workflowStatus]}</Badge>
+          {/* <InlineEditableText /> */}
+          <h2 className="body-1 text-gray-900 px-2">{workflowName}</h2>
+          {workflowStatus === "template" && (
+            <Badge variant={workflowStatus}>
+              {statusLabels[workflowStatus]}
+            </Badge>
+          )}
         </div>
 
         <div className="flex items-center gap-x-3">
-          {isDirty ? (
+          {/* {isDirty ? (
             <p className="body-3 text-gray-700" aria-live="polite">
               未儲存變更
             </p>
-          ) : null}
-          <Button className="border-gray-100 text-gray-600">
-            <BugIcon />
-            測試節點
-          </Button>
-          <SaveWorkflowDialog
-            workflowName={workflowName}
-            onWorkflowNameChange={setWorkflowName}
-            workflowDescription={workflowDescription}
-            onWorkflowDescriptionChange={setWorkflowDescription}
-            workflowStatus={workflowStatus}
-            onWorkflowStatusChange={setWorkflowStatus}
-          />
-          <Button className="hover:bg-gray-300">
-            <UploadIcon />
+          ) : null} */}
+          <Button className="hover:bg-gray-300" onClick={handleExport}>
+            <UploadIcon aria-hidden="true" />
             匯出
           </Button>
           <DropdownMenu>
@@ -138,14 +144,15 @@ export default function Header() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button className="border-green-500 bg-green-500 text-white hover:bg-green-700">
-            <SendIcon />
-            發布
-          </Button>
           <Button className="border-green-500 text-green-700 hover:bg-green-100">
-            <PlayIcon />
+            <SaveIcon aria-hidden="true" />
+            儲存
+          </Button>
+          <Button className="border-green-500 bg-green-500 text-white hover:bg-green-700">
+            <PlayIcon aria-hidden="true" />
             執行
           </Button>
+
           <UserInfo />
         </div>
       </div>

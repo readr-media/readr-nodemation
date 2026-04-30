@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { CounterStoreProvider } from "@/providers/counter-store-provider";
+import HeaderSwitcher from "@/components/layout/header";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -15,6 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased min-h-screen">
+        <Suspense fallback={<div className="h-16 w-full bg-white border-b border-gray-400" />}>
+          <HeaderSwitcher />
+        </Suspense>
         <CounterStoreProvider>{children}</CounterStoreProvider>
       </body>
     </html>

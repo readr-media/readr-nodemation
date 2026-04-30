@@ -7,6 +7,15 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model User {
+  id         String     @id
+  role       String
+  name       String
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  workflows  Workflow[]
+}
+
 model Workflow {
   id              String   @id
   name            String
@@ -19,6 +28,8 @@ model Workflow {
   last_run_at     DateTime?
   created_at      DateTime @default(now())
   updated_at      DateTime @updatedAt
+  user_id         String?
+  user            User?    @relation(fields: [user_id], references: [id])
   jobs            Job[]
 }
 
@@ -72,6 +83,8 @@ model WorkflowTemplate {
   name        String
   description String?
   status      String   @default("template")
+  nodes       String   @default("[]")
+  edges       String   @default("[]")
   sort_order  Int      @default(0)
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt

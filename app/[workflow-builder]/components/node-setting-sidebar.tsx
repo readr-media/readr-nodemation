@@ -6,10 +6,12 @@ import { useShallow } from "zustand/react/shallow";
 
 import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
 import type { AiClassifierTaggerNodeData } from "@/components/flow/nodes/ai-classifier-tagger-node";
+import type { CmsOutputAudioNodeData } from "@/components/flow/nodes/cms-output-audio-node";
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
 import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
+import type { PodcastGenerationNodeData } from "@/stores/flow-editor/slices/podcast-generation-node-slice";
 import {
   Sidebar,
   SidebarContent,
@@ -21,9 +23,11 @@ import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import AiClassifierTaggerNodeSetting from "./node-settings/ai-classifier-tagger-node-setting";
 import AiNodeSettings from "./node-settings/ai-node-setting";
 import CmsNodeSetting from "./node-settings/cms-node-setting";
+import CmsOutputAudioNodeSetting from "./node-settings/cms-output-audio-node-setting";
 import CmsOutputNodeSetting from "./node-settings/cms-output-node-setting";
 import CodeNodeSetting from "./node-settings/code-node-setting";
 import ExportNodeSetting from "./node-settings/export-node-setting";
+import PodcastGenerationNodeSetting from "./node-settings/podcast-generation-node-setting";
 
 const EmptyState = () => (
   <div className="flex w-40 flex-col items-center gap-4 text-center">
@@ -47,6 +51,7 @@ const NodeSettingSidebar = () => {
     })),
   );
   const selectedNode = nodes.find((node) => node.id === selectedNodeId) ?? null;
+
   let content: ReactNode;
   switch (selectedNode?.type) {
     case "aiCall":
@@ -89,11 +94,27 @@ const NodeSettingSidebar = () => {
         />
       );
       break;
+    case "cmsOutputAudio":
+      content = (
+        <CmsOutputAudioNodeSetting
+          nodeId={selectedNode.id}
+          data={selectedNode.data as CmsOutputAudioNodeData}
+        />
+      );
+      break;
     case "exportResult":
       content = (
         <ExportNodeSetting
           nodeId={selectedNode.id}
           data={selectedNode.data as ExportResultNodeData}
+        />
+      );
+      break;
+    case "podcastGeneration":
+      content = (
+        <PodcastGenerationNodeSetting
+          nodeId={selectedNode.id}
+          data={selectedNode.data as PodcastGenerationNodeData}
         />
       );
       break;

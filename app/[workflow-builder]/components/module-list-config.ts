@@ -7,7 +7,9 @@ export type ModuleNodeType =
   | "codeBlock"
   | "cmsInput"
   | "cmsOutput"
-  | "exportResult";
+  | "exportResult"
+  | "podcastGeneration"
+  | "cmsOutputAudio";
 
 export type ModuleItem = {
   title: string;
@@ -34,6 +36,13 @@ export const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
         icon: Sparkles,
         accent: "ai",
         nodeType: "aiClassifierTagger",
+      },
+      {
+        title: "Podcast 生成",
+        description: "將報導轉為 Podcast",
+        icon: Sparkles,
+        accent: "ai",
+        nodeType: "podcastGeneration",
       },
     ],
   },
@@ -65,6 +74,13 @@ export const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
         icon: Share2,
         accent: "cms",
         nodeType: "cmsOutput",
+      },
+      {
+        title: "輸出音檔到 CMS",
+        description: "將音檔輸出到 CMS 系統",
+        icon: Share2,
+        accent: "cms",
+        nodeType: "cmsOutputAudio",
       },
     ],
   },

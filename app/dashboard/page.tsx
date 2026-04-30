@@ -1,7 +1,6 @@
-import { PlusIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { getWorkflowTemplates } from "@/lib/workflow-templates";
 import { getUserWorkflows } from "@/lib/workflows";
+import CreateWorkflowDialog from "./_components/create-workflow-dialog";
 import TemplateWorkflowCard from "./_components/template-workflow-card";
 import UserWorkflowCard from "./_components/user-workflow-card";
 
@@ -38,17 +37,15 @@ export default async function Page() {
     name: template.name,
     description: template.description ?? "",
     status: template.status,
+    nodes: template.nodes,
+    edges: template.edges,
   }));
 
   return (
     <main className="px-15 py-10 flex flex-col">
       <div className="flex justify-between items-center">
         <h2 className="title-4 text-gray-900">我的工作流</h2>
-        {/* TODO: 確認刪除 modal */}
-        <Button className="bg-green-500 text-white">
-          <PlusIcon className="bg-green-500 text-white" />
-          建立新工作流
-        </Button>
+        <CreateWorkflowDialog templates={templateCards} />
       </div>
       <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {userCards.length === 0 ? (
@@ -68,7 +65,7 @@ export default async function Page() {
       </div>
 
       <h2 className="title-4 text-gray-900 mt-10">工作流模板</h2>
-      <div className="flex gap-x-6 mt-4">
+      <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {templateCards.length === 0 ? (
           <p className="body-2 text-gray-500">尚無模板</p>
         ) : (

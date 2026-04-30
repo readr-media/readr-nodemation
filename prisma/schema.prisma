@@ -83,6 +83,8 @@ model WorkflowTemplate {
   name        String
   description String?
   status      String   @default("template")
+  nodes       String   @default("[]")
+  edges       String   @default("[]")
   sort_order  Int      @default(0)
   created_at  DateTime @default(now())
   updated_at  DateTime @updatedAt

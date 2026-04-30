@@ -23,7 +23,7 @@ export default function TemplateWorkflowCard({
   status,
 }: CardProps) {
   return (
-    <Card className="relative p-4 pt-5 bg-white border-module-border rounded-xl min-w-[344px] hover:shadow-2">
+    <Card className="relative w-full min-w-0 rounded-xl border-module-border bg-white p-4 pt-5 hover:shadow-2">
       <div className="absolute top-0 left-5 w-12 h-1 bg-blue-500 rounded-b-md opacity-100" />
       <CardContent className="p-0">
         <div className="flex items-center gap-3">

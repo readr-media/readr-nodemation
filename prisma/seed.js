@@ -79,16 +79,34 @@ const moduleSeed = [
 
 const templateSeed = [
   {
-    name: "自動標籤文章",
-    description: "快速為文章產生相關標籤",
+    name: "AI 自動分類",
+    description: "使用 AI 自動分類文章",
     status: "template",
     sort_order: 1,
   },
   {
-    name: "自動地震速報",
-    description: "自動產生地震速報",
+    name: "AI 文章標題",
+    description: "使用 AI 產生文章標題",
     status: "template",
     sort_order: 2,
+  },
+  {
+    name: "自動地震文",
+    description: "使用 AI 產生地震文",
+    status: "template",
+    sort_order: 3,
+  },
+  {
+    name: "Podcast 生成",
+    description: "使用 AI 產生 Podcast",
+    status: "template",
+    sort_order: 4,
+  },
+  {
+    name: "AI 投票建議",
+    description: "使用 AI 產生投票建議",
+    status: "template",
+    sort_order: 5,
   },
 ];
 
@@ -191,6 +209,358 @@ const demoArticleClassificationEdges = JSON.stringify([
   },
 ]);
 
+const demoTitleGenerationNodes = JSON.stringify([
+  {
+    id: "title-cmsInput-node",
+    type: "cmsInput",
+    position: { x: 80, y: 160 },
+    data: {
+      title: "從CMS輸入",
+      cmsConfigId: "",
+      cmsName: "Readr CMS",
+      cmsList: "Posts",
+      cmsPostIds: "",
+      cmsPostSlugs: "",
+      sourceFields: {
+        title: true,
+        category: false,
+        content: true,
+        tags: false,
+      },
+      outputFields: {
+        title: "string",
+        categories: "array[string]",
+        content: "string",
+        tags: "array[string]",
+      },
+      outputFormat: "json",
+    },
+  },
+  {
+    id: "title-aiCall-node",
+    type: "aiCall",
+    position: { x: 360, y: 160 },
+    data: {
+      title: "AI 文章標題",
+      model: "gemini-1.5-flash",
+      inputs: {
+        title: true,
+        content: true,
+        summary: false,
+      },
+      outputFormat: "JSON",
+      promptTemplate:
+        "請閱讀新聞內容並產生 3 個可用於發布的中文新聞標題，請回傳 JSON。",
+      cmsField: "title",
+      testInput: "",
+    },
+  },
+  {
+    id: "title-cmsOutput-node",
+    type: "cmsOutput",
+    position: { x: 640, y: 160 },
+    measured: { width: 240, height: 62 },
+    data: {
+      title: "輸出文字到CMS",
+      cmsConfigId: "",
+      cmsName: "Readr CMS",
+      cmsList: "Posts",
+      cmsPostIds: "",
+      cmsPostSlugs: "",
+      mappings: [
+        {
+          id: "title-ai-to-cms",
+          sourceField: "{{ ai.output }}",
+          targetField: "title",
+        },
+      ],
+      mode: "overwrite",
+      postStatus: "draft",
+    },
+  },
+]);
+
+const demoTitleGenerationEdges = JSON.stringify([
+  {
+    id: "title-cmsInput-node->title-aiCall-node",
+    source: "title-cmsInput-node",
+    target: "title-aiCall-node",
+  },
+  {
+    id: "title-aiCall-node->title-cmsOutput-node",
+    source: "title-aiCall-node",
+    target: "title-cmsOutput-node",
+  },
+]);
+
+const demoEarthquakeNodes = JSON.stringify([
+  {
+    id: "earthquake-cmsInput-node",
+    type: "cmsInput",
+    position: { x: 80, y: 160 },
+    data: {
+      title: "從CMS輸入",
+      cmsConfigId: "",
+      cmsName: "Readr CMS",
+      cmsList: "Posts",
+      cmsPostIds: "",
+      cmsPostSlugs: "",
+      sourceFields: {
+        title: true,
+        category: false,
+        content: true,
+        tags: false,
+      },
+      outputFields: {
+        title: "string",
+        categories: "array[string]",
+        content: "string",
+        tags: "array[string]",
+      },
+      outputFormat: "json",
+    },
+  },
+  {
+    id: "earthquake-aiCall-node",
+    type: "aiCall",
+    position: { x: 360, y: 160 },
+    data: {
+      title: "自動地震文",
+      model: "gemini-1.5-flash",
+      inputs: {
+        title: true,
+        content: true,
+        summary: true,
+      },
+      outputFormat: "JSON",
+      promptTemplate:
+        "請依地震資訊撰寫速報稿，內容需包含地點、規模、時間與提醒事項。",
+      cmsField: "content",
+      testInput: "",
+    },
+  },
+  {
+    id: "earthquake-cmsOutput-node",
+    type: "cmsOutput",
+    position: { x: 640, y: 160 },
+    measured: { width: 240, height: 62 },
+    data: {
+      title: "輸出文字到CMS",
+      cmsConfigId: "",
+      cmsName: "Readr CMS",
+      cmsList: "Posts",
+      cmsPostIds: "",
+      cmsPostSlugs: "",
+      mappings: [
+        {
+          id: "earthquake-ai-to-content",
+          sourceField: "{{ ai.output }}",
+          targetField: "content",
+        },
+      ],
+      mode: "overwrite",
+      postStatus: "draft",
+    },
+  },
+]);
+
+const demoEarthquakeEdges = JSON.stringify([
+  {
+    id: "earthquake-cmsInput-node->earthquake-aiCall-node",
+    source: "earthquake-cmsInput-node",
+    target: "earthquake-aiCall-node",
+  },
+  {
+    id: "earthquake-aiCall-node->earthquake-cmsOutput-node",
+    source: "earthquake-aiCall-node",
+    target: "earthquake-cmsOutput-node",
+  },
+]);
+
+const demoPodcastNodes = JSON.stringify([
+  {
+    id: "podcast-cmsInput-node",
+    type: "cmsInput",
+    position: { x: 80, y: 160 },
+    data: {
+      title: "從CMS輸入",
+      cmsConfigId: "",
+      cmsName: "Readr CMS",
+      cmsList: "Posts",
+      cmsPostIds: "",
+      cmsPostSlugs: "",
+      sourceFields: {
+        title: true,
+        category: false,
+        content: true,
+        tags: false,
+      },
+      outputFields: {
+        title: "string",
+        categories: "array[string]",
+        content: "string",
+        tags: "array[string]",
+      },
+      outputFormat: "json",
+    },
+  },
+  {
+    id: "podcast-generation-node",
+    type: "podcastGeneration",
+    position: { x: 360, y: 160 },
+    data: {
+      title: "Podcast 生成",
+      model: "gemini-1.5-flash",
+      promptTemplate: "請將內容轉換成可朗讀的 Podcast 腳本",
+      podcastMode: "deepDive",
+      podcastLength: "medium",
+    },
+  },
+  {
+    id: "podcast-cmsOutput-node",
+    type: "cmsOutput",
+    position: { x: 640, y: 160 },
+    measured: { width: 240, height: 62 },
+    data: {
+      title: "輸出文字到CMS",
+      cmsConfigId: "",
+      cmsName: "Readr CMS",
+      cmsList: "Posts",
+      cmsPostIds: "",
+      cmsPostSlugs: "",
+      mappings: [
+        {
+          id: "podcast-script-to-content",
+          sourceField: "{{ podcast.script }}",
+          targetField: "content",
+        },
+      ],
+      mode: "overwrite",
+      postStatus: "draft",
+    },
+  },
+]);
+
+const demoPodcastEdges = JSON.stringify([
+  {
+    id: "podcast-cmsInput-node->podcast-generation-node",
+    source: "podcast-cmsInput-node",
+    target: "podcast-generation-node",
+  },
+  {
+    id: "podcast-generation-node->podcast-cmsOutput-node",
+    source: "podcast-generation-node",
+    target: "podcast-cmsOutput-node",
+  },
+]);
+
+const demoVotingNodes = JSON.stringify([
+  {
+    id: "voting-cmsInput-node",
+    type: "cmsInput",
+    position: { x: 80, y: 160 },
+    data: {
+      title: "從CMS輸入",
+      cmsConfigId: "",
+      cmsName: "Readr CMS",
+      cmsList: "Posts",
+      cmsPostIds: "",
+      cmsPostSlugs: "",
+      sourceFields: {
+        title: true,
+        category: false,
+        content: true,
+        tags: false,
+      },
+      outputFields: {
+        title: "string",
+        categories: "array[string]",
+        content: "string",
+        tags: "array[string]",
+      },
+      outputFormat: "json",
+    },
+  },
+  {
+    id: "voting-aiCall-node",
+    type: "aiCall",
+    position: { x: 360, y: 160 },
+    data: {
+      title: "AI 投票建議",
+      model: "gemini-1.5-flash",
+      inputs: {
+        title: true,
+        content: true,
+        summary: true,
+      },
+      outputFormat: "JSON",
+      promptTemplate:
+        "請依新聞內容提出 3 個可投票選項，並附上各選項一行理由，使用 JSON 回傳。",
+      cmsField: "content",
+      testInput: "",
+    },
+  },
+  {
+    id: "voting-cmsOutput-node",
+    type: "cmsOutput",
+    position: { x: 640, y: 160 },
+    measured: { width: 240, height: 62 },
+    data: {
+      title: "輸出文字到CMS",
+      cmsConfigId: "",
+      cmsName: "Readr CMS",
+      cmsList: "Posts",
+      cmsPostIds: "",
+      cmsPostSlugs: "",
+      mappings: [
+        {
+          id: "voting-ai-to-content",
+          sourceField: "{{ ai.output }}",
+          targetField: "content",
+        },
+      ],
+      mode: "overwrite",
+      postStatus: "draft",
+    },
+  },
+]);
+
+const demoVotingEdges = JSON.stringify([
+  {
+    id: "voting-cmsInput-node->voting-aiCall-node",
+    source: "voting-cmsInput-node",
+    target: "voting-aiCall-node",
+  },
+  {
+    id: "voting-aiCall-node->voting-cmsOutput-node",
+    source: "voting-aiCall-node",
+    target: "voting-cmsOutput-node",
+  },
+]);
+
+const templateGraphSeedByName = {
+  "AI 自動分類": {
+    nodes: demoArticleClassificationNodes,
+    edges: demoArticleClassificationEdges,
+  },
+  "AI 文章標題": {
+    nodes: demoTitleGenerationNodes,
+    edges: demoTitleGenerationEdges,
+  },
+  自動地震文: {
+    nodes: demoEarthquakeNodes,
+    edges: demoEarthquakeEdges,
+  },
+  "Podcast 生成": {
+    nodes: demoPodcastNodes,
+    edges: demoPodcastEdges,
+  },
+  "AI 投票建議": {
+    nodes: demoVotingNodes,
+    edges: demoVotingEdges,
+  },
+};
+
 const workflowSeed = [
   {
     id: "sample-workflow-1",
@@ -249,11 +619,18 @@ async function main() {
   }
 
   for (const template of templateSeed) {
+    const templateGraph = templateGraphSeedByName[template.name] ?? {
+      nodes: "[]",
+      edges: "[]",
+    };
+
     await prisma.workflowTemplate.create({
       data: {
         name: template.name,
         description: template.description,
         status: template.status,
+        nodes: templateGraph.nodes,
+        edges: templateGraph.edges,
         sort_order: template.sort_order,
       },
     });

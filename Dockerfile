@@ -21,7 +21,7 @@ COPY --from=build-stage /app/.next/static ./.next/static
 COPY --from=build-stage /app/public ./public
 COPY --from=build-stage /app/prisma ./prisma
 
-RUN npm install prisma@6.19.2 --save-dev
+RUN npm install -g prisma@6.19.2
 
 EXPOSE 8080
-CMD ["sh", "-c", "npx prisma migrate deploy && node server.js"]
+CMD ["sh", "-c", "prisma migrate deploy && node server.js"]

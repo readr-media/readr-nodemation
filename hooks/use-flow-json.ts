@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback } from "react";
-import { Button } from "@/components/ui/button";
 import { isSchedulePayload } from "@/lib/schedule-import-validation";
 import {
   type ExecutionScheduleStore,
@@ -18,7 +17,7 @@ type ExportPayload = {
   >;
 };
 
-const FlowDebugControls = () => {
+export function useFlowJSON() {
   const loadSnapshot = useNodesStore((state) => state.loadSnapshot);
   const setFrequency = useExecutionScheduleStore((state) => state.setFrequency);
   const setSlots = useExecutionScheduleStore((state) => state.setSlots);
@@ -80,16 +79,5 @@ const FlowDebugControls = () => {
     }
   }, [loadSnapshot, setEnabled, setFrequency, setSlots]);
 
-  return (
-    <div className="pointer-events-auto flex gap-2 rounded-xl border border-dashed border-module-border bg-white/90 px-3 py-2 text-xs text-module-muted shadow-sm">
-      <Button size="sm" variant="outline" onClick={handleExport}>
-        匯出 JSON
-      </Button>
-      <Button size="sm" variant="outline" onClick={handleImport}>
-        匯入 JSON
-      </Button>
-    </div>
-  );
-};
-
-export default FlowDebugControls;
+  return { handleExport, handleImport };
+}

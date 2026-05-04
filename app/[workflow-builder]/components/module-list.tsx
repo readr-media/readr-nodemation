@@ -10,8 +10,10 @@ const ModuleList = () => {
     addAiClassifierTaggerNode,
     addCodeNode,
     addCmsNode,
+    addCmsOutputAudioNode,
     addCmsOutputNode,
     addExportNode,
+    addPodcastGenerationNode,
   } = useNodesStore();
 
   return (
@@ -42,8 +44,14 @@ const ModuleList = () => {
                   if (nodeType === "cmsOutput") {
                     addCmsOutputNode();
                   }
+                  if (nodeType === "cmsOutputAudio") {
+                    addCmsOutputAudioNode();
+                  }
                   if (nodeType === "exportResult") {
                     addExportNode();
+                  }
+                  if (nodeType === "podcastGeneration") {
+                    addPodcastGenerationNode();
                   }
                 }}
               />

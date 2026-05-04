@@ -7,10 +7,12 @@ import type {
 } from "@xyflow/react";
 import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
 import type { AiClassifierTaggerNodeData } from "@/components/flow/nodes/ai-classifier-tagger-node";
+import type { CmsOutputAudioNodeData } from "@/components/flow/nodes/cms-output-audio-node";
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
 import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
+import type { PodcastGenerationNodeData } from "./slices/podcast-generation-node-slice";
 
 export type FlowSlice = {
   nodes: Node[];
@@ -55,11 +57,27 @@ export type CmsOutputNodeSlice = {
   ) => void;
 };
 
+export type CmsOutputAudioNodeSlice = {
+  addCmsOutputAudioNode: () => void;
+  updateCmsOutputAudioNodeData: (
+    nodeId: string,
+    data: Partial<CmsOutputAudioNodeData>,
+  ) => void;
+};
+
 export type ExportNodeSlice = {
   addExportNode: () => void;
   updateExportNodeData: (
     nodeId: string,
     data: Partial<ExportResultNodeData>,
+  ) => void;
+};
+
+export type PodcastGenerationNodeSlice = {
+  addPodcastGenerationNode: () => void;
+  updatePodcastGenerationNodeData: (
+    nodeId: string,
+    data: Partial<PodcastGenerationNodeData>,
   ) => void;
 };
 
@@ -69,4 +87,6 @@ export type NodesStore = FlowSlice &
   CodeNodeSlice &
   CmsNodeSlice &
   CmsOutputNodeSlice &
-  ExportNodeSlice;
+  CmsOutputAudioNodeSlice &
+  ExportNodeSlice &
+  PodcastGenerationNodeSlice;

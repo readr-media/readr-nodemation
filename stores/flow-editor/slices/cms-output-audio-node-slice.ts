@@ -1,14 +1,15 @@
 import type { Node } from "@xyflow/react";
 import type { StateCreator } from "zustand";
+import type { CmsFieldMapping } from "@/components/flow/nodes/cms-output-node";
 import type {
-  CmsFieldMapping,
-} from "@/components/flow/nodes/cms-output-node";
-import type { CmsOutputAudioNodeData } from "@/components/flow/nodes/cms-output-audio-node";
+  CmsAudioFieldMapping,
+  CmsOutputAudioNodeData,
+} from "@/components/flow/nodes/cms-output-audio-node";
 import { generateId } from "@/utils/generate-id";
 import { NODE_OFFSET_STEP } from "../constants";
 import type { CmsOutputAudioNodeSlice, NodesStore } from "../types";
 
-const createDefaultMappings = (): CmsFieldMapping[] => [
+const createDefaultMappings = (): CmsAudioFieldMapping[] => [
   {
     id: generateId(),
     sourceField: "{{ ai.podcastTitle }}",

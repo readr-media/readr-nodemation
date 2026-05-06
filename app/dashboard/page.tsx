@@ -1,3 +1,4 @@
+import { getActiveUserId } from "@/lib/active-user";
 import { getWorkflowTemplates } from "@/lib/workflow-templates";
 import { getUserWorkflows } from "@/lib/workflows";
 import CreateWorkflowDialog from "./_components/create-workflow-dialog";
@@ -15,8 +16,9 @@ const dateFormatter = new Intl.DateTimeFormat("zh-TW", {
 const formatDate = (value: Date) => dateFormatter.format(value);
 
 export default async function Page() {
+  const activeUserId = await getActiveUserId();
   const [userWorkflows, templateWorkflows] = await Promise.all([
-    getUserWorkflows(),
+    getUserWorkflows(activeUserId),
     getWorkflowTemplates(),
   ]);
 
@@ -49,7 +51,10 @@ export default async function Page() {
       </div>
       <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {userCards.length === 0 ? (
-          <p className="body-2 col-span-full text-gray-500">尚無工作流</p>
+          <CreateWorkflowDialog
+            templates={templateCards}
+            triggerVariant="card"
+          />
         ) : (
           userCards.map((card) => (
             <UserWorkflowCard
@@ -72,6 +77,7 @@ export default async function Page() {
           templateCards.map((card) => (
             <TemplateWorkflowCard
               key={card.id}
+              id={card.id}
               name={card.name}
               description={card.description}
               status={card.status}

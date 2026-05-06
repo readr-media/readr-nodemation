@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { getActiveUserId } from "@/lib/active-user";
 import { prisma } from "@/lib/prisma";
 import {
   PatchWorkflowSchema,
@@ -13,11 +14,24 @@ export async function DELETE(
   const { id } = await params;
 
   try {
-    const workflow = await prisma.workflow.delete({
-      where: { id },
-    });
+    const activeUserId = await getActiveUserId();
+    if (!activeUserId) {
+      const workflow = await prisma.workflow.delete({
+        where: { id },
+      });
+      return Response.json({ id: workflow.id });
+    }
 
-    return Response.json({ id: workflow.id });
+    const deletedResult = await prisma.workflow.deleteMany({
+      where: {
+        id,
+        user_id: activeUserId,
+      },
+    });
+    if (deletedResult.count === 0) {
+      return Response.json({ error: "Workflow not found" }, { status: 404 });
+    }
+    return Response.json({ id });
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -42,9 +56,17 @@ type RouteContext = {
 export async function GET(_request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
-    const workflow = await prisma.workflow.findUnique({
-      where: { id },
-    });
+    const activeUserId = await getActiveUserId();
+    const workflow = activeUserId
+      ? await prisma.workflow.findFirst({
+          where: {
+            id,
+            user_id: activeUserId,
+          },
+        })
+      : await prisma.workflow.findUnique({
+          where: { id },
+        });
 
     if (!workflow) {
       return Response.json({ error: "Workflow not found" }, { status: 404 });
@@ -64,12 +86,26 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  return handleWorkflowUpdate(request, params, PutWorkflowSchema, "put");
+  const activeUserId = await getActiveUserId();
+  return handleWorkflowUpdate(
+    request,
+    params,
+    PutWorkflowSchema,
+    "put",
+    activeUserId,
+  );
 }
 
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  return handleWorkflowUpdate(request, params, PatchWorkflowSchema, "patch");
+  const activeUserId = await getActiveUserId();
+  return handleWorkflowUpdate(
+    request,
+    params,
+    PatchWorkflowSchema,
+    "patch",
+    activeUserId,
+  );
 }

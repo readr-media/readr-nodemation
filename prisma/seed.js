@@ -110,6 +110,39 @@ const templateSeed = [
   },
 ];
 
+const userSeed = [
+  {
+    id: "user-admin-amy",
+    name: "林艾美",
+    role: "admin",
+    email: "amy@readr.tw",
+  },
+  {
+    id: "user-editor-wxm",
+    name: "王小明",
+    role: "editor",
+    email: "wxm@readr.tw",
+  },
+  {
+    id: "user-reviewer-cxh",
+    name: "陳曉華",
+    role: "reviewer",
+    email: "cxh@readr.tw",
+  },
+  {
+    id: "user-producer-lsy",
+    name: "李商隱",
+    role: "producer",
+    email: "lsy@readr.tw",
+  },
+  {
+    id: "user-operator-hyh",
+    name: "黃彥豪",
+    role: "operator",
+    email: "hyh@readr.tw",
+  },
+];
+
 const demoArticleClassificationNodes = JSON.stringify([
   {
     id: "cmsInput-node",
@@ -636,6 +669,25 @@ async function main() {
     });
   }
 
+  for (const user of userSeed) {
+    await prisma.user.upsert({
+      where: { id: user.id },
+      update: {
+        name: user.name,
+        role: user.role,
+        email: user.email,
+      },
+      create: {
+        id: user.id,
+        name: user.name,
+        role: user.role,
+        email: user.email,
+      },
+    });
+  }
+
+  const primaryUserId = userSeed[0]?.id ?? null;
+
   for (const workflow of workflowSeed) {
     await prisma.workflow.upsert({
       where: { id: workflow.id },
@@ -647,6 +699,7 @@ async function main() {
         edges: workflow.edges,
         last_run_at: workflow.last_run_at,
         updated_at: workflow.updated_at,
+        user_id: primaryUserId,
       },
       create: {
         id: workflow.id,
@@ -657,6 +710,7 @@ async function main() {
         edges: workflow.edges,
         last_run_at: workflow.last_run_at,
         updated_at: workflow.updated_at,
+        user_id: primaryUserId,
       },
     });
   }

@@ -11,10 +11,17 @@ export type WorkflowListItem = {
   lastRunAt: Date | null;
 };
 
-export const getUserWorkflows = async (): Promise<WorkflowListItem[]> => {
+export const getUserWorkflows = async (
+  userId: string | null,
+): Promise<WorkflowListItem[]> => {
   noStore();
 
+  if (!userId) {
+    return [];
+  }
+
   const workflows = await prisma.workflow.findMany({
+    where: { user_id: userId },
     orderBy: { updated_at: "desc" },
     select: {
       id: true,

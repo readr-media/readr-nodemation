@@ -12,22 +12,26 @@ import {
 
 type WorkflowBuilderProps = {
   workflowId?: string | null;
+  templateId?: string | null;
 };
 
-const WorkflowBuilder = ({ workflowId = null }: WorkflowBuilderProps) => {
+const WorkflowBuilder = ({
+  workflowId = null,
+  templateId = null,
+}: WorkflowBuilderProps) => {
   const loadSnapshot = useNodesStore((state) => state.loadSnapshot);
   const hydrateFromWorkflow = useWorkflowEditorStore(
     (state) => state.hydrateFromWorkflow,
   );
   const [loadState, setLoadState] = useState<WorkflowLoadResult["status"]>(
-    workflowId ? "loading" : "idle",
+    workflowId || templateId ? "loading" : "idle",
   );
 
   useEffect(() => {
     let isActive = true;
 
     const run = async () => {
-      if (!workflowId) {
+      if (!workflowId && !templateId) {
         setLoadState("idle");
         return;
       }
@@ -36,6 +40,7 @@ const WorkflowBuilder = ({ workflowId = null }: WorkflowBuilderProps) => {
 
       const result = await loadWorkflowIntoStores({
         workflowId,
+        templateId,
         fetchImpl: fetch,
         loadSnapshot,
         hydrateFromWorkflow,
@@ -51,7 +56,7 @@ const WorkflowBuilder = ({ workflowId = null }: WorkflowBuilderProps) => {
     return () => {
       isActive = false;
     };
-  }, [workflowId, loadSnapshot, hydrateFromWorkflow]);
+  }, [workflowId, templateId, loadSnapshot, hydrateFromWorkflow]);
 
   if (loadState === "loading") {
     return (

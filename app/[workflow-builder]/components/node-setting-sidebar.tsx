@@ -1,17 +1,16 @@
 "use client";
 
-import { Cog } from "lucide-react";
+import { Cog, InfoIcon } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
 import type { AiClassifierTaggerNodeData } from "@/components/flow/nodes/ai-classifier-tagger-node";
-import type { CmsOutputAudioNodeData } from "@/components/flow/nodes/cms-output-audio-node";
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
+import type { CmsOutputAudioNodeData } from "@/components/flow/nodes/cms-output-audio-node";
 import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
 import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
-import type { PodcastGenerationNodeData } from "@/stores/flow-editor/slices/podcast-generation-node-slice";
 import {
   Sidebar,
   SidebarContent,
@@ -19,7 +18,10 @@ import {
   SidebarHeader,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { toast } from "@/components/ui/sonner";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
+import type { PodcastGenerationNodeData } from "@/stores/flow-editor/slices/podcast-generation-node-slice";
+import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
 import AiClassifierTaggerNodeSetting from "./node-settings/ai-classifier-tagger-node-setting";
 import AiNodeSettings from "./node-settings/ai-node-setting";
 import CmsNodeSetting from "./node-settings/cms-node-setting";
@@ -44,6 +46,7 @@ const EmptyState = () => (
 );
 
 const NodeSettingSidebar = () => {
+  const workflowStatus = useWorkflowEditorStore((state) => state.status);
   const { nodes, selectedNodeId } = useNodesStore(
     useShallow((state) => ({
       nodes: state.nodes,
@@ -51,6 +54,14 @@ const NodeSettingSidebar = () => {
     })),
   );
   const selectedNode = nodes.find((node) => node.id === selectedNodeId) ?? null;
+  const isTemplateReadonly = workflowStatus === "template";
+
+  const showReadonlyToast = () => {
+    toast("此為模板工作流，請複製一份再進行編輯", {
+      id: "template-readonly-sidebar",
+      icon: <InfoIcon className="size-5 text-blue-500" />,
+    });
+  };
 
   let content: ReactNode;
   switch (selectedNode?.type) {
@@ -136,7 +147,17 @@ const NodeSettingSidebar = () => {
         />
       </SidebarHeader>
       <SidebarContent className="flex flex-1 px-0 py-0">
-        {content}
+        <div className="relative flex w-full">
+          {content}
+          {isTemplateReadonly && selectedNode ? (
+            <button
+              type="button"
+              className="absolute inset-0 z-20 cursor-not-allowed bg-transparent"
+              onClick={showReadonlyToast}
+              aria-label="模板工作流節點設定為唯讀"
+            />
+          ) : null}
+        </div>
       </SidebarContent>
       <SidebarFooter className="border-t border-module-border px-4 py-3" />
     </Sidebar>

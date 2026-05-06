@@ -93,8 +93,8 @@ export default function CreateWorkflowDialog({
       setIsOpen(false);
       startTransition(() => {
         router.push(`/workflow-builder?workflowId=${result.id}`);
+        router.refresh();
       });
-      router.refresh();
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : "建立失敗，請稍後再試",

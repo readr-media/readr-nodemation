@@ -9,8 +9,12 @@ import {
 export async function GET() {
   try {
     const activeUserId = await getActiveUserId();
+    if (!activeUserId) {
+      return NextResponse.json([]);
+    }
+
     const workflows = await prisma.workflow.findMany({
-      ...(activeUserId ? { where: { user_id: activeUserId } } : {}),
+      where: { user_id: activeUserId },
       orderBy: { created_at: "desc" },
     });
     return NextResponse.json(workflows);

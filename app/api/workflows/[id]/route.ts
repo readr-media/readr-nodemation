@@ -16,10 +16,10 @@ export async function DELETE(
   try {
     const activeUserId = await getActiveUserId();
     if (!activeUserId) {
-      const workflow = await prisma.workflow.delete({
-        where: { id },
-      });
-      return Response.json({ id: workflow.id });
+      return Response.json(
+        { error: "Active user is required" },
+        { status: 401 },
+      );
     }
 
     const deletedResult = await prisma.workflow.deleteMany({
@@ -57,16 +57,19 @@ export async function GET(_request: Request, context: RouteContext) {
   try {
     const { id } = await context.params;
     const activeUserId = await getActiveUserId();
-    const workflow = activeUserId
-      ? await prisma.workflow.findFirst({
-          where: {
-            id,
-            user_id: activeUserId,
-          },
-        })
-      : await prisma.workflow.findUnique({
-          where: { id },
-        });
+    if (!activeUserId) {
+      return Response.json(
+        { error: "Active user is required" },
+        { status: 401 },
+      );
+    }
+
+    const workflow = await prisma.workflow.findFirst({
+      where: {
+        id,
+        user_id: activeUserId,
+      },
+    });
 
     if (!workflow) {
       return Response.json({ error: "Workflow not found" }, { status: 404 });
@@ -87,6 +90,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const activeUserId = await getActiveUserId();
+  if (!activeUserId) {
+    return Response.json({ error: "Active user is required" }, { status: 401 });
+  }
   return handleWorkflowUpdate(
     request,
     params,
@@ -101,6 +107,9 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   const activeUserId = await getActiveUserId();
+  if (!activeUserId) {
+    return Response.json({ error: "Active user is required" }, { status: 401 });
+  }
   return handleWorkflowUpdate(
     request,
     params,

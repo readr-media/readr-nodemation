@@ -9,7 +9,11 @@ import type {
   CmsOutputAudioNodeData,
   CmsOutputAudioTargetField,
 } from "@/components/flow/nodes/cms-output-audio-node";
-import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
+import type {
+  CmsFieldMapping,
+  CmsOutputNodeData,
+  CmsOutputTargetField,
+} from "@/components/flow/nodes/cms-output-node";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
 import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
 import type { WorkflowStatus } from "@/lib/workflow-status";
@@ -187,8 +191,70 @@ const normalizeAiClassifierTaggerData = (
 };
 
 const normalizeCmsOutputData = (
-  _data: Record<string, unknown>,
-): CmsOutputNodeData => createCmsOutputNodeData();
+  data: Record<string, unknown>,
+): CmsOutputNodeData => {
+  const defaults = createCmsOutputNodeData();
+  const allowedTargetFields: CmsOutputTargetField[] = [
+    "title",
+    "recommendedTitle",
+    "content",
+    "summary",
+    "categories",
+    "tags",
+    "recommendedPoll",
+  ];
+
+  const mappings: CmsFieldMapping[] = Array.isArray(data.mappings)
+    ? data.mappings
+        .map((mapping): CmsFieldMapping | null => {
+          const record = mapping as Record<string, unknown>;
+          if (
+            typeof record.sourceField !== "string" ||
+            typeof record.targetField !== "string" ||
+            !allowedTargetFields.includes(
+              record.targetField as CmsOutputTargetField,
+            )
+          ) {
+            return null;
+          }
+
+          return {
+            id: typeof record.id === "string" ? record.id : generateId(),
+            sourceField: record.sourceField,
+            targetField: record.targetField as CmsOutputTargetField,
+          };
+        })
+        .filter((value): value is CmsFieldMapping => value !== null)
+    : defaults.mappings;
+
+  return {
+    ...defaults,
+    title: typeof data.title === "string" ? data.title : defaults.title,
+    cmsConfigId:
+      typeof data.cmsConfigId === "string"
+        ? data.cmsConfigId
+        : defaults.cmsConfigId,
+    cmsName: typeof data.cmsName === "string" ? data.cmsName : defaults.cmsName,
+    cmsList: typeof data.cmsList === "string" ? data.cmsList : defaults.cmsList,
+    cmsPostIds:
+      typeof data.cmsPostIds === "string"
+        ? data.cmsPostIds
+        : defaults.cmsPostIds,
+    cmsPostSlugs:
+      typeof data.cmsPostSlugs === "string"
+        ? data.cmsPostSlugs
+        : defaults.cmsPostSlugs,
+    mappings,
+    mode:
+      data.mode === "overwrite" || data.mode === "append"
+        ? data.mode
+        : defaults.mode,
+    postStatus:
+      data.postStatus === "draft" || data.postStatus === "published"
+        ? data.postStatus
+        : defaults.postStatus,
+  };
+};
 
 const getDefaultAudioMappings = (): CmsAudioFieldMapping[] => [
   {

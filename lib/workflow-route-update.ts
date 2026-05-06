@@ -15,7 +15,7 @@ export async function handleWorkflowUpdate(
   params: Promise<{ id: string }>,
   schema: WorkflowUpdateSchema,
   mode: "put" | "patch",
-  userId: string | null,
+  userId: string,
 ) {
   let body: unknown;
 
@@ -37,15 +37,13 @@ export async function handleWorkflowUpdate(
   const { id } = await params;
 
   try {
-    if (userId) {
-      const ownedWorkflow = await prisma.workflow.findFirst({
-        where: { id, user_id: userId },
-        select: { id: true },
-      });
+    const ownedWorkflow = await prisma.workflow.findFirst({
+      where: { id, user_id: userId },
+      select: { id: true },
+    });
 
-      if (!ownedWorkflow) {
-        return Response.json({ error: "Workflow not found" }, { status: 404 });
-      }
+    if (!ownedWorkflow) {
+      return Response.json({ error: "Workflow not found" }, { status: 404 });
     }
 
     const workflow = await prisma.workflow.update({

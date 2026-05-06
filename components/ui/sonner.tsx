@@ -1,6 +1,7 @@
 "use client";
 
-import { InfoIcon } from "lucide-react";
+import { CheckIcon, InfoIcon, XIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import { Toaster as Sonner, type ToasterProps, toast } from "sonner";
 
 const Toaster = ({ ...props }: ToasterProps) => (
@@ -17,5 +18,55 @@ const Toaster = ({ ...props }: ToasterProps) => (
     {...props}
   />
 );
+
+const SolidIcon = ({
+  tone,
+  children,
+}: {
+  tone: "success" | "error" | "info";
+  children: ReactNode;
+}) => {
+  const toneClass =
+    tone === "success"
+      ? "bg-green-500"
+      : tone === "error"
+        ? "bg-red-500"
+        : "bg-blue-500";
+
+  return (
+    <span
+      className={`flex size-5 items-center justify-center rounded-full ${toneClass}`}
+    >
+      {children}
+    </span>
+  );
+};
+
+export const appToast = {
+  success: (message: string) =>
+    toast(message, {
+      icon: (
+        <SolidIcon tone="success">
+          <CheckIcon className="size-4 text-white" strokeWidth={3} />
+        </SolidIcon>
+      ),
+    }),
+  error: (message: string) =>
+    toast(message, {
+      icon: (
+        <SolidIcon tone="error">
+          <XIcon className="size-4 text-white" strokeWidth={3} />
+        </SolidIcon>
+      ),
+    }),
+  info: (message: string) =>
+    toast(message, {
+      icon: (
+        <SolidIcon tone="info">
+          <InfoIcon className="size-4 text-white" />
+        </SolidIcon>
+      ),
+    }),
+};
 
 export { Toaster, toast, InfoIcon };

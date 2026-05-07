@@ -79,7 +79,6 @@ AI 模組區塊新增一張卡片：
 
 這個 node 的設定畫面只暴露規格中真正可調整的欄位：
 
-- `模型版本`
 - `inputFields.title`
 - `inputFields.content`
 - `Prompt模板`

@@ -11,19 +11,7 @@ export type ActiveUserOption = {
 };
 
 export async function getAllUsers(): Promise<ActiveUserOption[]> {
-  const userModel = (
-    prisma as typeof prisma & {
-      user?: {
-        findMany?: (args: unknown) => Promise<ActiveUserOption[]>;
-      };
-    }
-  ).user;
-
-  if (!userModel?.findMany) {
-    return [];
-  }
-
-  const users = await userModel.findMany({
+  const users = await prisma.user.findMany({
     orderBy: { created_at: "asc" },
     select: {
       id: true,

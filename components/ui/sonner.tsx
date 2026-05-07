@@ -69,4 +69,4 @@ export const appToast = {
     }),
 };
 
-export { Toaster, toast, InfoIcon };
+export { Toaster, toast };

@@ -581,9 +581,8 @@ async function renderClassifierTaggerSettings(): Promise<RenderedTree> {
   const container = document.createElement("div") as MockElement;
   const root = createRoot(container);
 
-  const { default: AiClassifierTaggerNodeSetting } = await import(
-    "@/app/[workflow-builder]/components/node-settings/ai-classifier-tagger-node-setting"
-  );
+  const { default: AiClassifierTaggerNodeSetting } =
+    await import("@/app/[workflow-builder]/components/node-settings/ai-classifier-tagger-node-setting");
 
   await act(async () => {
     root.render(
@@ -601,9 +600,8 @@ async function renderControlledClassifierTaggerSettings(): Promise<RenderedTree>
   const container = document.createElement("div") as MockElement;
   const root = createRoot(container);
 
-  const { default: AiClassifierTaggerNodeSetting } = await import(
-    "@/app/[workflow-builder]/components/node-settings/ai-classifier-tagger-node-setting"
-  );
+  const { default: AiClassifierTaggerNodeSetting } =
+    await import("@/app/[workflow-builder]/components/node-settings/ai-classifier-tagger-node-setting");
 
   const ControlledHarness = () => {
     const [data, setData] = useState(sampleData);
@@ -657,7 +655,6 @@ describe("ai classifier tagger node setting", () => {
     const { container, root } = await renderClassifierTaggerSettings();
 
     expect(container.textContent).toContain("AI自動分類與標籤設定");
-    expect(container.textContent).toContain("模型版本");
     expect(container.textContent).toContain("標題欄位 mapping");
     expect(container.textContent).toContain("內文欄位 mapping");
     expect(container.textContent).toContain("Prompt 模板");
@@ -803,9 +800,8 @@ describe("ai classifier tagger node setting", () => {
     ];
     mockStoreState.selectedNodeId = "aiClassifierTagger-node";
 
-    const { default: NodeSettingSidebar } = await import(
-      "@/app/[workflow-builder]/components/node-setting-sidebar"
-    );
+    const { default: NodeSettingSidebar } =
+      await import("@/app/[workflow-builder]/components/node-setting-sidebar");
 
     const container = document.createElement("div") as MockElement;
     const root = createRoot(container);

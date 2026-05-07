@@ -450,26 +450,24 @@ const demoPodcastNodes = JSON.stringify([
     },
   },
   {
-    id: "podcast-cmsOutput-node",
-    type: "cmsOutput",
+    id: "podcast-cmsOutputAudio-node",
+    type: "cmsOutputAudio",
     position: { x: 640, y: 160 },
     measured: { width: 240, height: 62 },
     data: {
-      title: "輸出文字到CMS",
+      title: "輸出音檔到CMS",
       cmsConfigId: "",
       cmsName: "Readr CMS",
-      cmsList: "Posts",
-      cmsPostIds: "",
-      cmsPostSlugs: "",
+      cmsList: "Audio Files",
+      cmsAudioFileIds: "",
       mappings: [
         {
-          id: "podcast-script-to-content",
-          sourceField: "{{ podcast.script }}",
-          targetField: "content",
+          id: "podcast-audio-to-audioFile",
+          sourceField: "{{ ai.audioFile }}",
+          targetField: "audioFile",
         },
       ],
-      mode: "overwrite",
-      postStatus: "draft",
+      mode: "create",
     },
   },
 ]);
@@ -481,9 +479,9 @@ const demoPodcastEdges = JSON.stringify([
     target: "podcast-generation-node",
   },
   {
-    id: "podcast-generation-node->podcast-cmsOutput-node",
+    id: "podcast-generation-node->podcast-cmsOutputAudio-node",
     source: "podcast-generation-node",
-    target: "podcast-cmsOutput-node",
+    target: "podcast-cmsOutputAudio-node",
   },
 ]);
 

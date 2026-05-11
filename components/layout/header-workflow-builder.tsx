@@ -2,14 +2,17 @@
 
 import {
   ArrowLeftIcon,
-  BugIcon,
   Clock3Icon,
   MoreHorizontalIcon,
   PlayIcon,
   SaveIcon,
   UploadIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useMemo, useState } from "react";
+import { useShallow } from "zustand/react/shallow";
+import { saveWorkflow } from "@/app/[workflow-builder]/components/save-workflow-action";
+import ScheduleDialog from "@/app/[workflow-builder]/components/schedule-dialog";
 import { UserInfo } from "@/components/layout/user-info";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,12 +22,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
-import SaveWorkflowDialog from "@/app/[workflow-builder]/components/save-workflow-dialog";
-import ScheduleDialog from "@/app/[workflow-builder]/components/schedule-dialog";
+import { appToast } from "@/components/ui/sonner";
 import { useFlowJSON } from "@/hooks/use-flow-json";
-import { useRouter } from "next/navigation";
+import { useNodesStore } from "@/stores/flow-editor/nodes-store";
+import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
 
 const statusLabels = {
   template: "模板",
@@ -68,17 +69,34 @@ export default function WorkflowBuilderHeader() {
   const { handleExport } = useFlowJSON();
   const router = useRouter();
   const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isRunning, setIsRunning] = useState(false);
+  const { nodes, edges } = useNodesStore(
+    useShallow((state) => ({
+      nodes: state.nodes,
+      edges: state.edges,
+    })),
+  );
+  const workflowId = useWorkflowEditorStore((state) => state.workflowId);
+  const resetBaseline = useWorkflowEditorStore((state) => state.resetBaseline);
   const workflowName = useWorkflowEditorStore((state) => state.name);
   const workflowDescription = useWorkflowEditorStore(
     (state) => state.description,
   );
   const workflowStatus = useWorkflowEditorStore((state) => state.status);
-  const isDirty = useWorkflowEditorStore((state) => state.isDirty);
-  const setWorkflowName = useWorkflowEditorStore((state) => state.setName);
-  const setWorkflowDescription = useWorkflowEditorStore(
-    (state) => state.setDescription,
-  );
   const setWorkflowStatus = useWorkflowEditorStore((state) => state.setStatus);
+  const canPersistWorkflow = useMemo(
+    () =>
+      workflowStatus !== "template" &&
+      workflowName.trim().length > 0 &&
+      !isSaving &&
+      !isRunning,
+    [workflowName, workflowStatus, isRunning, isSaving],
+  );
+  const canRunWorkflow = useMemo(
+    () => workflowStatus !== "template" && !isRunning && !isSaving,
+    [isRunning, isSaving, workflowStatus],
+  );
 
   const handleBack = useCallback(() => {
     if (typeof window !== "undefined" && window.history.length > 1) {
@@ -87,6 +105,68 @@ export default function WorkflowBuilderHeader() {
       router.push("/dashboard");
     }
   }, [router]);
+
+  const handlePersistWorkflow = useCallback(
+    async (targetStatus: "published" | "running") => {
+      if (!workflowName.trim()) {
+        appToast.error("請先輸入工作流名稱");
+        return;
+      }
+
+      const mode = workflowId ? "update" : "save-as-new";
+      if (targetStatus === "published") {
+        setIsSaving(true);
+      } else {
+        setIsRunning(true);
+      }
+
+      try {
+        const result = await saveWorkflow({
+          mode,
+          workflowId,
+          name: workflowName,
+          description: workflowDescription,
+          status: targetStatus,
+          nodes,
+          edges,
+          fetchImpl: fetch,
+          resetBaseline,
+        });
+
+        if (!workflowId) {
+          router.replace(`/workflow-builder?workflowId=${result.workflowId}`);
+        }
+
+        setWorkflowStatus(targetStatus);
+        appToast.success(targetStatus === "published" ? "工作流已儲存" : "工作流已執行");
+      } catch (error) {
+        console.error(error);
+        appToast.error(
+          targetStatus === "running"
+            ? "工作流執行失敗，請檢查錯誤節點"
+            : error instanceof Error
+              ? error.message
+              : "工作流儲存失敗，請稍後再試",
+        );
+      } finally {
+        if (targetStatus === "published") {
+          setIsSaving(false);
+        } else {
+          setIsRunning(false);
+        }
+      }
+    },
+    [
+      edges,
+      nodes,
+      resetBaseline,
+      router,
+      setWorkflowStatus,
+      workflowDescription,
+      workflowId,
+      workflowName,
+    ],
+  );
 
   return (
     <header>
@@ -144,13 +224,21 @@ export default function WorkflowBuilderHeader() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button className="border-green-500 text-green-700 hover:bg-green-100">
+          <Button
+            className="border-green-500 text-green-700 hover:bg-green-100 disabled:bg-gray-300 disabled:text-gray-600"
+            disabled={!canPersistWorkflow}
+            onClick={() => void handlePersistWorkflow("published")}
+          >
             <SaveIcon aria-hidden="true" />
-            儲存
+            {isSaving ? "儲存中..." : "儲存"}
           </Button>
-          <Button className="border-green-500 bg-green-500 text-white hover:bg-green-700">
+          <Button
+            className="border-green-500 bg-green-500 text-white hover:bg-green-700 disabled:bg-gray-300 disabled:text-gray-600"
+            disabled={!canRunWorkflow}
+            onClick={() => void handlePersistWorkflow("running")}
+          >
             <PlayIcon aria-hidden="true" />
-            執行
+            {isRunning ? "執行中..." : "執行"}
           </Button>
 
           <UserInfo />

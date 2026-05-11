@@ -116,15 +116,6 @@ const PodcastGenerationNodeSetting = ({
         </div>
 
         <section className="space-y-2">
-          <p className={fieldLabelClass}>模型版本</p>
-          <SelectField
-            value={data.model}
-            onChange={handleModelChange}
-            options={modelOptions}
-          />
-        </section>
-
-        <section className="space-y-2">
           <p className={fieldLabelClass}>Prompt 模板</p>
           <Textarea
             className="min-h-[140px] rounded-[10px] border-module-border bg-white text-sm leading-6 text-module-title"

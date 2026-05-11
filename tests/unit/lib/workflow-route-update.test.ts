@@ -1,4 +1,3 @@
-import { Prisma } from "@prisma/client";
 import { describe, expect, it, vi } from "vitest";
 import {
   PatchWorkflowSchema,
@@ -9,7 +8,7 @@ import { handleWorkflowUpdate } from "@/lib/workflow-route-update";
 const { prisma } = vi.hoisted(() => ({
   prisma: {
     workflow: {
-      update: vi.fn(),
+      updateMany: vi.fn(),
     },
   },
 }));
@@ -18,7 +17,7 @@ vi.mock("@/lib/prisma", () => ({ prisma }));
 
 describe("handleWorkflowUpdate", () => {
   it("updates a workflow from a valid PUT payload", async () => {
-    prisma.workflow.update.mockResolvedValueOnce({ id: "wf-1" });
+    prisma.workflow.updateMany.mockResolvedValueOnce({ count: 1 });
 
     const response = await handleWorkflowUpdate(
       new Request("http://localhost/api/workflows/wf-1", {
@@ -34,10 +33,11 @@ describe("handleWorkflowUpdate", () => {
       Promise.resolve({ id: "wf-1" }),
       PutWorkflowSchema,
       "put",
+      "user-1",
     );
 
-    expect(prisma.workflow.update).toHaveBeenCalledWith({
-      where: { id: "wf-1" },
+    expect(prisma.workflow.updateMany).toHaveBeenCalledWith({
+      where: { id: "wf-1", user_id: "user-1" },
       data: {
         name: "Updated workflow",
         description: null,
@@ -45,15 +45,14 @@ describe("handleWorkflowUpdate", () => {
         edges: "[]",
         status: "draft",
         cron_expression: null,
-        next_run_at: null,
-        last_run_at: null,
       },
     });
     expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ count: 1 });
   });
 
   it("updates a workflow from a valid PATCH payload", async () => {
-    prisma.workflow.update.mockResolvedValueOnce({ id: "wf-1" });
+    prisma.workflow.updateMany.mockResolvedValueOnce({ count: 1 });
 
     const response = await handleWorkflowUpdate(
       new Request("http://localhost/api/workflows/wf-1", {
@@ -67,10 +66,11 @@ describe("handleWorkflowUpdate", () => {
       Promise.resolve({ id: "wf-1" }),
       PatchWorkflowSchema,
       "patch",
+      "user-1",
     );
 
-    expect(prisma.workflow.update).toHaveBeenCalledWith({
-      where: { id: "wf-1" },
+    expect(prisma.workflow.updateMany).toHaveBeenCalledWith({
+      where: { id: "wf-1", user_id: "user-1" },
       data: {
         name: "Renamed",
         status: "published",
@@ -80,7 +80,7 @@ describe("handleWorkflowUpdate", () => {
   });
 
   it("returns 400 when request JSON is malformed", async () => {
-    prisma.workflow.update.mockClear();
+    prisma.workflow.updateMany.mockClear();
 
     const response = await handleWorkflowUpdate(
       new Request("http://localhost/api/workflows/wf-1", {
@@ -91,9 +91,10 @@ describe("handleWorkflowUpdate", () => {
       Promise.resolve({ id: "wf-1" }),
       PatchWorkflowSchema,
       "patch",
+      "user-1",
     );
 
-    expect(prisma.workflow.update).not.toHaveBeenCalled();
+    expect(prisma.workflow.updateMany).not.toHaveBeenCalled();
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toMatchObject({
       error: "Invalid payload",
@@ -101,7 +102,7 @@ describe("handleWorkflowUpdate", () => {
   });
 
   it("returns 400 when schema validation fails", async () => {
-    prisma.workflow.update.mockClear();
+    prisma.workflow.updateMany.mockClear();
 
     const response = await handleWorkflowUpdate(
       new Request("http://localhost/api/workflows/wf-1", {
@@ -112,9 +113,10 @@ describe("handleWorkflowUpdate", () => {
       Promise.resolve({ id: "wf-1" }),
       PutWorkflowSchema,
       "put",
+      "user-1",
     );
 
-    expect(prisma.workflow.update).not.toHaveBeenCalled();
+    expect(prisma.workflow.updateMany).not.toHaveBeenCalled();
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toMatchObject({
       error: "Invalid payload",
@@ -122,13 +124,8 @@ describe("handleWorkflowUpdate", () => {
     });
   });
 
-  it("returns 404 when Prisma raises P2025", async () => {
-    prisma.workflow.update.mockRejectedValueOnce(
-      new Prisma.PrismaClientKnownRequestError("Workflow not found", {
-        code: "P2025",
-        clientVersion: "test",
-      }),
-    );
+  it("returns 404 when workflow is missing or not owned", async () => {
+    prisma.workflow.updateMany.mockResolvedValueOnce({ count: 0 });
 
     const response = await handleWorkflowUpdate(
       new Request("http://localhost/api/workflows/wf-1", {
@@ -139,6 +136,7 @@ describe("handleWorkflowUpdate", () => {
       Promise.resolve({ id: "wf-1" }),
       PatchWorkflowSchema,
       "patch",
+      "user-1",
     );
 
     expect(response.status).toBe(404);
@@ -147,8 +145,8 @@ describe("handleWorkflowUpdate", () => {
     });
   });
 
-  it("returns 500 when Prisma update throws unexpectedly", async () => {
-    prisma.workflow.update.mockRejectedValueOnce(new Error("boom"));
+  it("returns 500 when Prisma updateMany throws unexpectedly", async () => {
+    prisma.workflow.updateMany.mockRejectedValueOnce(new Error("boom"));
 
     const response = await handleWorkflowUpdate(
       new Request("http://localhost/api/workflows/wf-1", {
@@ -159,6 +157,7 @@ describe("handleWorkflowUpdate", () => {
       Promise.resolve({ id: "wf-1" }),
       PatchWorkflowSchema,
       "patch",
+      "user-1",
     );
 
     expect(response.status).toBe(500);

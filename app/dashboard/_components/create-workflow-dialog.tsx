@@ -1,9 +1,11 @@
 "use client";
 
 import { CopyIcon, PlusIcon, XIcon } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { startTransition, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -19,6 +21,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import IconAdd from "@/public/add.svg";
+import { cn } from "@/lib/utils";
+import { useUser } from "@/providers/user-provider";
 
 type TemplateOption = {
   id: number;
@@ -30,6 +35,7 @@ type TemplateOption = {
 
 type CreateWorkflowDialogProps = {
   templates: TemplateOption[];
+  triggerVariant?: "button" | "card";
 };
 
 type CreateWorkflowResponse = {
@@ -39,8 +45,10 @@ type CreateWorkflowResponse = {
 
 export default function CreateWorkflowDialog({
   templates,
+  triggerVariant = "button",
 }: CreateWorkflowDialogProps) {
   const router = useRouter();
+  const { activeUserId } = useUser();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
   const [isCreating, setIsCreating] = useState(false);
@@ -83,8 +91,10 @@ export default function CreateWorkflowDialog({
       }
 
       setIsOpen(false);
-      router.push(`/workflow-builder?workflowId=${result.id}`);
-      router.refresh();
+      startTransition(() => {
+        router.push(`/workflow-builder?workflowId=${result.id}`);
+        router.refresh();
+      });
     } catch (error) {
       setErrorMessage(
         error instanceof Error ? error.message : "建立失敗，請稍後再試",
@@ -102,13 +112,65 @@ export default function CreateWorkflowDialog({
     }
   };
 
+  const handleOpenCreateDialog = () => {
+    if (!activeUserId) {
+      return;
+    }
+    setIsOpen(true);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button className="bg-green-500 text-white hover:bg-green-700">
-          <PlusIcon />
-          建立新工作流
-        </Button>
+        {triggerVariant === "card" ? (
+          <Card
+            onClick={(event: React.MouseEvent<HTMLDivElement>) => {
+              event.preventDefault();
+              event.stopPropagation();
+              void handleOpenCreateDialog();
+            }}
+            className={cn(
+              "flex h-[157px] w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-module-border bg-white px-4 py-6 hover:shadow-2 disabled:opacity-50",
+              !activeUserId && "cursor-not-allowed hover:shadow-none",
+            )}
+          >
+            <CardContent className="flex flex-col items-center justify-center p-0">
+              <Image
+                src={IconAdd}
+                width={48}
+                height={48}
+                alt="add icon"
+                className={cn(!activeUserId && "opacity-50")}
+              />
+              <div className="mt-5 text-center">
+                <p
+                  className={cn(
+                    "text-base font-normal",
+                    !activeUserId && "opacity-50",
+                  )}
+                >
+                  建立新工作流
+                </p>
+                <p
+                  className={cn(
+                    "text-sm font-normal text-[#4a4842]",
+                    !activeUserId && "opacity-50",
+                  )}
+                >
+                  從空白開始設計流程
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Button
+            className="bg-green-500 text-white hover:bg-green-700"
+            disabled={!activeUserId}
+          >
+            <PlusIcon />
+            建立新工作流
+          </Button>
+        )}
       </DialogTrigger>
 
       <DialogContent className="max-w-[560px] rounded-2xl border border-gray-400 bg-white p-6">

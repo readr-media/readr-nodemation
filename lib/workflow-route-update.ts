@@ -1,4 +1,3 @@
-import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import {
   buildWorkflowUpdateData,
@@ -15,6 +14,7 @@ export async function handleWorkflowUpdate(
   params: Promise<{ id: string }>,
   schema: WorkflowUpdateSchema,
   mode: "put" | "patch",
+  userId: string,
 ) {
   let body: unknown;
 
@@ -36,20 +36,17 @@ export async function handleWorkflowUpdate(
   const { id } = await params;
 
   try {
-    const workflow = await prisma.workflow.update({
-      where: { id },
+    const updatedResult = await prisma.workflow.updateMany({
+      where: { id, user_id: userId },
       data: buildWorkflowUpdateData(parsed.data, mode),
     });
 
-    return Response.json(workflow);
-  } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2025"
-    ) {
+    if (updatedResult.count === 0) {
       return Response.json({ error: "Workflow not found" }, { status: 404 });
     }
 
+    return Response.json({ count: updatedResult.count });
+  } catch (error) {
     return Response.json(
       { error: "Failed to update workflow" },
       { status: 500 },

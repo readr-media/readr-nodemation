@@ -13,6 +13,7 @@
 ### Task 1: Define aiClassifierTagger store defaults
 
 **Files:**
+
 - Create: `components/flow/nodes/ai-classifier-tagger-node.tsx`
 - Create: `stores/flow-editor/slices/ai-classifier-tagger-node-slice.ts`
 - Modify: `stores/flow-editor/types.ts`
@@ -87,6 +88,7 @@ git commit -m "feat: add ai classifier tagger node defaults"
 ### Task 2: Normalize aiClassifierTagger in workflow loading
 
 **Files:**
+
 - Modify: `app/[workflow-builder]/components/workflow-loader.ts`
 - Test: `tests/unit/app/workflow-builder/workflow-builder-loading.test.ts`
 
@@ -144,6 +146,7 @@ git commit -m "feat: normalize ai classifier tagger nodes"
 ### Task 3: Register the new node in the canvas and module list
 
 **Files:**
+
 - Modify: `components/flow/flow-editor.tsx`
 - Modify: `app/[workflow-builder]/components/module-list-config.ts`
 - Modify: `app/[workflow-builder]/components/module-list.tsx`
@@ -193,6 +196,7 @@ git commit -m "feat: add ai classifier tagger module entry"
 ### Task 4: Add the dedicated settings panel
 
 **Files:**
+
 - Create: `app/[workflow-builder]/components/node-settings/ai-classifier-tagger-node-setting.tsx`
 - Modify: `app/[workflow-builder]/components/node-setting-sidebar.tsx`
 - Test: `tests/unit/app/workflow-builder/ai-classifier-tagger-node-setting.test.tsx`
@@ -218,7 +222,6 @@ Expected: FAIL because the component and sidebar case do not exist.
 
 Implement a dedicated settings component with only:
 
-- 模型版本
 - 標題欄位 mapping
 - 內文欄位 mapping
 - Prompt 模板
@@ -245,6 +248,7 @@ git commit -m "feat: add ai classifier tagger settings"
 ### Task 5: Update the demo workflow seed
 
 **Files:**
+
 - Modify: `prisma/seed.js`
 - Modify: `tests/unit/prisma/seed-demo-workflow.test.ts`
 
@@ -288,6 +292,7 @@ git commit -m "feat: update demo workflow to use ai classifier tagger"
 ### Task 6: Run focused regression verification
 
 **Files:**
+
 - No production file changes expected
 
 **Step 1: Run the focused suite**
@@ -317,6 +322,7 @@ Only commit if you had to adjust tests or formatting during verification.
 ### Task 7: Prepare the branch for review
 
 **Files:**
+
 - No code changes required unless verification finds issues
 
 **Step 1: Inspect git status**

@@ -23,7 +23,8 @@ type SaveWorkflowInput = {
 };
 
 type SavedWorkflowResponse = {
-  id: string;
+  id?: string;
+  count?: number;
 };
 
 const buildRequest = ({

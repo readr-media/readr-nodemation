@@ -95,17 +95,6 @@ const AiClassifierTaggerNodeSetting = ({
         </div>
 
         <section className="space-y-2">
-          <p className={fieldLabelClass}>模型版本</p>
-          <SelectField
-            value={data.model}
-            onChange={(value) =>
-              updateAiClassifierTaggerNodeData(nodeId, { model: value })
-            }
-            options={modelOptions}
-          />
-        </section>
-
-        <section className="space-y-2">
           <p className={fieldLabelClass}>標題欄位 mapping</p>
           <Input
             className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"

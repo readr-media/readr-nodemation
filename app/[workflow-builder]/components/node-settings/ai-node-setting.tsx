@@ -101,15 +101,6 @@ const AiNodeSettings = ({
           <Separator className="bg-module-border" />
         </div>
 
-        <section className="space-y-2">
-          <p className={fieldLabelClass}>模型版本</p>
-          <SelectField
-            value={data.model}
-            onChange={handleModelChange}
-            options={modelOptions}
-          />
-        </section>
-
         <section className="space-y-3">
           <div className="space-y-2">
             <p className={fieldLabelClass}>輸入來源</p>

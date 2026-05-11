@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getActiveUserId } from "@/lib/active-user";
 import { prisma } from "@/lib/prisma";
 import {
   buildWorkflowCreateData,
@@ -7,7 +8,13 @@ import {
 
 export async function GET() {
   try {
+    const activeUserId = await getActiveUserId();
+    if (!activeUserId) {
+      return NextResponse.json([]);
+    }
+
     const workflows = await prisma.workflow.findMany({
+      where: { user_id: activeUserId },
       orderBy: { created_at: "desc" },
     });
     return NextResponse.json(workflows);
@@ -22,6 +29,14 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const activeUserId = await getActiveUserId();
+    if (!activeUserId) {
+      return NextResponse.json(
+        { error: "尚未選擇帳號，無法建立工作流" },
+        { status: 401 },
+      );
+    }
+
     const body = await request.json();
     const parsed = CreateWorkflowSchema.safeParse(body);
 
@@ -38,6 +53,7 @@ export async function POST(request: Request) {
       data: {
         id: crypto.randomUUID(),
         ...buildWorkflowCreateData(data),
+        user_id: activeUserId,
       },
     });
 

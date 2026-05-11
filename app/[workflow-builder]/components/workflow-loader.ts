@@ -3,17 +3,24 @@
 import type { Edge, Node } from "@xyflow/react";
 import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
 import type { AiClassifierTaggerNodeData } from "@/components/flow/nodes/ai-classifier-tagger-node";
-import type { CmsAudioFieldMapping, CmsOutputAudioNodeData, CmsOutputAudioTargetField } from "@/components/flow/nodes/cms-output-audio-node";
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
-import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
+import type {
+  CmsAudioFieldMapping,
+  CmsOutputAudioNodeData,
+  CmsOutputAudioTargetField,
+} from "@/components/flow/nodes/cms-output-audio-node";
+import type {
+  CmsFieldMapping,
+  CmsOutputNodeData,
+  CmsOutputTargetField,
+} from "@/components/flow/nodes/cms-output-node";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
 import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
 import type { WorkflowStatus } from "@/lib/workflow-status";
-import type { PodcastGenerationNodeData } from "@/stores/flow-editor/slices/podcast-generation-node-slice";
-
 import { createAiClassifierTaggerNodeData } from "@/stores/flow-editor/slices/ai-classifier-tagger-node-slice";
 import { createCmsInputNodeData } from "@/stores/flow-editor/slices/cms-node-slice";
 import { createCmsOutputNodeData } from "@/stores/flow-editor/slices/cms-output-node-slice";
+import type { PodcastGenerationNodeData } from "@/stores/flow-editor/slices/podcast-generation-node-slice";
 import { generateId } from "@/utils/generate-id";
 
 type WorkflowRecord = {
@@ -25,8 +32,18 @@ type WorkflowRecord = {
   edges: string;
 };
 
+type WorkflowTemplateRecord = {
+  id: number;
+  name: string;
+  description?: string | null;
+  status: WorkflowStatus;
+  nodes: string;
+  edges: string;
+};
+
 type LoadWorkflowIntoStoresInput = {
   workflowId: string | null;
+  templateId: string | null;
   fetchImpl: typeof fetch;
   loadSnapshot: (payload: { nodes: Node[]; edges: Edge[] }) => void;
   hydrateFromWorkflow: (workflow: {
@@ -174,8 +191,70 @@ const normalizeAiClassifierTaggerData = (
 };
 
 const normalizeCmsOutputData = (
-  _data: Record<string, unknown>,
-): CmsOutputNodeData => createCmsOutputNodeData();
+  data: Record<string, unknown>,
+): CmsOutputNodeData => {
+  const defaults = createCmsOutputNodeData();
+  const allowedTargetFields: CmsOutputTargetField[] = [
+    "title",
+    "recommendedTitle",
+    "content",
+    "summary",
+    "categories",
+    "tags",
+    "recommendedPoll",
+  ];
+
+  const mappings: CmsFieldMapping[] = Array.isArray(data.mappings)
+    ? data.mappings
+        .map((mapping): CmsFieldMapping | null => {
+          const record = mapping as Record<string, unknown>;
+          if (
+            typeof record.sourceField !== "string" ||
+            typeof record.targetField !== "string" ||
+            !allowedTargetFields.includes(
+              record.targetField as CmsOutputTargetField,
+            )
+          ) {
+            return null;
+          }
+
+          return {
+            id: typeof record.id === "string" ? record.id : generateId(),
+            sourceField: record.sourceField,
+            targetField: record.targetField as CmsOutputTargetField,
+          };
+        })
+        .filter((value): value is CmsFieldMapping => value !== null)
+    : defaults.mappings;
+
+  return {
+    ...defaults,
+    title: typeof data.title === "string" ? data.title : defaults.title,
+    cmsConfigId:
+      typeof data.cmsConfigId === "string"
+        ? data.cmsConfigId
+        : defaults.cmsConfigId,
+    cmsName: typeof data.cmsName === "string" ? data.cmsName : defaults.cmsName,
+    cmsList: typeof data.cmsList === "string" ? data.cmsList : defaults.cmsList,
+    cmsPostIds:
+      typeof data.cmsPostIds === "string"
+        ? data.cmsPostIds
+        : defaults.cmsPostIds,
+    cmsPostSlugs:
+      typeof data.cmsPostSlugs === "string"
+        ? data.cmsPostSlugs
+        : defaults.cmsPostSlugs,
+    mappings,
+    mode:
+      data.mode === "overwrite" || data.mode === "append"
+        ? data.mode
+        : defaults.mode,
+    postStatus:
+      data.postStatus === "draft" || data.postStatus === "published"
+        ? data.postStatus
+        : defaults.postStatus,
+  };
+};
 
 const getDefaultAudioMappings = (): CmsAudioFieldMapping[] => [
   {
@@ -210,20 +289,23 @@ const normalizeCmsOutputAudioData = (
   cmsAudioFileIds:
     typeof data.cmsAudioFileIds === "string" ? data.cmsAudioFileIds : "",
   mappings: Array.isArray(data.mappings)
-    ? data.mappings.map((mapping): CmsAudioFieldMapping => ({
-        id:
-          typeof (mapping as Record<string, unknown>).id === "string"
-            ? ((mapping as Record<string, unknown>).id as string)
-            : generateId(),
-        sourceField:
-          typeof (mapping as Record<string, unknown>).sourceField === "string"
-            ? ((mapping as Record<string, unknown>).sourceField as string)
-            : "",
-        targetField:
-          typeof (mapping as Record<string, unknown>).targetField === "string"
-            ? ((mapping as Record<string, unknown>).targetField as CmsOutputAudioTargetField)
-            : "title",
-      }))
+    ? data.mappings.map(
+        (mapping): CmsAudioFieldMapping => ({
+          id:
+            typeof (mapping as Record<string, unknown>).id === "string"
+              ? ((mapping as Record<string, unknown>).id as string)
+              : generateId(),
+          sourceField:
+            typeof (mapping as Record<string, unknown>).sourceField === "string"
+              ? ((mapping as Record<string, unknown>).sourceField as string)
+              : "",
+          targetField:
+            typeof (mapping as Record<string, unknown>).targetField === "string"
+              ? ((mapping as Record<string, unknown>)
+                  .targetField as CmsOutputAudioTargetField)
+              : "title",
+        }),
+      )
     : getDefaultAudioMappings(),
   mode: "create",
 });
@@ -328,25 +410,27 @@ const normalizeNode = (node: Node): Node => {
   }
 };
 
-const parseGraphSnapshot = (workflow: WorkflowRecord) => ({
-  nodes: (JSON.parse(workflow.nodes) as Node[]).map(normalizeNode),
-  edges: JSON.parse(workflow.edges) as Edge[],
+const parseGraphSnapshot = (record: { nodes: string; edges: string }) => ({
+  nodes: (JSON.parse(record.nodes) as Node[]).map(normalizeNode),
+  edges: JSON.parse(record.edges) as Edge[],
 });
 
 export const loadWorkflowIntoStores = async ({
   workflowId,
+  templateId,
   fetchImpl,
   loadSnapshot,
   hydrateFromWorkflow,
 }: LoadWorkflowIntoStoresInput): Promise<WorkflowLoadResult> => {
-  if (!workflowId) {
+  if (!workflowId && !templateId) {
     return { status: "idle" };
   }
 
   try {
-    const response = await fetchImpl(`/api/workflows/${workflowId}`, {
-      cache: "no-store",
-    });
+    const endpoint = workflowId
+      ? `/api/workflows/${workflowId}`
+      : `/api/workflow-templates/${templateId}`;
+    const response = await fetchImpl(endpoint, { cache: "no-store" });
 
     if (response.status === 404) {
       return { status: "missing" };
@@ -356,15 +440,32 @@ export const loadWorkflowIntoStores = async ({
       return { status: "error" };
     }
 
-    const workflow = (await response.json()) as WorkflowRecord;
-    const snapshot = parseGraphSnapshot(workflow);
+    if (workflowId) {
+      const workflow = (await response.json()) as WorkflowRecord;
+      const snapshot = parseGraphSnapshot(workflow);
+
+      loadSnapshot(snapshot);
+      hydrateFromWorkflow({
+        workflowId: workflow.id,
+        name: workflow.name,
+        description: workflow.description ?? "",
+        status: workflow.status,
+        nodes: snapshot.nodes,
+        edges: snapshot.edges,
+      });
+
+      return { status: "loaded" };
+    }
+
+    const template = (await response.json()) as WorkflowTemplateRecord;
+    const snapshot = parseGraphSnapshot(template);
 
     loadSnapshot(snapshot);
     hydrateFromWorkflow({
-      workflowId: workflow.id,
-      name: workflow.name,
-      description: workflow.description ?? "",
-      status: workflow.status,
+      workflowId: null,
+      name: template.name,
+      description: template.description ?? "",
+      status: "template",
       nodes: snapshot.nodes,
       edges: snapshot.edges,
     });

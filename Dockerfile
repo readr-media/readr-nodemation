@@ -1,4 +1,4 @@
-FROM node:20-alpine AS build-stage
+FROM node:22-alpine AS build-stage
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
@@ -9,7 +9,7 @@ COPY . .
 ENV NEXT_PUBLIC_ENV=dev
 RUN pnpm build
 
-FROM node:20-alpine AS production-stage
+FROM node:22-alpine AS production-stage
 WORKDIR /app
 
 ENV NODE_ENV=production

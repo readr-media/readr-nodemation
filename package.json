@@ -2,6 +2,7 @@
   "name": "readr-nodemation",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@10.33.2",
   "scripts": {
     "dev": "concurrently \"next dev --webpack\" \"graphql-codegen -w\"",
     "build": "next build --webpack",

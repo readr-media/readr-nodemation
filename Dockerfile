@@ -3,7 +3,7 @@ WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma
-RUN corepack enable && corepack prepare pnpm@10.33.2 --activate && pnpm install --frozen-lockfile
+RUN corepack enable && pnpm install --frozen-lockfile
 
 COPY . .
 ENV NEXT_PUBLIC_ENV=dev

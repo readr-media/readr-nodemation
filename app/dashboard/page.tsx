@@ -4,6 +4,8 @@ import { getUserWorkflows } from "@/lib/workflows";
 import CreateWorkflowDialog from "./_components/create-workflow-dialog";
 import TemplateWorkflowCard from "./_components/template-workflow-card";
 import UserWorkflowCard from "./_components/user-workflow-card";
+import UserWorkflowGrid from "./_components/user-workflow-grid";
+import { WorkflowCreatingProvider } from "./_components/workflow-creating-context";
 
 export const runtime = "nodejs";
 
@@ -45,29 +47,31 @@ export default async function Page() {
 
   return (
     <main className="px-15 py-10 flex flex-col">
-      <div className="flex justify-between items-center">
-        <h2 className="title-4 text-gray-900">我的工作流</h2>
-        <CreateWorkflowDialog templates={templateCards} />
-      </div>
-      <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {userCards.length === 0 ? (
-          <CreateWorkflowDialog
-            templates={templateCards}
-            triggerVariant="card"
-          />
-        ) : (
-          userCards.map((card) => (
-            <UserWorkflowCard
-              key={card.id}
-              id={card.id}
-              name={card.name}
-              description={card.description}
-              time={card.time}
-              status={card.status}
+      <WorkflowCreatingProvider>
+        <div className="flex justify-between items-center">
+          <h2 className="title-4 text-gray-900">我的工作流</h2>
+          <CreateWorkflowDialog templates={templateCards} />
+        </div>
+        <UserWorkflowGrid>
+          {userCards.length === 0 ? (
+            <CreateWorkflowDialog
+              templates={templateCards}
+              triggerVariant="card"
             />
-          ))
-        )}
-      </div>
+          ) : (
+            userCards.map((card) => (
+              <UserWorkflowCard
+                key={card.id}
+                id={card.id}
+                name={card.name}
+                description={card.description}
+                time={card.time}
+                status={card.status}
+              />
+            ))
+          )}
+        </UserWorkflowGrid>
+      </WorkflowCreatingProvider>
 
       <h2 className="title-4 text-gray-900 mt-10">工作流模板</h2>
       <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

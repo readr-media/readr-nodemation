@@ -24,6 +24,7 @@ import {
 import IconAdd from "@/public/add.svg";
 import { cn } from "@/lib/utils";
 import { useUser } from "@/providers/user-provider";
+import { useWorkflowCreating } from "./workflow-creating-context";
 
 type TemplateOption = {
   id: number;
@@ -49,6 +50,7 @@ export default function CreateWorkflowDialog({
 }: CreateWorkflowDialogProps) {
   const router = useRouter();
   const { activeUserId } = useUser();
+  const { setIsCreating: setGridCreating } = useWorkflowCreating();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
   const [isCreating, setIsCreating] = useState(false);
@@ -66,6 +68,7 @@ export default function CreateWorkflowDialog({
     if (!selectedTemplate || isCreating) return;
 
     setIsCreating(true);
+    setGridCreating(true);
     setErrorMessage(null);
 
     try {
@@ -96,6 +99,7 @@ export default function CreateWorkflowDialog({
         router.refresh();
       });
     } catch (error) {
+      setGridCreating(false);
       setErrorMessage(
         error instanceof Error ? error.message : "建立失敗，請稍後再試",
       );

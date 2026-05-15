@@ -22,7 +22,7 @@ describe("loadWorkflowIntoStores", () => {
           description: "既有流程",
           status: "draft",
           nodes:
-            '[{"id":"node-1","type":"cmsInput","position":{"x":0,"y":0},"data":{"label":"從 CMS 輸入"}}]',
+            '[{"id":"node-1","type":"cmsInput","position":{"x":0,"y":0},"data":{"label":"從 CMS 輸入文章"}}]',
           edges: '[{"id":"edge-1","source":"node-1","target":"node-2"}]',
         }),
         {

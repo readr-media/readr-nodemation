@@ -62,7 +62,7 @@ export const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
     title: "CMS 模組",
     modules: [
       {
-        title: "從 CMS 輸入",
+        title: "從 CMS 輸入文章",
         description: "從 CMS 系統抓取內容",
         icon: Database,
         accent: "cms",

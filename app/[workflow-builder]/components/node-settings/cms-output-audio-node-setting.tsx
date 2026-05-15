@@ -2,7 +2,10 @@
 
 import { Check } from "lucide-react";
 
-import type { CmsAudioFieldMapping, CmsOutputAudioNodeData } from "@/components/flow/nodes/cms-output-audio-node";
+import type {
+  CmsAudioFieldMapping,
+  CmsOutputAudioNodeData,
+} from "@/components/flow/nodes/cms-output-audio-node";
 import { Input } from "@/components/ui/input";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import { generateId } from "@/utils/generate-id";
@@ -10,7 +13,7 @@ import { generateId } from "@/utils/generate-id";
 const labelClass =
   "text-sm font-medium leading-6 text-module-title tracking-tight";
 const selectClass =
-  "h-10 w-full rounded-lg border border-module-border bg-white px-3 text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)] focus-visible:border-[#00967d] focus-visible:ring-0";
+  "h-10 w-full rounded-lg border border-module-border bg-white px-3 text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)] focus-visible:border-[#00967d] focus-visible:ring-0 pointer-events-none outline-none opacity-50";
 
 const writeBackFieldOptions = [
   {
@@ -124,7 +127,9 @@ const CmsOutputAudioNodeSetting = ({
     <div className="flex flex-1 flex-col overflow-y-auto px-6 py-6">
       <div className="space-y-6">
         <div className="space-y-2">
-          <p className="text-lg font-medium text-module-title">輸出音檔到 CMS 設定</p>
+          <p className="text-lg font-medium text-module-title">
+            輸出音檔到 CMS 設定
+          </p>
         </div>
 
         <section className="space-y-2">
@@ -167,7 +172,6 @@ const CmsOutputAudioNodeSetting = ({
             ))}
           </div>
         </section>
-
       </div>
     </div>
   );

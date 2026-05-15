@@ -6,7 +6,7 @@ import { NODE_OFFSET_STEP } from "../constants";
 import type { CmsOutputNodeSlice, NodesStore } from "../types";
 
 export const createCmsOutputNodeData = (): CmsOutputNodeData => ({
-  title: "輸出文字到CMS",
+  title: "輸出文字到 CMS",
   cmsConfigId: "",
   cmsName: "Readr CMS",
   cmsList: "Posts",

@@ -116,15 +116,12 @@ const PodcastGenerationNodeSetting = ({
         </div>
 
         <section className="space-y-2">
-          <p className={fieldLabelClass}>Prompt 模板</p>
+          <p className={fieldLabelClass}>進階指令（User Prompt）</p>
           <Textarea
             className="min-h-[140px] rounded-[10px] border-module-border bg-white text-sm leading-6 text-module-title"
             value={data.promptTemplate}
             onChange={(event) => handlePromptChange(event.target.value)}
           />
-          <p className={helperTextClass}>
-            {`支援變數：\${title}, \${content}, \${summary}`}
-          </p>
         </section>
 
         <section className="space-y-2">

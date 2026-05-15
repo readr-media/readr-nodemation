@@ -64,7 +64,7 @@ const CmsNodeSetting = ({
       <div className="space-y-6">
         <div className="space-y-2">
           <p className="text-lg font-medium text-module-title">
-            從 CMS 輸入 設定
+            從 CMS 輸入文章 設定
           </p>
           <p className="text-sm text-module-muted">設定資料來源與抓取欄位</p>
         </div>
@@ -84,8 +84,7 @@ const CmsNodeSetting = ({
           <select
             value={data.cmsList}
             onChange={() => undefined}
-            disabled
-            className="h-10 w-full rounded-lg border border-module-border bg-white px-3 text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)] focus-visible:border-[#00967d] focus-visible:ring-0"
+            className="h-10 w-full cursor-not-allowed rounded-lg border border-module-border bg-white px-3 text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)] pointer-events-none outline-none opacity-50"
           >
             <option value="Posts">Posts</option>
           </select>

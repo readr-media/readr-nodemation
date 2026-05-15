@@ -52,6 +52,7 @@ function DashboardHeader() {
     let parsed: ImportPayload;
     try {
       parsed = JSON.parse(importRawJson) as ImportPayload;
+      console.log(parsed);
     } catch (error) {
       console.error(error);
       toast.error("JSON 格式不正確，請確認後再試");

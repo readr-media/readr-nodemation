@@ -13,7 +13,7 @@ const Page = async ({ searchParams }: PageProps) => {
     : { workflowId: undefined, templateId: undefined };
 
   return (
-    <div className="flex flex-1 min-h-svh">
+    <div className="flex h-full min-h-0 flex-1">
       <WorkflowBuilder
         workflowId={resolvedSearchParams.workflowId ?? null}
         templateId={resolvedSearchParams.templateId ?? null}

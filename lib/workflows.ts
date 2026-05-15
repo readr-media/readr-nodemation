@@ -22,7 +22,10 @@ export const getUserWorkflows = async (
 
   const workflows = await prisma.workflow.findMany({
     where: { user_id: userId },
-    orderBy: { updated_at: "desc" },
+    orderBy: [
+      { last_run_at: { sort: "desc", nulls: "last" } },
+      { updated_at: "desc" },
+    ],
     select: {
       id: true,
       name: true,

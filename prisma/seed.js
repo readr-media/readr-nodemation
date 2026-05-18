@@ -416,7 +416,7 @@ const demoPodcastNodes = JSON.stringify([
     type: "cmsInput",
     position: { x: 80, y: 160 },
     data: {
-      title: "從 CMS 輸入文章 ",
+      title: "從 CMS 輸入文章",
       cmsConfigId: "",
       cmsName: "Readr CMS",
       cmsList: "Posts",

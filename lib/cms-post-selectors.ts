@@ -18,8 +18,14 @@ function expandNumericRange(token: string) {
     return [token];
   }
 
-  const start = Number.parseInt(match[1], 10);
-  const end = Number.parseInt(match[2], 10);
+  const startToken = match[1];
+  const endToken = match[2];
+  if (!startToken || !endToken) {
+    return [token];
+  }
+
+  const start = Number.parseInt(startToken, 10);
+  const end = Number.parseInt(endToken, 10);
 
   if (start > end) {
     return [token];

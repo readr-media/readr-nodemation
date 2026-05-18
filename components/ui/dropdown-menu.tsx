@@ -88,14 +88,13 @@ DropdownMenuItem.displayName = DropdownMenuPrimitive.Item.displayName;
 const DropdownMenuCheckboxItem = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.CheckboxItem>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.CheckboxItem>
->(({ className, children, checked, ...props }, ref) => (
+>(({ className, children, ...props }, ref) => (
   <DropdownMenuPrimitive.CheckboxItem
     ref={ref}
     className={cn(
       "relative flex cursor-pointer select-none items-center gap-2 rounded-md px-3 py-2 text-sm text-gray-900 outline-none focus:bg-gray-300 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className,
     )}
-    checked={checked}
     {...props}
   >
     <span className="absolute left-3 flex size-3.5 items-center justify-center">

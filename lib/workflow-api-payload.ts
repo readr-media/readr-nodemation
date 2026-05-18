@@ -38,11 +38,11 @@ export function buildWorkflowCreateData(
 ) {
   return {
     name: data.name,
-    description: data.description,
+    description: data.description ?? null,
     nodes: toJsonString(data.nodes),
     edges: toJsonString(data.edges),
     status: data.status,
-    cron_expression: data.cron_expression,
+    cron_expression: data.cron_expression ?? null,
     next_run_at: data.next_run_at ? new Date(data.next_run_at) : null,
     last_run_at: data.last_run_at ? new Date(data.last_run_at) : null,
   };

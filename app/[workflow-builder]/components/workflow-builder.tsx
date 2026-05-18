@@ -60,7 +60,7 @@ const WorkflowBuilder = ({
 
   if (loadState === "loading") {
     return (
-      <div className="flex min-h-svh w-full items-center justify-center bg-background px-6">
+      <div className="flex h-full min-h-0 w-full items-center justify-center bg-background px-6">
         <output className="body-2 text-gray-700" aria-live="polite">
           載入 workflow…
         </output>
@@ -70,7 +70,7 @@ const WorkflowBuilder = ({
 
   if (loadState === "missing") {
     return (
-      <div className="flex min-h-svh w-full items-center justify-center bg-background px-6">
+      <div className="flex h-full min-h-0 w-full items-center justify-center bg-background px-6">
         <p className="body-2 text-red-700" role="alert">
           找不到 workflow。
         </p>
@@ -80,7 +80,7 @@ const WorkflowBuilder = ({
 
   if (loadState === "error") {
     return (
-      <div className="flex min-h-svh w-full items-center justify-center bg-background px-6">
+      <div className="flex h-full min-h-0 w-full items-center justify-center bg-background px-6">
         <p className="body-2 text-red-700" role="alert">
           載入 workflow 失敗，請稍後再試。
         </p>
@@ -89,7 +89,7 @@ const WorkflowBuilder = ({
   }
 
   return (
-    <div className="relative flex min-h-svh w-full shadow-md">
+    <div className="relative flex h-full min-h-0 w-full shadow-md">
       <FlowEditor controlsSlot={<WorkFlowControls />} />
     </div>
   );

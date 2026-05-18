@@ -87,7 +87,10 @@ export default function UserWorkflowCard({
         nodes: string;
         edges: string;
       };
+      const sanitizedName = name.replace(/\s*[（(].*$/u, "").trim();
+
       const payload = {
+        name: sanitizedName || name,
         nodes: JSON.parse(data.nodes),
         edges: JSON.parse(data.edges),
         schedule: { enabled: false, frequency: "daily", slots: [] },

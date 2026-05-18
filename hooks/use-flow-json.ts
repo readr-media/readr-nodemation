@@ -30,13 +30,13 @@ export function useFlowJSON() {
     const payload: ExportPayload = {
       nodes,
       edges,
-      schedule: { enabled, frequency, slots, lastUpdated },
+      schedule: { enabled, frequency, slots, lastUpdated: lastUpdated ?? "" },
     };
     const json = JSON.stringify(payload, null, 2);
     if (navigator.clipboard?.writeText) {
       try {
         await navigator.clipboard.writeText(json);
-        window.alert("Flow JSON 已複製到剪貼簿 (測試用)");
+        window.alert("工作流 JSON 已複製到剪貼簿");
         return;
       } catch (error) {
         console.warn("Clipboard write failed", error);

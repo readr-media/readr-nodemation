@@ -44,9 +44,9 @@ const moduleSeed = [
     sort_order: 3,
     units: [
       {
-        action: "從 CMS 輸入",
+        action: "從 CMS 輸入文章",
         action_code: "cms",
-        description: "從 CMS 系統抓取內容",
+        description: "從 CMS 系統抓取文章內容",
         active: true,
         icon_key: "Database",
         sort_order: 1,
@@ -149,7 +149,7 @@ const demoArticleClassificationNodes = JSON.stringify([
     type: "cmsInput",
     position: { x: 80, y: 160 },
     data: {
-      title: "從CMS輸入",
+      title: "從 CMS 輸入文章",
       cmsConfigId: "demo-cms-config",
       cmsName: "Readr CMS",
       cmsList: "Posts",
@@ -205,7 +205,7 @@ const demoArticleClassificationNodes = JSON.stringify([
     position: { x: 640, y: 160 },
     measured: { width: 240, height: 62 },
     data: {
-      title: "輸出文字到CMS",
+      title: "輸出文字到 CMS",
       cmsConfigId: "",
       cmsName: "Readr CMS",
       cmsList: "Posts",
@@ -248,7 +248,7 @@ const demoTitleGenerationNodes = JSON.stringify([
     type: "cmsInput",
     position: { x: 80, y: 160 },
     data: {
-      title: "從CMS輸入",
+      title: "從 CMS 輸入文章",
       cmsConfigId: "",
       cmsName: "Readr CMS",
       cmsList: "Posts",
@@ -294,7 +294,7 @@ const demoTitleGenerationNodes = JSON.stringify([
     position: { x: 640, y: 160 },
     measured: { width: 240, height: 62 },
     data: {
-      title: "輸出文字到CMS",
+      title: "輸出文字到 CMS",
       cmsConfigId: "",
       cmsName: "Readr CMS",
       cmsList: "Posts",
@@ -332,7 +332,7 @@ const demoEarthquakeNodes = JSON.stringify([
     type: "cmsInput",
     position: { x: 80, y: 160 },
     data: {
-      title: "從CMS輸入",
+      title: "從 CMS 輸入文章",
       cmsConfigId: "",
       cmsName: "Readr CMS",
       cmsList: "Posts",
@@ -378,7 +378,7 @@ const demoEarthquakeNodes = JSON.stringify([
     position: { x: 640, y: 160 },
     measured: { width: 240, height: 62 },
     data: {
-      title: "輸出文字到CMS",
+      title: "輸出文字到 CMS",
       cmsConfigId: "",
       cmsName: "Readr CMS",
       cmsList: "Posts",
@@ -416,7 +416,7 @@ const demoPodcastNodes = JSON.stringify([
     type: "cmsInput",
     position: { x: 80, y: 160 },
     data: {
-      title: "從CMS輸入",
+      title: "從 CMS 輸入文章",
       cmsConfigId: "",
       cmsName: "Readr CMS",
       cmsList: "Posts",
@@ -444,7 +444,7 @@ const demoPodcastNodes = JSON.stringify([
     data: {
       title: "Podcast 生成",
       model: "gemini-1.5-flash",
-      promptTemplate: "請將內容轉換成可朗讀的 Podcast 腳本",
+      promptTemplate: `[基本對話規則]\n"female"開場、"male"收尾\n兩人輪流發言，每段1-3句話\n自然口語、避免直接念誦原文\n角色設定：一位主持人風格為「數據記者」，負責分析數據趨勢，一位主持人為「閱聽人代表」，負責提問與總結影響。`,
       podcastMode: "deepDive",
       podcastLength: "medium",
     },
@@ -455,7 +455,7 @@ const demoPodcastNodes = JSON.stringify([
     position: { x: 640, y: 160 },
     measured: { width: 240, height: 62 },
     data: {
-      title: "輸出音檔到CMS",
+      title: "輸出音檔到 CMS",
       cmsConfigId: "",
       cmsName: "Readr CMS",
       cmsList: "Audio Files",
@@ -491,7 +491,7 @@ const demoVotingNodes = JSON.stringify([
     type: "cmsInput",
     position: { x: 80, y: 160 },
     data: {
-      title: "從CMS輸入",
+      title: "從 CMS 輸入文章",
       cmsConfigId: "",
       cmsName: "Readr CMS",
       cmsList: "Posts",
@@ -537,7 +537,7 @@ const demoVotingNodes = JSON.stringify([
     position: { x: 640, y: 160 },
     measured: { width: 240, height: 62 },
     data: {
-      title: "輸出文字到CMS",
+      title: "輸出文字到 CMS",
       cmsConfigId: "",
       cmsName: "Readr CMS",
       cmsList: "Posts",

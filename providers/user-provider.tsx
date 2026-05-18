@@ -117,7 +117,7 @@ export function UserProvider({
         }
 
         setActiveUserId(userId);
-        router.refresh();
+        router.replace("/");
         return true;
       } catch (error) {
         console.error(error);

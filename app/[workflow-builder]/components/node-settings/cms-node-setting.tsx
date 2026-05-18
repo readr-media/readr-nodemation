@@ -92,19 +92,21 @@ const CmsNodeSetting = ({
         </section>
 
         <section className="space-y-2">
-          <p className={labelClass}>文章ID</p>
+          <p className={labelClass}>文章ID（多筆以逗號分隔，依序執行）</p>
           <Input
             value={data.cmsPostIds}
             onChange={(event) => handleCmsPostIdsChange(event.target.value)}
+            placeholder="例如 1,2,3"
             className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
           />
         </section>
 
         <section className="space-y-2">
-          <p className={labelClass}>文章slug</p>
+          <p className={labelClass}>文章slug（多筆以逗號分隔，依序執行）</p>
           <Input
             value={data.cmsPostSlugs}
             onChange={(event) => handleCmsPostSlugsChange(event.target.value)}
+            placeholder="例如 post-a,post-b"
             className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
           />
         </section>

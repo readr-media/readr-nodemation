@@ -33,6 +33,7 @@ const loadWorkflowSeed = (): SeedWorkflow[] => {
               deleteMany: async () => undefined,
               create: async () => undefined,
             };
+            user = { upsert: async () => undefined };
             workflow = { upsert: async () => undefined };
             $disconnect = async () => undefined;
           },
@@ -94,9 +95,9 @@ describe("demo article classification workflow seed", () => {
     const aiClassifierTaggerNode = nodes[1];
     const cmsOutputNode = nodes[2];
 
-    expect(cmsInputNode.data?.title).toBe("從CMS輸入");
+    expect(cmsInputNode.data?.title).toBe("從 CMS 輸入文章");
     expect(cmsInputNode.data).toMatchObject({
-      title: "從CMS輸入",
+      title: "從 CMS 輸入文章",
       cmsConfigId: expect.any(String),
       cmsName: expect.any(String),
       cmsList: "Posts",
@@ -154,7 +155,7 @@ describe("demo article classification workflow seed", () => {
       height: 62,
     });
     expect(cmsOutputNode.data).toMatchObject({
-      title: "輸出文字到CMS",
+      title: "輸出文字到 CMS",
       cmsConfigId: "",
       cmsName: "Readr CMS",
       cmsList: "Posts",

@@ -361,7 +361,11 @@ function installDomGlobals() {
 
   globalObject.window = mockWindow;
   globalObject.document = mockWindow.document;
-  globalObject.navigator = mockWindow.navigator;
+  Object.defineProperty(globalObject, "navigator", {
+    value: mockWindow.navigator,
+    configurable: true,
+    writable: true,
+  });
   globalObject.Node = MockNode;
   globalObject.HTMLElement = MockElement;
   globalObject.SVGElement = MockElement;

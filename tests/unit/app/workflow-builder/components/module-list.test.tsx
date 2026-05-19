@@ -32,10 +32,12 @@ describe("module list", () => {
     expect(aiGroup?.modules.map((module) => module.nodeType)).toEqual([
       "aiCall",
       "aiClassifierTagger",
+      "podcastGeneration",
     ]);
     expect(aiGroup?.modules.map((module) => module.title)).toEqual([
       "呼叫 AI",
       "AI自動分類與標籤",
+      "Podcast 生成",
     ]);
   });
 

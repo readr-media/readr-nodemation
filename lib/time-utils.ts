@@ -63,26 +63,25 @@ export const getNextYearForYearlySlot = (
   const month = slot.month ?? 1;
   const day = slot.dayOfMonth ?? 1;
 
-  const compareParts = (left: number[], right: number[]) => {
+  type DateTimeTuple = [number, number, number, number];
+
+  const compareParts = (left: DateTimeTuple, right: DateTimeTuple) => {
     for (let index = 0; index < left.length; index += 1) {
-      const leftPart = left[index];
-      const rightPart = right[index];
-      if (leftPart === undefined || rightPart === undefined) {
-        continue;
-      }
+      const leftPart = left[index]!;
+      const rightPart = right[index]!;
       if (leftPart === rightPart) continue;
       return leftPart < rightPart ? -1 : 1;
     }
     return 0;
   };
 
-  const nowTuple = [
+  const nowTuple: DateTimeTuple = [
     nowParts.month,
     nowParts.day,
     nowParts.hour,
     nowParts.minute,
   ];
-  const targetTuple = [month, day, timeParts.hours, timeParts.minutes];
+  const targetTuple: DateTimeTuple = [month, day, timeParts.hours, timeParts.minutes];
   const isFutureThisYear = compareParts(nowTuple, targetTuple) < 0;
 
   return isFutureThisYear ? nowParts.year : nowParts.year + 1;

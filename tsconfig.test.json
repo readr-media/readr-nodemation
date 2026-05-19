@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["vitest/globals", "node"],
+    "noEmit": true
+  },
+  "include": [
+    "next-env.d.ts",
+    "tests/**/*.ts",
+    "tests/**/*.tsx",
+    "lib/__tests__/**/*.ts",
+    "lib/__tests__/**/*.tsx",
+    "vitest.setup.ts"
+  ],
+  "exclude": ["node_modules", "graphql/__generated__"]
+}

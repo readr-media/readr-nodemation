@@ -15,7 +15,7 @@
     "incremental": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
-    "types": ["vitest/globals", "node"],
+    "types": ["node"],
     "plugins": [
       {
         "name": "next"

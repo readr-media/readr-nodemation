@@ -140,7 +140,6 @@ const initialState: ExecutionScheduleState = {
   enabled: false,
   frequency: "daily",
   slots: [],
-  lastUpdated: undefined,
 };
 
 const computeNextRun = (
@@ -216,7 +215,7 @@ const computeNextRun = (
 
   if (!candidates.length) return null;
   candidates.sort((a, b) => a.getTime() - b.getTime());
-  return candidates[0];
+  return candidates[0] ?? null;
 };
 
 const timestamp = () => new Date().toISOString();

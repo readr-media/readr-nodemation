@@ -15,6 +15,7 @@
     "incremental": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
+    "types": ["node"],
     "plugins": [
       {
         "name": "next"
@@ -32,5 +33,12 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "graphql/__generated__"]
+  "exclude": [
+    "node_modules",
+    "graphql/__generated__",
+    "tests",
+    "lib/__tests__",
+    "**/*.test.ts",
+    "**/*.test.tsx"
+  ]
 }

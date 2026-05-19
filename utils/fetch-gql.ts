@@ -14,13 +14,12 @@ export default async function queryGraphQL<
   errorMessage?: string,
 ): Promise<TResult | null> {
   try {
-    const { data, errors: gqlErrors } = await getClient().query({
-      query,
-      variables,
-    });
+    const queryOptions = variables === undefined ? { query } : { query, variables };
+    const { data, errors: gqlErrors } = await getClient().query(queryOptions);
 
     if (gqlErrors && gqlErrors.length > 0) {
-      throw new Error(`[GraphQL error]: ${gqlErrors[0].message}`);
+      const firstError = gqlErrors[0];
+      throw new Error(`[GraphQL error]: ${firstError?.message ?? "Unknown error"}`);
     }
     return data;
   } catch (error) {
@@ -48,12 +47,12 @@ export async function mutateGraphQL<
   errorMessage?: string,
 ): Promise<TResult | null> {
   try {
-    const { data, errors: gqlErrors } = await getClient().mutate({
-      mutation,
-      variables,
-    });
+    const mutationOptions =
+      variables === undefined ? { mutation } : { mutation, variables };
+    const { data, errors: gqlErrors } = await getClient().mutate(mutationOptions);
     if (gqlErrors && gqlErrors.length > 0) {
-      throw new Error(`[GraphQL error]: ${gqlErrors[0].message}`);
+      const firstError = gqlErrors[0];
+      throw new Error(`[GraphQL error]: ${firstError?.message ?? "Unknown error"}`);
     }
     return data || null;
   } catch (error) {

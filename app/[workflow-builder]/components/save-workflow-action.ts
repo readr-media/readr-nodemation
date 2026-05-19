@@ -13,6 +13,11 @@ type SaveWorkflowInput = {
   status: WorkflowStatus;
   nodes: Node[];
   edges: Edge[];
+  // cronExpression: JSON-stringified array of cron expressions, or null when
+  // the workflow has no schedule. nextRunAt: ISO-8601 string of the first
+  // upcoming run, or null. Both come from the execution-schedule store.
+  cronExpression: string | null;
+  nextRunAt: string | null;
   fetchImpl: typeof fetch;
   resetBaseline: (snapshot: {
     workflowId: string;
@@ -35,7 +40,16 @@ const buildRequest = ({
   status,
   nodes,
   edges,
+  cronExpression,
+  nextRunAt,
 }: Omit<SaveWorkflowInput, "fetchImpl" | "resetBaseline">) => {
+  // The API schema accepts cron_expression / next_run_at as optional strings;
+  // omit them entirely when there is no schedule rather than sending null.
+  const scheduleFields = {
+    ...(cronExpression !== null && { cron_expression: cronExpression }),
+    ...(nextRunAt !== null && { next_run_at: nextRunAt }),
+  };
+
   if (mode === "update") {
     if (!workflowId) {
       throw new Error("Workflow id is required for updates");
@@ -50,6 +64,7 @@ const buildRequest = ({
         status,
         nodes,
         edges,
+        ...scheduleFields,
       },
     };
   }
@@ -63,6 +78,7 @@ const buildRequest = ({
       status,
       nodes,
       edges,
+      ...scheduleFields,
     },
   };
 };
@@ -75,6 +91,8 @@ export const saveWorkflow = async ({
   status,
   nodes,
   edges,
+  cronExpression,
+  nextRunAt,
   fetchImpl,
   resetBaseline,
 }: SaveWorkflowInput) => {
@@ -86,6 +104,8 @@ export const saveWorkflow = async ({
     status,
     nodes,
     edges,
+    cronExpression,
+    nextRunAt,
   });
 
   const response = await fetchImpl(request.url, {

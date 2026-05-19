@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { appToast } from "@/components/ui/sonner";
 import { useFlowJSON } from "@/hooks/use-flow-json";
+import { slotsToCronExpressions } from "@/lib/schedule-to-cron";
+import { useExecutionScheduleStore } from "@/stores/execution-schedule-store";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
 
@@ -121,6 +123,17 @@ export default function WorkflowBuilderHeader() {
       }
 
       try {
+        // Convert the schedule store into cron expressions + next_run_at,
+        // matching the SaveWorkflowDialog save path.
+        const schedule = useExecutionScheduleStore.getState();
+        const cronList = schedule.enabled
+          ? slotsToCronExpressions(schedule.slots)
+          : [];
+        const cronExpression =
+          cronList.length > 0 ? JSON.stringify(cronList) : null;
+        const nextRun = schedule.getNextRun();
+        const nextRunAt = nextRun ? nextRun.toISOString() : null;
+
         const result = await saveWorkflow({
           mode,
           workflowId,
@@ -129,6 +142,8 @@ export default function WorkflowBuilderHeader() {
           status: targetStatus,
           nodes,
           edges,
+          cronExpression,
+          nextRunAt,
           fetchImpl: fetch,
           resetBaseline,
         });

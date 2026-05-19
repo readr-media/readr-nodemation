@@ -130,6 +130,7 @@ describe("workflow detail route", () => {
     );
 
     expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ count: 1 });
     expect(prismaMock.workflow.updateMany).toHaveBeenCalledWith({
       where: { id: "workflow-123", user_id: "user-test-123" },
       data: {
@@ -166,6 +167,7 @@ describe("workflow detail route", () => {
     );
 
     expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ count: 1 });
     expect(prismaMock.workflow.updateMany).toHaveBeenCalledWith({
       where: { id: "workflow-123", user_id: "user-test-123" },
       data: {

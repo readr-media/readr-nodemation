@@ -51,8 +51,15 @@ const cronToSlot = (cron: string): ScheduleSlot | null => {
   if (parts.length !== 5) {
     return null;
   }
-  const [minuteStr, hourStr, domStr, , dowStr] = parts;
-  if (!minuteStr || !hourStr || !domStr || !dowStr) {
+  const [minuteStr, hourStr, domStr, monthStr, dowStr] = parts;
+  if (!minuteStr || !hourStr || !domStr || !monthStr || !dowStr) {
+    return null;
+  }
+  // The Schedule dialog only supports daily/weekly/monthly, where the month
+  // field is always "*". A cron pinned to a specific month (e.g. a yearly
+  // schedule) cannot be represented as a slot — reject it rather than
+  // mis-loading it as a monthly schedule.
+  if (monthStr !== "*") {
     return null;
   }
   const minute = Number(minuteStr);

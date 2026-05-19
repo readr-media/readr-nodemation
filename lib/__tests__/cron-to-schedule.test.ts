@@ -86,4 +86,9 @@ describe("cronToSchedule", () => {
   test("returns null for an unparseable cron", () => {
     expect(cronToSchedule("not a cron")).toBeNull();
   });
+
+  test("rejects a cron pinned to a specific month", () => {
+    // "0 0 1 1 *" is a yearly (Jan 1) schedule — not representable as a slot.
+    expect(cronToSchedule("0 0 1 1 *")).toBeNull();
+  });
 });

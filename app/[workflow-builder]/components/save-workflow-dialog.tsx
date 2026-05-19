@@ -24,10 +24,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { slotsToCronExpressions } from "@/lib/schedule-to-cron";
+import { buildSchedulePayload } from "@/lib/build-schedule-payload";
 import { cn } from "@/lib/utils";
 import { WORKFLOW_STATUSES, type WorkflowStatus } from "@/lib/workflow-status";
-import { useExecutionScheduleStore } from "@/stores/execution-schedule-store";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
 import { saveWorkflow } from "./save-workflow-action";
@@ -121,17 +120,7 @@ const SaveWorkflowDialog = ({
         return;
       }
 
-      // Read the schedule store at save time. slots are converted to a list
-      // of cron expressions (JSON-stringified into the single cron_expression
-      // column); next_run_at is the first upcoming run.
-      const schedule = useExecutionScheduleStore.getState();
-      const cronList = schedule.enabled
-        ? slotsToCronExpressions(schedule.slots)
-        : [];
-      const cronExpression =
-        cronList.length > 0 ? JSON.stringify(cronList) : null;
-      const nextRun = schedule.getNextRun();
-      const nextRunAt = nextRun ? nextRun.toISOString() : null;
+      const { cronExpression, nextRunAt } = buildSchedulePayload();
 
       const result = await saveWorkflow({
         mode,

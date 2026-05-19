@@ -43,11 +43,11 @@ const buildRequest = ({
   cronExpression,
   nextRunAt,
 }: Omit<SaveWorkflowInput, "fetchImpl" | "resetBaseline">) => {
-  // The API schema accepts cron_expression / next_run_at as optional strings;
-  // omit them entirely when there is no schedule rather than sending null.
+  // Always send cron_expression / next_run_at. An explicit null clears a
+  // previously scheduled workflow; a value sets or updates the schedule.
   const scheduleFields = {
-    ...(cronExpression !== null && { cron_expression: cronExpression }),
-    ...(nextRunAt !== null && { next_run_at: nextRunAt }),
+    cron_expression: cronExpression,
+    next_run_at: nextRunAt,
   };
 
   if (mode === "update") {

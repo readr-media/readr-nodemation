@@ -24,15 +24,8 @@ const CodeNodeSetting = ({
     updateCodeNodeData(nodeId, { code: value });
 
   return (
-    <div className="flex flex-1 flex-col overflow-y-auto px-6 py-6">
+    <div className="flex flex-1 flex-col overflow-y-auto p-4">
       <div className="space-y-6">
-        <div className="space-y-2">
-          <p className="text-lg font-medium text-module-title">
-            撰寫程式碼 設定
-          </p>
-          <p className="text-sm text-module-muted">設定程式語言與程式碼內容</p>
-        </div>
-
         <section className="space-y-2">
           <p className={labelClass}>程式語言</p>
           <select

@@ -104,12 +104,8 @@ const ExportNodeSetting = ({
   };
 
   return (
-    <div className="flex flex-1 flex-col overflow-y-auto px-6 py-6">
+    <div className="flex flex-1 flex-col overflow-y-auto p-4">
       <div className="space-y-6">
-        <div className="space-y-2">
-          <p className="text-lg font-medium text-module-title">匯出結果 設定</p>
-        </div>
-
         <section className="space-y-2">
           <p className={labelClass}>輸出內容來源</p>
           <select

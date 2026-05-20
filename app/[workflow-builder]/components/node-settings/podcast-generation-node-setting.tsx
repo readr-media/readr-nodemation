@@ -1,4 +1,3 @@
-import { Separator } from "@radix-ui/react-separator";
 import { cn } from "@/lib/utils";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import type { PodcastGenerationNodeData } from "@/stores/flow-editor/slices/podcast-generation-node-slice";
@@ -106,15 +105,8 @@ const PodcastGenerationNodeSetting = ({
   ) => updatePodcastGenerationNodeData(nodeId, { podcastLength: value });
 
   return (
-    <div className="flex flex-1 flex-col overflow-y-auto px-6 py-6">
+    <div className="flex flex-1 flex-col overflow-y-auto p-4">
       <div className="space-y-6">
-        <div className="space-y-2">
-          <p className="text-lg font-medium text-module-title">
-            Podcast 生成 設定
-          </p>
-          <Separator className="bg-module-border" />
-        </div>
-
         <section className="space-y-2">
           <p className={fieldLabelClass}>進階指令（User Prompt）</p>
           <Textarea

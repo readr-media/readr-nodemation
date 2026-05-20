@@ -139,8 +139,10 @@ const NodeSettingSidebar = () => {
       className="border-l border-module-border bg-white md:top-16 md:h-[calc(100svh-4rem)]"
       style={{ "--sidebar-width": "18rem" } as CSSProperties}
     >
-      <SidebarHeader className="node-settings-header">
-        <h2 className="text-lg font-medium text-module-title">節點設定</h2>
+      <SidebarHeader className="node-settings-header p-4">
+        <h2 className="text-lg font-medium text-module-title">
+          {`${(selectedNode?.data as { title?: string })?.title ?? "節點"} 設定`}
+        </h2>
         <SidebarTrigger
           aria-label="Close node settings"
           className="cursor-pointer text-gray-600 hover:text-gray-700"

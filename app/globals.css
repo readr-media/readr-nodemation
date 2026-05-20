@@ -175,6 +175,6 @@
   }
 
   .node-settings-header {
-    @apply h-[60px] items-center justify-between border-b border-module-border px-4;
+    @apply h-[60px] items-center justify-between border-b border-module-border p-4;
   }
 }

@@ -253,7 +253,7 @@ describe("saveWorkflow", () => {
       new Response(
         JSON.stringify({
           id: "workflow-789",
-          name: "AI 自動分類流程",
+          name: "AI 自動分類與標籤流程",
         }),
         {
           status: 200,
@@ -266,7 +266,7 @@ describe("saveWorkflow", () => {
     await saveWorkflow({
       mode: "update",
       workflowId: "workflow-789",
-      name: "AI 自動分類流程",
+      name: "AI 自動分類與標籤流程",
       description: "含 aiClassifierTagger 節點",
       status: "draft",
       nodes: aiClassifierTaggerNodes,

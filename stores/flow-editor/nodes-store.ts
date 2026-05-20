@@ -9,6 +9,7 @@ import { createCodeNodeSlice } from "./slices/code-node-slice";
 import { createExportNodeSlice } from "./slices/export-node-slice";
 import { createFlowSlice } from "./slices/flow-slice";
 import { createPodcastGenerationNodeSlice } from "./slices/podcast-generation-node-slice";
+import { createWorkflowValidationSlice } from "./slices/workflow-validation-slice";
 import type { NodesStore } from "./types";
 
 export const useNodesStore = create<NodesStore>()(
@@ -23,6 +24,7 @@ export const useNodesStore = create<NodesStore>()(
       ...createCmsOutputAudioNodeSlice(set, get, store),
       ...createExportNodeSlice(set, get, store),
       ...createPodcastGenerationNodeSlice(set, get, store),
+      ...createWorkflowValidationSlice(set, get, store),
     }),
     { name: "FlowNodesStore" },
   ),

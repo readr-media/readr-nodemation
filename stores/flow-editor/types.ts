@@ -81,6 +81,18 @@ export type PodcastGenerationNodeSlice = {
   ) => void;
 };
 
+export type WorkflowValidationSlice = {
+  nodeFieldErrors: Record<string, Record<string, string>>;
+  setNodeFieldError: (
+    nodeId: string,
+    field: string,
+    message: string | null,
+  ) => void;
+  clearNodeFieldErrors: (nodeId: string) => void;
+  clearAllNodeFieldErrors: () => void;
+  hasWorkflowInputErrors: () => boolean;
+};
+
 export type NodesStore = FlowSlice &
   AiNodeSlice &
   AiClassifierTaggerNodeSlice &
@@ -89,4 +101,5 @@ export type NodesStore = FlowSlice &
   CmsOutputNodeSlice &
   CmsOutputAudioNodeSlice &
   ExportNodeSlice &
-  PodcastGenerationNodeSlice;
+  PodcastGenerationNodeSlice &
+  WorkflowValidationSlice;

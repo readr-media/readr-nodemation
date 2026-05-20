@@ -20,20 +20,20 @@ const cmsOutputFieldOptions: Array<{
   targetField: CmsOutputTargetField;
   disabled: boolean;
 }> = [
-  { label: "標題", targetField: "title", disabled: true },
+  { label: "標題", targetField: "title", disabled: false },
   {
     label: "建議標題",
     targetField: "recommendedTitle",
-    disabled: true,
+    disabled: false,
   },
-  { label: "內文", targetField: "content", disabled: true },
-  { label: "重點摘要", targetField: "summary", disabled: true },
+  { label: "內文", targetField: "content", disabled: false },
+  { label: "重點摘要", targetField: "summary", disabled: false },
   { label: "分類", targetField: "categories", disabled: false },
   { label: "標籤", targetField: "tags", disabled: false },
   {
     label: "建議投票選項",
     targetField: "recommendedPoll",
-    disabled: true,
+    disabled: false,
   },
 ];
 
@@ -42,14 +42,6 @@ const cmsOutputMappingTemplates: Partial<Record<CmsOutputTargetField, string>> =
     categories: "{{ ai.categories }}",
     tags: "{{ ai.tags }}",
   };
-
-const modeOptions: Array<{
-  value: CmsOutputNodeData["mode"];
-  label: string;
-}> = [
-  { value: "overwrite", label: "Overwrite（覆寫）" },
-  { value: "append", label: "Append（附加）" },
-];
 
 const postStatusOptions: Array<{
   value: NonNullable<CmsOutputNodeData["postStatus"]>;
@@ -185,31 +177,25 @@ const CmsOutputNodeSetting = ({
   };
 
   return (
-    <div className="flex flex-1 flex-col overflow-y-auto px-6 py-6">
+    <div className="flex flex-1 flex-col overflow-y-auto p-4">
       <div className="space-y-6">
-        <div className="space-y-2">
-          <p className="text-lg font-medium text-module-title">
-            輸出文字到 CMS 設定
-          </p>
-        </div>
-
         <section className="space-y-2">
-          <p className={labelClass}>輸入CMS名稱</p>
+          <p className={labelClass}>模組說明</p>
           <Input
             value={data.cmsName ?? "Readr CMS"}
             disabled
             readOnly
-            className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
+            className="h-9 rounded-[10px] border-module-border bg-gray-400 text-sm text-module-title"
           />
         </section>
 
         <section className="space-y-2">
           <p className={labelClass}>輸入 CMS List</p>
           <select
-            value={data.cmsList ?? "Posts"}
+            value={data.cmsList}
             onChange={() => undefined}
             disabled
-            className="h-10 w-full rounded-lg border border-module-border bg-white px-3 text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)] focus-visible:border-[#00967d] focus-visible:ring-0"
+            className="h-10 w-full cursor-not-allowed rounded-lg border border-module-border bg-gray-400 px-3 text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)] outline-none opacity-50"
           >
             <option value="Posts">Posts</option>
           </select>
@@ -228,20 +214,6 @@ const CmsOutputNodeSetting = ({
                 )}
                 disabled={field.disabled}
                 onToggle={() => handleFieldToggle(field.targetField)}
-              />
-            ))}
-          </div>
-        </section>
-
-        <section className="space-y-3">
-          <p className={labelClass}>回寫模式</p>
-          <div className="space-y-2">
-            {modeOptions.map((option) => (
-              <RadioOption
-                key={option.value}
-                label={option.label}
-                checked={option.value === data.mode}
-                onSelect={() => handleDataChange({ mode: option.value })}
               />
             ))}
           </div>

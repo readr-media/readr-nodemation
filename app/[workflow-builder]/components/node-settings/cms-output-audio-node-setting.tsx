@@ -13,7 +13,7 @@ import { generateId } from "@/utils/generate-id";
 const labelClass =
   "text-sm font-medium leading-6 text-module-title tracking-tight";
 const selectClass =
-  "h-10 w-full rounded-lg border border-module-border bg-white px-3 text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)] focus-visible:border-[#00967d] focus-visible:ring-0 pointer-events-none outline-none opacity-50";
+  "h-10 w-full rounded-lg border border-module-border bg-gray-400 px-3 text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)] focus-visible:border-[#00967d] focus-visible:ring-0 pointer-events-none outline-none opacity-50";
 
 const writeBackFieldOptions = [
   {
@@ -124,21 +124,15 @@ const CmsOutputAudioNodeSetting = ({
   };
 
   return (
-    <div className="flex flex-1 flex-col overflow-y-auto px-6 py-6">
+    <div className="flex flex-1 flex-col overflow-y-auto p-4">
       <div className="space-y-6">
-        <div className="space-y-2">
-          <p className="text-lg font-medium text-module-title">
-            輸出音檔到 CMS 設定
-          </p>
-        </div>
-
         <section className="space-y-2">
           <p className={labelClass}>模組說明</p>
           <Input
             value={data.cmsName}
             disabled
             readOnly
-            className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
+            className="h-9 rounded-[10px] border-module-border bg-gray-400 text-sm text-module-title"
           />
         </section>
 
@@ -147,16 +141,6 @@ const CmsOutputAudioNodeSetting = ({
           <select value={data.cmsList} disabled className={selectClass}>
             <option value={data.cmsList}>{data.cmsList}</option>
           </select>
-        </section>
-
-        <section className="space-y-3">
-          <p className={labelClass}>輸入音檔 ID</p>
-          <Input
-            value={data.cmsAudioFileIds}
-            placeholder="12345"
-            className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
-            onChange={(event) => handleAudioFileIdsChange(event.target.value)}
-          />
         </section>
 
         <section className="space-y-3">

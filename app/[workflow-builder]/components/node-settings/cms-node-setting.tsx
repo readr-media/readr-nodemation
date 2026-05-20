@@ -60,32 +60,25 @@ const CmsNodeSetting = ({
     updateCmsNodeData(nodeId, { cmsPostSlugs: value });
 
   return (
-    <div className="flex flex-1 flex-col overflow-y-auto px-6 py-6">
+    <div className="flex flex-1 flex-col overflow-y-auto p-4">
       <div className="space-y-6">
-        <div className="space-y-2">
-          <p className="text-lg font-medium text-module-title">
-            從 CMS 輸入文章 設定
-          </p>
-          <p className="text-sm text-module-muted">設定資料來源與抓取欄位</p>
-        </div>
-
         <section className="space-y-2">
-          <p className={labelClass}>來源CMS名稱</p>
+          <p className={labelClass}>模組說明</p>
           <Input
             value="Readr CMS"
             disabled
             readOnly
-            className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
+            className="h-9 rounded-[10px] border-module-border bg-gray-400 text-sm text-module-title"
           />
         </section>
 
         <section className="space-y-2">
-          <p className={labelClass}>來源CMS List</p>
+          <p className={labelClass}>輸入 CMS List</p>
           <select
             value={data.cmsList}
             onChange={() => undefined}
             disabled
-            className="h-10 w-full cursor-not-allowed rounded-lg border border-module-border bg-white px-3 text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)] outline-none opacity-50"
+            className="h-10 w-full cursor-not-allowed rounded-lg border border-module-border bg-gray-400 px-3 text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)] outline-none opacity-50"
           >
             <option value="Posts">Posts</option>
           </select>
@@ -94,19 +87,27 @@ const CmsNodeSetting = ({
         <section className="space-y-2">
           <p className={labelClass}>文章ID</p>
           <Input
+            placeholder="12345"
             value={data.cmsPostIds}
             onChange={(event) => handleCmsPostIdsChange(event.target.value)}
             className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
           />
+          <p className="text-xs text-module-muted">
+            如輸入一篇以上文章請用半形,隔開
+          </p>
         </section>
 
         <section className="space-y-2">
           <p className={labelClass}>文章slug</p>
           <Input
+            placeholder="12345"
             value={data.cmsPostSlugs}
             onChange={(event) => handleCmsPostSlugsChange(event.target.value)}
             className="h-9 rounded-[10px] border-module-border bg-white text-sm text-module-title"
           />
+          <p className="text-xs text-module-muted">
+            如輸入一篇以上文章請用半形,隔開
+          </p>
         </section>
 
         <section className="space-y-3">
@@ -118,14 +119,14 @@ const CmsNodeSetting = ({
               onToggle={() => handleFieldToggle("title")}
             />
             <FieldToggle
-              label="分類"
-              checked={data.sourceFields.category}
-              onToggle={() => handleFieldToggle("category")}
-            />
-            <FieldToggle
               label="內文"
               checked={data.sourceFields.content}
               onToggle={() => handleFieldToggle("content")}
+            />
+            <FieldToggle
+              label="分類"
+              checked={data.sourceFields.category}
+              onToggle={() => handleFieldToggle("category")}
             />
             <FieldToggle
               label="標籤"

@@ -9,7 +9,9 @@ export type ModuleNodeType =
   | "cmsOutput"
   | "exportResult"
   | "podcastGeneration"
-  | "cmsOutputAudio";
+  | "cmsOutputAudio"
+  | "aiTitleGeneration"
+  | "aiVoteSuggestion";
 
 export type ModuleItem = {
   title: string;
@@ -32,10 +34,17 @@ export const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
       },
       {
         title: "AI自動分類與標籤",
-        description: "專用於文章分類與標籤產生",
+        description: "透過 AI 為文章分類",
         icon: Sparkles,
         accent: "ai",
         nodeType: "aiClassifierTagger",
+      },
+      {
+        title: "AI 文章標題",
+        description: "透過 AI 為文章下標",
+        icon: Sparkles,
+        accent: "ai",
+        nodeType: "aiTitleGeneration",
       },
       {
         title: "Podcast 生成",
@@ -43,6 +52,13 @@ export const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
         icon: Sparkles,
         accent: "ai",
         nodeType: "podcastGeneration",
+      },
+      {
+        title: "AI 投票建議",
+        description: "AI 產生文章的投票建議",
+        icon: Sparkles,
+        accent: "ai",
+        nodeType: "aiVoteSuggestion",
       },
     ],
   },
@@ -69,7 +85,7 @@ export const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
         nodeType: "cmsInput",
       },
       {
-        title: "輸出到 CMS",
+        title: "輸出文字到 CMS",
         description: "將內容輸出到 CMS 系統",
         icon: Share2,
         accent: "cms",

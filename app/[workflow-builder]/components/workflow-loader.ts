@@ -15,7 +15,6 @@ import type {
   CmsOutputTargetField,
 } from "@/components/flow/nodes/cms-output-node";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
-import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
 import { cronToSchedule } from "@/lib/cron-to-schedule";
 import type { WorkflowStatus } from "@/lib/workflow-status";
 import { useExecutionScheduleStore } from "@/stores/execution-schedule-store";
@@ -339,25 +338,6 @@ const normalizeCodeData = (data: Record<string, unknown>): CodeNodeData => ({
   code: typeof data.code === "string" ? data.code : "",
 });
 
-const normalizeExportResultData = (
-  data: Record<string, unknown>,
-): ExportResultNodeData => ({
-  title:
-    typeof data.title === "string"
-      ? data.title
-      : typeof data.label === "string"
-        ? data.label
-        : "匯出結果",
-  source: typeof data.source === "string" ? data.source : "AI Tagging → tags",
-  format: typeof data.format === "string" ? data.format : "JSON",
-  fileNamePattern:
-    typeof data.fileNamePattern === "string" ? data.fileNamePattern : "",
-  destination:
-    typeof data.destination === "string" ? data.destination : "local_download",
-  autoDownload: Boolean(data.autoDownload),
-  zipFiles: Boolean(data.zipFiles),
-});
-
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
@@ -419,8 +399,6 @@ const normalizeNode = (node: Node): Node => {
       return { ...node, data: normalizeCmsOutputAudioData(data) };
     case "codeBlock":
       return { ...node, data: normalizeCodeData(data) };
-    case "exportResult":
-      return { ...node, data: normalizeExportResultData(data) };
     case "podcastGeneration":
       return { ...node, data: normalizePodcastGenerationData(data) };
     default:

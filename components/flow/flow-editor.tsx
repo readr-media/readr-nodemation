@@ -17,7 +17,6 @@ import AiClassifierTaggerNode from "./nodes/ai-classifier-tagger-node";
 import CmsInputNode from "./nodes/cms-input-node";
 import CmsOutputNode from "./nodes/cms-output-node";
 import CodeNode from "./nodes/code-node";
-import ExportResultNode from "./nodes/export-result-node";
 import PodcastGenerationNode from "./nodes/podcast-generation-node";
 import CmsOutputAudioNode from "./nodes/cms-output-audio-node";
 
@@ -40,7 +39,6 @@ const FlowEditor = ({ controlsSlot }: FlowEditorProps) => {
       cmsInput: CmsInputNode,
       cmsOutput: CmsOutputNode,
       cmsOutputAudio: CmsOutputAudioNode,
-      exportResult: ExportResultNode,
       podcastGeneration: PodcastGenerationNode,
     }),
     [],

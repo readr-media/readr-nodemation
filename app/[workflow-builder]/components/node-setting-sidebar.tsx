@@ -10,7 +10,6 @@ import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import type { CmsOutputAudioNodeData } from "@/components/flow/nodes/cms-output-audio-node";
 import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
-import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
 import {
   Sidebar,
   SidebarContent,
@@ -28,7 +27,6 @@ import CmsNodeSetting from "./node-settings/cms-node-setting";
 import CmsOutputAudioNodeSetting from "./node-settings/cms-output-audio-node-setting";
 import CmsOutputNodeSetting from "./node-settings/cms-output-node-setting";
 import CodeNodeSetting from "./node-settings/code-node-setting";
-import ExportNodeSetting from "./node-settings/export-node-setting";
 import PodcastGenerationNodeSetting from "./node-settings/podcast-generation-node-setting";
 
 const EmptyState = () => (
@@ -110,14 +108,6 @@ const NodeSettingSidebar = () => {
         <CmsOutputAudioNodeSetting
           nodeId={selectedNode.id}
           data={selectedNode.data as CmsOutputAudioNodeData}
-        />
-      );
-      break;
-    case "exportResult":
-      content = (
-        <ExportNodeSetting
-          nodeId={selectedNode.id}
-          data={selectedNode.data as ExportResultNodeData}
         />
       );
       break;

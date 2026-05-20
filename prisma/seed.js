@@ -61,20 +61,6 @@ const moduleSeed = [
       },
     ],
   },
-  {
-    name: "內容整理模組",
-    sort_order: 4,
-    units: [
-      {
-        action: "匯出結果",
-        action_code: "content",
-        description: "將處理結果匯出為檔案",
-        active: true,
-        icon_key: "Download",
-        sort_order: 1,
-      },
-    ],
-  },
 ];
 
 const templateSeed = [

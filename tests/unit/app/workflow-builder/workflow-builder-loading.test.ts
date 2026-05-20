@@ -7,7 +7,6 @@ import { createCmsNodeSlice } from "@/stores/flow-editor/slices/cms-node-slice";
 import { createCmsOutputNodeSlice } from "@/stores/flow-editor/slices/cms-output-node-slice";
 import type { NodesStore } from "@/stores/flow-editor/types";
 
-const legacyFileNamePattern = `\${workflow_name}_\${date}.json`;
 const approvedAiClassifierTaggerPromptTemplate = `你是一個新聞編輯助理，請根據文章內容產出分類與標籤。\n\n請嚴格依照以下 JSON 格式輸出，且不要加入任何說明文字：\n\n{\n  "categories": ["string"],\n  "tags": ["string"]\n}\n\n文章標題：{{title}}\n文章內文：{{content}}\n\n請產出 {{categoryAmount}} 個分類與 {{tagAmount}} 個標籤。`;
 
 describe("loadWorkflowIntoStores", () => {
@@ -1011,91 +1010,6 @@ describe("loadWorkflowIntoStores", () => {
             title: "撰寫程式碼",
             language: "JavaScript",
             code: "console.log('hello');",
-          },
-        },
-      ],
-      edges: [],
-    });
-  });
-
-  it("falls back to the current exportResult defaults when source and format are missing", async () => {
-    const loadSnapshot = vi.fn();
-    const hydrateFromWorkflow = vi.fn();
-    const fetchImpl = vi.fn().mockResolvedValue(
-      new Response(
-        JSON.stringify({
-          id: "legacy-export-workflow",
-          name: "legacy export",
-          description: "既有流程",
-          status: "draft",
-          nodes: JSON.stringify([
-            {
-              id: "exportResult-node",
-              type: "exportResult",
-              position: { x: 240, y: 160 },
-              data: {
-                title: "匯出結果",
-                fileNamePattern: legacyFileNamePattern,
-                destination: "google_drive",
-                autoDownload: false,
-                zipFiles: true,
-              },
-            },
-          ]),
-          edges: JSON.stringify([]),
-        }),
-        {
-          status: 200,
-          headers: { "content-type": "application/json" },
-        },
-      ),
-    );
-
-    const result = await loadWorkflowIntoStores({
-      workflowId: "legacy-export-workflow",
-      fetchImpl,
-      loadSnapshot,
-      hydrateFromWorkflow,
-    });
-
-    expect(result).toEqual({ status: "loaded" });
-    expect(loadSnapshot).toHaveBeenCalledWith({
-      nodes: [
-        {
-          id: "exportResult-node",
-          type: "exportResult",
-          position: { x: 240, y: 160 },
-          data: {
-            title: "匯出結果",
-            source: "AI Tagging → tags",
-            format: "JSON",
-            fileNamePattern: legacyFileNamePattern,
-            destination: "google_drive",
-            autoDownload: false,
-            zipFiles: true,
-          },
-        },
-      ],
-      edges: [],
-    });
-    expect(hydrateFromWorkflow).toHaveBeenCalledWith({
-      workflowId: "legacy-export-workflow",
-      name: "legacy export",
-      description: "既有流程",
-      status: "draft",
-      nodes: [
-        {
-          id: "exportResult-node",
-          type: "exportResult",
-          position: { x: 240, y: 160 },
-          data: {
-            title: "匯出結果",
-            source: "AI Tagging → tags",
-            format: "JSON",
-            fileNamePattern: legacyFileNamePattern,
-            destination: "google_drive",
-            autoDownload: false,
-            zipFiles: true,
           },
         },
       ],

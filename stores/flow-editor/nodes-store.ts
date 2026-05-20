@@ -8,7 +8,6 @@ import { createCmsNodeSlice } from "./slices/cms-node-slice";
 import { createCmsOutputAudioNodeSlice } from "./slices/cms-output-audio-node-slice";
 import { createCmsOutputNodeSlice } from "./slices/cms-output-node-slice";
 import { createCodeNodeSlice } from "./slices/code-node-slice";
-import { createExportNodeSlice } from "./slices/export-node-slice";
 import { createFlowSlice } from "./slices/flow-slice";
 import { createPodcastGenerationNodeSlice } from "./slices/podcast-generation-node-slice";
 import { createWorkflowValidationSlice } from "./slices/workflow-validation-slice";
@@ -26,7 +25,6 @@ export const useNodesStore = create<NodesStore>()(
       ...createCmsNodeSlice(set, get, store),
       ...createCmsOutputNodeSlice(set, get, store),
       ...createCmsOutputAudioNodeSlice(set, get, store),
-      ...createExportNodeSlice(set, get, store),
       ...createPodcastGenerationNodeSlice(set, get, store),
       ...createWorkflowValidationSlice(set, get, store),
     }),

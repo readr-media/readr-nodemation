@@ -11,7 +11,6 @@ import type { CmsOutputAudioNodeData } from "@/components/flow/nodes/cms-output-
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
-import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
 import type { PodcastGenerationNodeData } from "./slices/podcast-generation-node-slice";
 
 export type FlowSlice = {
@@ -81,14 +80,6 @@ export type CmsOutputAudioNodeSlice = {
   ) => void;
 };
 
-export type ExportNodeSlice = {
-  addExportNode: () => void;
-  updateExportNodeData: (
-    nodeId: string,
-    data: Partial<ExportResultNodeData>,
-  ) => void;
-};
-
 export type PodcastGenerationNodeSlice = {
   addPodcastGenerationNode: () => void;
   updatePodcastGenerationNodeData: (
@@ -118,6 +109,5 @@ export type NodesStore = FlowSlice &
   CmsNodeSlice &
   CmsOutputNodeSlice &
   CmsOutputAudioNodeSlice &
-  ExportNodeSlice &
   PodcastGenerationNodeSlice &
   WorkflowValidationSlice;

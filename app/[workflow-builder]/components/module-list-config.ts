@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Code2, Database, Download, Share2, Sparkles } from "lucide-react";
+import { Code2, Database, Share2, Sparkles } from "lucide-react";
 
 export type ModuleNodeType =
   | "aiCall"
@@ -7,7 +7,6 @@ export type ModuleNodeType =
   | "codeBlock"
   | "cmsInput"
   | "cmsOutput"
-  | "exportResult"
   | "podcastGeneration"
   | "cmsOutputAudio"
   | "aiTitleGeneration"
@@ -17,7 +16,7 @@ export type ModuleItem = {
   title: string;
   description: string;
   icon: LucideIcon;
-  accent: "ai" | "code" | "cms" | "content";
+  accent: "ai" | "code" | "cms";
   nodeType: ModuleNodeType;
 };
 
@@ -97,18 +96,6 @@ export const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
         icon: Share2,
         accent: "cms",
         nodeType: "cmsOutputAudio",
-      },
-    ],
-  },
-  {
-    title: "內容整理模組",
-    modules: [
-      {
-        title: "匯出結果",
-        description: "將處理結果匯出為檔案",
-        icon: Download,
-        accent: "content",
-        nodeType: "exportResult",
       },
     ],
   },

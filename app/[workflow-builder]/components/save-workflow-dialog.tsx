@@ -24,6 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { buildSchedulePayload } from "@/lib/build-schedule-payload";
 import { cn } from "@/lib/utils";
 import { WORKFLOW_STATUSES, type WorkflowStatus } from "@/lib/workflow-status";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
@@ -119,6 +120,8 @@ const SaveWorkflowDialog = ({
         return;
       }
 
+      const { cronExpression, nextRunAt } = buildSchedulePayload();
+
       const result = await saveWorkflow({
         mode,
         workflowId,
@@ -127,6 +130,8 @@ const SaveWorkflowDialog = ({
         status: workflowStatus,
         nodes,
         edges,
+        cronExpression,
+        nextRunAt,
         fetchImpl: fetch,
         resetBaseline,
       });

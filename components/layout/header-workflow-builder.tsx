@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { appToast } from "@/components/ui/sonner";
 import { useFlowJSON } from "@/hooks/use-flow-json";
+import { buildSchedulePayload } from "@/lib/build-schedule-payload";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
 
@@ -121,6 +122,8 @@ export default function WorkflowBuilderHeader() {
       }
 
       try {
+        const { cronExpression, nextRunAt } = buildSchedulePayload();
+
         const result = await saveWorkflow({
           mode,
           workflowId,
@@ -129,6 +132,8 @@ export default function WorkflowBuilderHeader() {
           status: targetStatus,
           nodes,
           edges,
+          cronExpression,
+          nextRunAt,
           fetchImpl: fetch,
           resetBaseline,
         });

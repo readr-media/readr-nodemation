@@ -16,7 +16,9 @@ import type {
 } from "@/components/flow/nodes/cms-output-node";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
 import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
+import { cronToSchedule } from "@/lib/cron-to-schedule";
 import type { WorkflowStatus } from "@/lib/workflow-status";
+import { useExecutionScheduleStore } from "@/stores/execution-schedule-store";
 import { createAiClassifierTaggerNodeData } from "@/stores/flow-editor/slices/ai-classifier-tagger-node-slice";
 import { createCmsInputNodeData } from "@/stores/flow-editor/slices/cms-node-slice";
 import { createCmsOutputNodeData } from "@/stores/flow-editor/slices/cms-output-node-slice";
@@ -30,6 +32,22 @@ type WorkflowRecord = {
   status: WorkflowStatus;
   nodes: string;
   edges: string;
+  cron_expression?: string | null;
+};
+
+// applyScheduleFromCron re-populates the execution-schedule store from a
+// workflow's stored cron_expression so the Schedule dialog reflects the saved
+// schedule. A workflow with no schedule resets the store to a clean slate.
+const applyScheduleFromCron = (cronExpression: string | null | undefined) => {
+  const schedule = useExecutionScheduleStore.getState();
+  const parsed = cronToSchedule(cronExpression);
+  if (!parsed) {
+    schedule.reset();
+    return;
+  }
+  schedule.setFrequency(parsed.frequency);
+  schedule.setSlots(parsed.slots);
+  schedule.setEnabled(true);
 };
 
 type WorkflowTemplateRecord = {
@@ -423,6 +441,8 @@ export const loadWorkflowIntoStores = async ({
   hydrateFromWorkflow,
 }: LoadWorkflowIntoStoresInput): Promise<WorkflowLoadResult> => {
   if (!workflowId && !templateId) {
+    // Brand-new workflow: start from a clean schedule.
+    applyScheduleFromCron(null);
     return { status: "idle" };
   }
 
@@ -453,6 +473,7 @@ export const loadWorkflowIntoStores = async ({
         nodes: snapshot.nodes,
         edges: snapshot.edges,
       });
+      applyScheduleFromCron(workflow.cron_expression);
 
       return { status: "loaded" };
     }
@@ -469,6 +490,8 @@ export const loadWorkflowIntoStores = async ({
       nodes: snapshot.nodes,
       edges: snapshot.edges,
     });
+    // Templates carry no schedule of their own.
+    applyScheduleFromCron(null);
 
     return { status: "loaded" };
   } catch {

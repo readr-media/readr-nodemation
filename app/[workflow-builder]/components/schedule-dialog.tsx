@@ -17,16 +17,6 @@ import {
   canConfigureSlotTime,
   isScheduleSlotCompleteForDialog,
 } from "@/lib/schedule-slot-completeness";
-import {
-  getYearlyMonthMaxDay,
-  normalizeYearlyDayForMonthChange,
-} from "@/lib/schedule-yearly-date-utils";
-import {
-  getLocalNowParts,
-  getNextYearForYearlySlot,
-  isLeapYear,
-  type YearlySlotLike,
-} from "@/lib/time-utils";
 import { cn } from "@/lib/utils";
 import {
   createScheduleSlot,
@@ -37,11 +27,15 @@ import {
   type Weekday,
 } from "@/stores/execution-schedule-store";
 
+// "yearly" is intentionally not offered. The backend scheduler parses
+// standard 5-field cron (robfig/cron v3: minute hour day-of-month month
+// day-of-week), which has no year field and cannot express an annual
+// schedule. Offering it in the UI would produce a schedule the worker
+// could never honor.
 const frequencyOptions: { value: ExecutionFrequency; label: string }[] = [
   { value: "daily", label: "每天" },
   { value: "weekly", label: "每週" },
   { value: "monthly", label: "每月" },
-  { value: "yearly", label: "每年" },
 ];
 
 const weekdayLabels: Record<Weekday, string> = {
@@ -62,7 +56,6 @@ const weekdayOptions: { value: Weekday; label: string }[] = WEEKDAYS.map(
 );
 
 const dayOptions = Array.from({ length: 31 }, (_, index) => index + 1);
-const monthOptions = Array.from({ length: 12 }, (_, index) => index + 1);
 
 const cloneSlot = (slot: ScheduleSlot): ScheduleSlot => {
   if (slot.frequency === "weekly") {
@@ -77,8 +70,6 @@ const getSlotValidationMessage = (slot: ScheduleSlot): string => {
       return "請先選擇至少一個星期後再設定時間。";
     case "monthly":
       return "請先選擇日期後再設定時間。";
-    case "yearly":
-      return "請先選擇月份與日期後再設定時間。";
     default:
       return "";
   }
@@ -90,8 +81,6 @@ const getFrequencyHint = (frequency: ExecutionFrequency) => {
       return "先選擇星期（可複選），再設定時間。";
     case "monthly":
       return "選擇每月日期後才可設定時間。";
-    case "yearly":
-      return "請選擇月份與日期，再設定時間。";
     default:
       return "直接輸入或新增需要執行的時間。";
   }
@@ -174,33 +163,6 @@ const ScheduleDialog = ({ open, onOpenChange }: ScheduleDialogProps) => {
     );
   };
 
-  const handleYearMonthChange = (id: string, value: number | null) => {
-    setDraftSlots((prev) =>
-      prev.map((slot) =>
-        slot.id === id && slot.frequency === "yearly"
-          ? {
-              ...slot,
-              month: value,
-              dayOfMonth: normalizeYearlyDayForMonthChange(
-                value,
-                slot.dayOfMonth,
-              ),
-            }
-          : slot,
-      ),
-    );
-  };
-
-  const handleYearDayChange = (id: string, value: number | null) => {
-    setDraftSlots((prev) =>
-      prev.map((slot) =>
-        slot.id === id && slot.frequency === "yearly"
-          ? { ...slot, dayOfMonth: value }
-          : slot,
-      ),
-    );
-  };
-
   const handleAddTime = () => {
     setDraftSlots((prev) => [...prev, createScheduleSlot(draftFrequency)]);
   };
@@ -217,31 +179,6 @@ const ScheduleDialog = ({ open, onOpenChange }: ScheduleDialogProps) => {
       resetSchedule();
       onOpenChange(false);
       return;
-    }
-
-    const nowParts = getLocalNowParts();
-    const needsLeapDayWarning = sanitizedSlots.some((slot) => {
-      if (
-        slot.frequency !== "yearly" ||
-        slot.month !== 2 ||
-        slot.dayOfMonth !== 29
-      ) {
-        return false;
-      }
-      const nextYear = getNextYearForYearlySlot(
-        slot as YearlySlotLike,
-        nowParts,
-      );
-      return !isLeapYear(nextYear);
-    });
-
-    if (needsLeapDayWarning) {
-      const confirmed = window.confirm(
-        "你選擇了 2 月 29 日。非閏年會改為 2 月 28 日執行，是否繼續？",
-      );
-      if (!confirmed) {
-        return;
-      }
     }
 
     setFrequencyState(draftFrequency);
@@ -330,10 +267,6 @@ const ScheduleDialog = ({ open, onOpenChange }: ScheduleDialogProps) => {
                 {draftSlots.map((slot) => {
                   const timeReady = canConfigureSlotTime(slot);
                   const needsFieldsMessage = getSlotValidationMessage(slot);
-                  const daysInSelectedMonth =
-                    slot.frequency === "yearly" && slot.month
-                      ? getYearlyMonthMaxDay(slot.month)
-                      : 31;
 
                   return (
                     <div
@@ -392,63 +325,6 @@ const ScheduleDialog = ({ open, onOpenChange }: ScheduleDialogProps) => {
                               </option>
                             ))}
                           </select>
-                        </div>
-                      )}
-
-                      {slot.frequency === "yearly" && (
-                        <div className="flex flex-col gap-3">
-                          <div className="flex flex-col gap-2">
-                            <p className="title-6 text-gray-900">選擇月份</p>
-                            <select
-                              value={slot.month ?? ""}
-                              onChange={(event) =>
-                                handleYearMonthChange(
-                                  slot.id,
-                                  event.target.value
-                                    ? Number(event.target.value)
-                                    : null,
-                                )
-                              }
-                              className="body-2 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-gray-900"
-                            >
-                              <option value="">請選擇月份</option>
-                              {monthOptions.map((month) => (
-                                <option key={month} value={month}>
-                                  {month} 月
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          <div className="flex flex-col gap-2">
-                            <p className="title-6 text-gray-900">選擇日期</p>
-                            <select
-                              value={slot.dayOfMonth ?? ""}
-                              onChange={(event) =>
-                                handleYearDayChange(
-                                  slot.id,
-                                  event.target.value
-                                    ? Number(event.target.value)
-                                    : null,
-                                )
-                              }
-                              className="body-2 h-10 w-full rounded-lg border border-gray-300 bg-white px-3 text-gray-900"
-                              disabled={!slot.month}
-                            >
-                              <option value="">
-                                {slot.month ? "請選擇日期" : "請先選擇月份"}
-                              </option>
-                              {dayOptions
-                                .filter(
-                                  (day) =>
-                                    !slot.month || day <= daysInSelectedMonth,
-                                )
-                                .map((day) => (
-                                  <option key={day} value={day}>
-                                    {day} 日
-                                  </option>
-                                ))}
-                            </select>
-                          </div>
                         </div>
                       )}
 

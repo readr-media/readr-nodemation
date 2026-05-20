@@ -14,9 +14,11 @@ export const CreateWorkflowSchema = z
     nodes: JsonFieldSchema,
     edges: JsonFieldSchema,
     status: z.enum(WORKFLOW_STATUS_VALUES),
-    cron_expression: z.string().optional(),
-    next_run_at: z.string().datetime().optional(),
-    last_run_at: z.string().datetime().optional(),
+    // Nullable so a save can explicitly clear a workflow's schedule: an
+    // omitted field means "no change", an explicit null means "clear it".
+    cron_expression: z.string().nullable().optional(),
+    next_run_at: z.string().datetime().nullable().optional(),
+    last_run_at: z.string().datetime().nullable().optional(),
   })
   .strict();
 
@@ -31,6 +33,13 @@ export const PatchWorkflowSchema = PutWorkflowSchema.partial().refine(
 
 export function toJsonString(value: z.infer<typeof JsonFieldSchema>): string {
   return typeof value === "string" ? value : JSON.stringify(value);
+}
+
+// toNullableDate converts a nullable ISO-8601 string to a Date, preserving an
+// explicit null so the caller can clear a timestamp column. Note `new Date(null)`
+// is the epoch, not null — hence the explicit guard.
+function toNullableDate(value: string | null): Date | null {
+  return value === null ? null : new Date(value);
 }
 
 export function buildWorkflowCreateData(
@@ -63,10 +72,10 @@ export function buildWorkflowUpdateData(
       status: putData.status,
       cron_expression: putData.cron_expression ?? null,
       ...(putData.next_run_at !== undefined && {
-        next_run_at: new Date(putData.next_run_at),
+        next_run_at: toNullableDate(putData.next_run_at),
       }),
       ...(putData.last_run_at !== undefined && {
-        last_run_at: new Date(putData.last_run_at),
+        last_run_at: toNullableDate(putData.last_run_at),
       }),
     };
   }
@@ -99,11 +108,11 @@ export function buildWorkflowUpdateData(
   }
 
   if (patchData.next_run_at !== undefined) {
-    updateData.next_run_at = new Date(patchData.next_run_at);
+    updateData.next_run_at = toNullableDate(patchData.next_run_at);
   }
 
   if (patchData.last_run_at !== undefined) {
-    updateData.last_run_at = new Date(patchData.last_run_at);
+    updateData.last_run_at = toNullableDate(patchData.last_run_at);
   }
 
   return updateData;

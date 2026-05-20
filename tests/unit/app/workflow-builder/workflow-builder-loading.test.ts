@@ -50,7 +50,7 @@ describe("loadWorkflowIntoStores", () => {
           type: "cmsInput",
           position: { x: 0, y: 0 },
           data: {
-            title: "從CMS輸入",
+            title: "從 CMS 輸入文章",
             cmsConfigId: expect.any(String),
             cmsName: expect.any(String),
             cmsList: "Posts",
@@ -89,7 +89,7 @@ describe("loadWorkflowIntoStores", () => {
           type: "cmsInput",
           position: { x: 0, y: 0 },
           data: {
-            title: "從CMS輸入",
+            title: "從 CMS 輸入文章",
             cmsConfigId: expect.any(String),
             cmsName: expect.any(String),
             cmsList: "Posts",
@@ -130,7 +130,7 @@ describe("loadWorkflowIntoStores", () => {
     expect(createdNode).toMatchObject({
       type: "cmsInput",
       data: {
-        title: "從CMS輸入",
+        title: "從 CMS 輸入文章",
         cmsConfigId: "",
         cmsName: "Readr CMS",
         cmsList: "Posts",
@@ -212,7 +212,7 @@ describe("loadWorkflowIntoStores", () => {
         height: 62,
       },
       data: {
-        title: "輸出文字到CMS",
+        title: "輸出文字到 CMS",
         cmsConfigId: "",
         cmsName: "Readr CMS",
         cmsList: "Posts",
@@ -279,14 +279,20 @@ describe("loadWorkflowIntoStores", () => {
           type: "cmsOutput",
           position: { x: 640, y: 160 },
           data: {
-            title: "輸出文字到CMS",
+            title: "輸出文字到 CMS",
             cmsConfigId: "",
             cmsName: "Readr CMS",
             cmsList: "Posts",
             cmsPostIds: "",
             cmsPostSlugs: "",
-            mappings: [],
-            mode: "overwrite",
+            mappings: [
+              {
+                id: expect.any(String),
+                sourceField: "{{ ai.tags }}",
+                targetField: "tags",
+              },
+            ],
+            mode: "append",
             postStatus: "draft",
           },
         },
@@ -761,7 +767,7 @@ describe("loadWorkflowIntoStores", () => {
           type: "cmsInput",
           position: { x: 80, y: 160 },
           data: {
-            title: "從CMS輸入",
+            title: "從 CMS 輸入文章",
             cmsConfigId: "",
             cmsName: "Readr CMS",
             cmsList: "Posts",
@@ -805,7 +811,7 @@ describe("loadWorkflowIntoStores", () => {
           type: "cmsOutput",
           position: { x: 640, y: 160 },
           data: {
-            title: "輸出文字到CMS",
+            title: "輸出文字到 CMS",
             cmsConfigId: "",
             cmsName: "Readr CMS",
             cmsList: "Posts",
@@ -873,7 +879,7 @@ describe("loadWorkflowIntoStores", () => {
           type: "cmsInput",
           position: { x: 80, y: 160 },
           data: {
-            title: "從CMS輸入",
+            title: "從 CMS 輸入文章",
             cmsConfigId: expect.any(String),
             cmsName: expect.any(String),
             cmsList: "Posts",
@@ -912,7 +918,7 @@ describe("loadWorkflowIntoStores", () => {
           type: "cmsInput",
           position: { x: 80, y: 160 },
           data: {
-            title: "從CMS輸入",
+            title: "從 CMS 輸入文章",
             cmsConfigId: expect.any(String),
             cmsName: expect.any(String),
             cmsList: "Posts",

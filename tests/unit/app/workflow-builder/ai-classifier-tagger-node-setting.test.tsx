@@ -29,6 +29,21 @@ vi.mock("@/stores/flow-editor/nodes-store", () => ({
     selector(mockStoreState),
 }));
 
+vi.mock("@/components/ui/sonner", () => ({
+  toast: Object.assign(vi.fn(), {
+    success: vi.fn(),
+    error: vi.fn(),
+    info: vi.fn(),
+    warning: vi.fn(),
+  }),
+  appToast: {
+    success: vi.fn(),
+    error: vi.fn(),
+    info: vi.fn(),
+    warning: vi.fn(),
+  },
+}));
+
 class MockEvent {
   public readonly bubbles: boolean;
   public readonly cancelable: boolean;
@@ -501,7 +516,11 @@ function installDomGlobals() {
 
   globalObject.window = mockWindow;
   globalObject.document = mockWindow.document;
-  globalObject.navigator = mockWindow.navigator;
+  Object.defineProperty(globalObject, "navigator", {
+    value: mockWindow.navigator,
+    configurable: true,
+    writable: true,
+  });
   globalObject.Node = MockNode;
   globalObject.HTMLElement = MockElement;
   globalObject.SVGElement = MockElement;
@@ -544,7 +563,11 @@ function restoreDomGlobals() {
 
   globalObject.window = originalDomGlobals.window;
   globalObject.document = originalDomGlobals.document;
-  globalObject.navigator = originalDomGlobals.navigator;
+  Object.defineProperty(globalObject, "navigator", {
+    value: originalDomGlobals.navigator,
+    configurable: true,
+    writable: true,
+  });
   globalObject.Node = originalDomGlobals.Node;
   globalObject.HTMLElement = originalDomGlobals.HTMLElement;
   globalObject.SVGElement = originalDomGlobals.SVGElement;
@@ -663,42 +686,24 @@ describe("ai classifier tagger node setting", () => {
     expect(container.textContent).not.toContain("responseFormat");
     expect(container.textContent).not.toContain("outputFields");
 
-    const selects = findAllByTagName(container, "select");
     const textareas = findAllByTagName(container, "textarea");
     const inputs = findAllByTagName(container, "input");
 
-    expect(selects).toHaveLength(1);
     expect(textareas).toHaveLength(1);
     expect(inputs).toHaveLength(4);
 
-    const select = selects[0];
     const [titleInput, contentInput, categoryInput, tagInput] = inputs;
     const promptInput = textareas[0];
 
-    expect(select).not.toBeNull();
     expect(titleInput).not.toBeNull();
     expect(contentInput).not.toBeNull();
     expect(categoryInput).not.toBeNull();
     expect(tagInput).not.toBeNull();
     expect(promptInput).not.toBeNull();
-    expect((select as HTMLSelectElement).value).toBe("gemini-1.5-flash");
     expect((titleInput as HTMLInputElement).value).toBe("source.title");
     expect((contentInput as HTMLInputElement).value).toBe("source.content");
     expect((categoryInput as HTMLInputElement).value).toBe("1");
     expect((tagInput as HTMLInputElement).value).toBe("3");
-
-    act(() => {
-      select.value = "gemini-1.5-pro";
-      select.dispatchEvent(new MockEvent("change", { bubbles: true }));
-    });
-
-    expect(updateAiClassifierTaggerNodeData).toHaveBeenNthCalledWith(
-      1,
-      "aiClassifierTagger-node",
-      {
-        model: "gemini-1.5-pro",
-      },
-    );
 
     act(() => {
       titleInput.value = "source.headline";
@@ -706,7 +711,7 @@ describe("ai classifier tagger node setting", () => {
     });
 
     expect(updateAiClassifierTaggerNodeData).toHaveBeenNthCalledWith(
-      2,
+      1,
       "aiClassifierTagger-node",
       {
         inputFields: {
@@ -722,7 +727,7 @@ describe("ai classifier tagger node setting", () => {
     });
 
     expect(updateAiClassifierTaggerNodeData).toHaveBeenNthCalledWith(
-      3,
+      2,
       "aiClassifierTagger-node",
       {
         inputFields: {
@@ -738,7 +743,7 @@ describe("ai classifier tagger node setting", () => {
     });
 
     expect(updateAiClassifierTaggerNodeData).toHaveBeenNthCalledWith(
-      4,
+      3,
       "aiClassifierTagger-node",
       {
         promptTemplate: "updated prompt",
@@ -751,7 +756,7 @@ describe("ai classifier tagger node setting", () => {
     });
 
     expect(updateAiClassifierTaggerNodeData).toHaveBeenNthCalledWith(
-      5,
+      4,
       "aiClassifierTagger-node",
       {
         categoryAmount: 2,
@@ -764,7 +769,7 @@ describe("ai classifier tagger node setting", () => {
     });
 
     expect(updateAiClassifierTaggerNodeData).toHaveBeenNthCalledWith(
-      6,
+      5,
       "aiClassifierTagger-node",
       {
         tagAmount: 5,
@@ -776,14 +781,14 @@ describe("ai classifier tagger node setting", () => {
       categoryInput.dispatchEvent(new MockEvent("input", { bubbles: true }));
     });
 
-    expect(updateAiClassifierTaggerNodeData).toHaveBeenCalledTimes(6);
+    expect(updateAiClassifierTaggerNodeData).toHaveBeenCalledTimes(5);
 
     act(() => {
       categoryInput.value = "1.5";
       categoryInput.dispatchEvent(new MockEvent("input", { bubbles: true }));
     });
 
-    expect(updateAiClassifierTaggerNodeData).toHaveBeenCalledTimes(6);
+    expect(updateAiClassifierTaggerNodeData).toHaveBeenCalledTimes(5);
 
     act(() => {
       root.unmount();

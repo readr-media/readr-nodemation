@@ -1,6 +1,15 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import UserWorkflowCard from "@/app/dashboard/_components/user-workflow-card";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    back: vi.fn(),
+    push: vi.fn(),
+    replace: vi.fn(),
+    refresh: vi.fn(),
+  }),
+}));
 
 describe("UserWorkflowCard", () => {
   it("renders a keyboard-accessible link to the workflow builder", () => {

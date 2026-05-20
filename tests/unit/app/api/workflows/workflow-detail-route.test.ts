@@ -4,13 +4,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const prismaMock = {
   workflow: {
-    findUnique: vi.fn(),
-    update: vi.fn(),
+    findFirst: vi.fn(),
+    updateMany: vi.fn(),
   },
 };
 
 vi.mock("@/lib/prisma", () => ({
   prisma: prismaMock,
+}));
+
+vi.mock("@/lib/active-user", () => ({
+  getActiveUserId: vi.fn().mockResolvedValue("user-test-123"),
 }));
 
 const repoRoot = path.resolve(__dirname, "../../../../..");
@@ -21,8 +25,8 @@ const workflowDetailRoutePath = path.join(
 
 describe("workflow detail route", () => {
   beforeEach(() => {
-    prismaMock.workflow.findUnique.mockReset();
-    prismaMock.workflow.update.mockReset();
+    prismaMock.workflow.findFirst.mockReset();
+    prismaMock.workflow.updateMany.mockReset();
   });
 
   it("returns a workflow when it exists", async () => {
@@ -34,7 +38,7 @@ describe("workflow detail route", () => {
       nodes: '[{"id":"node-1"}]',
       edges: "[]",
     };
-    prismaMock.workflow.findUnique.mockResolvedValue(workflow);
+    prismaMock.workflow.findFirst.mockResolvedValue(workflow);
 
     const { GET } = await import("@/app/api/workflows/[id]/route");
     const response = await GET(
@@ -46,13 +50,13 @@ describe("workflow detail route", () => {
 
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual(workflow);
-    expect(prismaMock.workflow.findUnique).toHaveBeenCalledWith({
-      where: { id: "workflow-123" },
+    expect(prismaMock.workflow.findFirst).toHaveBeenCalledWith({
+      where: { id: "workflow-123", user_id: "user-test-123" },
     });
   });
 
   it("returns 404 when the workflow is missing", async () => {
-    prismaMock.workflow.findUnique.mockResolvedValue(null);
+    prismaMock.workflow.findFirst.mockResolvedValue(null);
 
     const { GET } = await import("@/app/api/workflows/[id]/route");
     const response = await GET(
@@ -100,22 +104,11 @@ describe("workflow detail route", () => {
     );
 
     expect(response.status).toBe(400);
-    expect(prismaMock.workflow.update).not.toHaveBeenCalled();
+    expect(prismaMock.workflow.updateMany).not.toHaveBeenCalled();
   });
 
   it("updates the targeted workflow when the payload is valid", async () => {
-    const updatedWorkflow = {
-      id: "workflow-123",
-      name: "更新後流程",
-      description: "更新後說明",
-      status: "published",
-      nodes: '[{"id":"node-2"}]',
-      edges: '[{"id":"edge-1"}]',
-      cron_expression: "0 9 * * *",
-      next_run_at: new Date("2026-03-26T09:00:00.000Z"),
-      last_run_at: new Date("2026-03-25T09:00:00.000Z"),
-    };
-    prismaMock.workflow.update.mockResolvedValue(updatedWorkflow);
+    prismaMock.workflow.updateMany.mockResolvedValue({ count: 1 });
 
     const { PUT } = await import("@/app/api/workflows/[id]/route");
     const response = await PUT(
@@ -137,13 +130,9 @@ describe("workflow detail route", () => {
     );
 
     expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toEqual({
-      ...updatedWorkflow,
-      next_run_at: "2026-03-26T09:00:00.000Z",
-      last_run_at: "2026-03-25T09:00:00.000Z",
-    });
-    expect(prismaMock.workflow.update).toHaveBeenCalledWith({
-      where: { id: "workflow-123" },
+    await expect(response.json()).resolves.toEqual({ count: 1 });
+    expect(prismaMock.workflow.updateMany).toHaveBeenCalledWith({
+      where: { id: "workflow-123", user_id: "user-test-123" },
       data: {
         name: "更新後流程",
         description: "更新後說明",
@@ -158,17 +147,7 @@ describe("workflow detail route", () => {
   });
 
   it("does not clear scheduling metadata when omitted from a put payload", async () => {
-    prismaMock.workflow.update.mockResolvedValue({
-      id: "workflow-123",
-      name: "更新後流程",
-      description: "更新後說明",
-      status: "published",
-      nodes: '[{"id":"node-2"}]',
-      edges: '[{"id":"edge-1"}]',
-      cron_expression: "0 9 * * *",
-      next_run_at: new Date("2026-03-26T09:00:00.000Z"),
-      last_run_at: new Date("2026-03-25T09:00:00.000Z"),
-    });
+    prismaMock.workflow.updateMany.mockResolvedValue({ count: 1 });
 
     const { PUT } = await import("@/app/api/workflows/[id]/route");
     const response = await PUT(
@@ -188,8 +167,9 @@ describe("workflow detail route", () => {
     );
 
     expect(response.status).toBe(200);
-    expect(prismaMock.workflow.update).toHaveBeenCalledWith({
-      where: { id: "workflow-123" },
+    await expect(response.json()).resolves.toEqual({ count: 1 });
+    expect(prismaMock.workflow.updateMany).toHaveBeenCalledWith({
+      where: { id: "workflow-123", user_id: "user-test-123" },
       data: {
         name: "更新後流程",
         description: "更新後說明",

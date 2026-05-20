@@ -3,37 +3,40 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const workflowEditorState = vi.hoisted(() => ({
   workflowId: "workflow-123",
-  sourceWorkflowId: "workflow-123",
   name: "文章自動分類與標記",
   description: "說明",
-  status: "draft" as const,
-  isDirty: false,
-  setName: vi.fn(),
+  status: "draft" as "draft" | "published" | "template" | "running",
+  resetBaseline: vi.fn(),
+  setStatus: vi.fn(),
 }));
 
-vi.mock("next/image", () => ({
-  default: (props: Record<string, unknown>) => (
-    <span data-next-image="true" {...props} />
-  ),
+const nodesStoreState = vi.hoisted(() => ({
+  nodes: [] as unknown[],
+  edges: [] as unknown[],
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    back: vi.fn(),
+    push: vi.fn(),
+    replace: vi.fn(),
+  }),
 }));
 
 vi.mock("@/components/layout/user-info", () => ({
   UserInfo: () => <div>使用者資訊</div>,
 }));
 
-vi.mock("@/app/[workflow-builder]/components/save-workflow-dialog", () => ({
-  default: (props: {
-    workflowName: string;
-    workflowDescription: string;
-    workflowStatus: string;
-  }) => (
-    <div
-      data-save-dialog="true"
-      data-workflow-name={props.workflowName}
-      data-workflow-description={props.workflowDescription}
-      data-workflow-status={props.workflowStatus}
-    />
-  ),
+vi.mock("@/hooks/use-flow-json", () => ({
+  useFlowJSON: () => ({ handleExport: vi.fn() }),
+}));
+
+vi.mock("@/app/[workflow-builder]/components/schedule-dialog", () => ({
+  default: () => <div data-schedule-dialog="true" />,
+}));
+
+vi.mock("@/app/[workflow-builder]/components/save-workflow-action", () => ({
+  saveWorkflow: vi.fn(),
 }));
 
 vi.mock("@/stores/workflow-editor/store", () => ({
@@ -42,43 +45,52 @@ vi.mock("@/stores/workflow-editor/store", () => ({
   ) => selector(workflowEditorState),
 }));
 
+vi.mock("@/stores/flow-editor/nodes-store", () => ({
+  useNodesStore: (selector: (state: typeof nodesStoreState) => unknown) =>
+    selector(nodesStoreState),
+}));
+
 describe("workflow builder header", () => {
   beforeEach(() => {
     workflowEditorState.workflowId = "workflow-123";
-    workflowEditorState.sourceWorkflowId = "workflow-123";
     workflowEditorState.name = "文章自動分類與標記";
     workflowEditorState.description = "說明";
     workflowEditorState.status = "draft";
-    workflowEditorState.isDirty = false;
-    workflowEditorState.setName.mockReset();
+    workflowEditorState.resetBaseline.mockReset();
+    workflowEditorState.setStatus.mockReset();
   });
 
-  it("renders the loaded workflow name and status without dirty text", async () => {
+  it("renders the loaded workflow name in the header", async () => {
     workflowEditorState.name = "既有工作流程";
     workflowEditorState.status = "published";
 
     const { default: Header } = await import(
-      "@/app/[workflow-builder]/components/header"
+      "@/components/layout/header-workflow-builder"
     );
     const markup = renderToStaticMarkup(<Header />);
 
-    expect(markup).toContain('value="既有工作流程"');
-    expect(markup).toContain("已發佈");
-    expect(markup).not.toContain("未儲存變更");
-    expect(markup).toContain('data-save-dialog="true"');
-    expect(markup).toContain('data-workflow-name="既有工作流程"');
-    expect(markup).toContain('data-workflow-description="說明"');
-    expect(markup).toContain('data-workflow-status="published"');
+    expect(markup).toContain("既有工作流程");
   });
 
-  it("shows dirty state only when the workflow has unsaved changes", async () => {
-    workflowEditorState.isDirty = true;
+  it("shows template badge when status is template", async () => {
+    workflowEditorState.status = "template";
 
     const { default: Header } = await import(
-      "@/app/[workflow-builder]/components/header"
+      "@/components/layout/header-workflow-builder"
     );
     const markup = renderToStaticMarkup(<Header />);
 
-    expect(markup).toContain("未儲存變更");
+    expect(markup).toContain("模板");
+  });
+
+  it("does not show template badge for non-template status", async () => {
+    workflowEditorState.status = "draft";
+
+    const { default: Header } = await import(
+      "@/components/layout/header-workflow-builder"
+    );
+    const markup = renderToStaticMarkup(<Header />);
+
+    expect(markup).not.toContain("模板");
   });
 });

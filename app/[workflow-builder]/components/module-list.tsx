@@ -8,6 +8,8 @@ const ModuleList = () => {
   const {
     addAiNode,
     addAiClassifierTaggerNode,
+    addAiTitleGenerationNode,
+    addAiVoteSuggestionNode,
     addCodeNode,
     addCmsNode,
     addCmsOutputAudioNode,
@@ -34,6 +36,12 @@ const ModuleList = () => {
                   }
                   if (nodeType === "aiClassifierTagger") {
                     addAiClassifierTaggerNode();
+                  }
+                  if (nodeType === "aiTitleGeneration") {
+                    addAiTitleGenerationNode();
+                  }
+                  if (nodeType === "aiVoteSuggestion") {
+                    addAiVoteSuggestionNode();
                   }
                   if (nodeType === "codeBlock") {
                     addCodeNode();

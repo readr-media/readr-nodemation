@@ -31,6 +31,22 @@ export type AiNodeSlice = {
   updateNodeData: (nodeId: string, data: Partial<AiCallNodeData>) => void;
 };
 
+export type AiTitleGenerationNodeSlice = {
+  addAiTitleGenerationNode: () => void;
+  updateAiTitleGenerationNodeData: (
+    nodeId: string,
+    data: Partial<AiCallNodeData>,
+  ) => void;
+};
+
+export type AiVoteSuggestionNodeSlice = {
+  addAiVoteSuggestionNode: () => void;
+  updateAiVoteSuggestionNodeData: (
+    nodeId: string,
+    data: Partial<AiCallNodeData>,
+  ) => void;
+};
+
 export type AiClassifierTaggerNodeSlice = {
   addAiClassifierTaggerNode: () => void;
   updateAiClassifierTaggerNodeData: (
@@ -95,6 +111,8 @@ export type WorkflowValidationSlice = {
 
 export type NodesStore = FlowSlice &
   AiNodeSlice &
+  AiTitleGenerationNodeSlice &
+  AiVoteSuggestionNodeSlice &
   AiClassifierTaggerNodeSlice &
   CodeNodeSlice &
   CmsNodeSlice &

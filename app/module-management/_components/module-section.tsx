@@ -4,7 +4,6 @@ import type { LucideIcon } from "lucide-react";
 import {
   Code2,
   Database,
-  Download,
   FileSpreadsheet,
   Share2,
   Sparkles,
@@ -13,7 +12,6 @@ import type { ModuleTypeData } from "@/lib/module-types";
 import AiModulePopUpChild from "./ai-module-popup-child";
 import CmsModulePopUpChild from "./cms-module-popup-child";
 import CodeModulePopUpChild from "./code-module-popup-child";
-import ContentModulePopUpChild from "./content-module-popup-child";
 import ModuleUnit from "./module-unit";
 
 export type PopUpChildProps = {
@@ -29,7 +27,6 @@ const iconMap: Record<string, LucideIcon> = {
   Code2,
   Database,
   Share2,
-  Download,
   FileSpreadsheet,
 };
 
@@ -37,7 +34,6 @@ const popUpChildMap = {
   ai: <AiModulePopUpChild />,
   code: <CodeModulePopUpChild />,
   cms: <CmsModulePopUpChild />,
-  content: <ContentModulePopUpChild />,
 };
 
 export default function ModuleSection({ moduleTypes }: ModuleSectionProps) {
@@ -59,7 +55,9 @@ export default function ModuleSection({ moduleTypes }: ModuleSectionProps) {
           <div className="grid grid-cols-3 gap-x-5 gap-y-6">
             {type.units.map((unit) => {
               const actionIcon = iconMap[unit.iconKey] ?? Sparkles;
-              const popUpChild = popUpChildMap[unit.actionCode];
+              const popUpChild =
+                popUpChildMap[unit.actionCode as keyof typeof popUpChildMap] ??
+                popUpChildMap.ai;
 
               return (
                 <ModuleUnit

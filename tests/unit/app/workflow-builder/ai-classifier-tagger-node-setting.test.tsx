@@ -13,6 +13,27 @@ const updateAiClassifierTaggerNodeData = vi.fn(
     applyNodeUpdate?.(data);
   },
 );
+const nodeFieldErrors: Record<string, Record<string, string>> = {};
+const setNodeFieldError = vi.fn(
+  (nodeId: string, field: string, message: string | null) => {
+    const currentNodeErrors = { ...(nodeFieldErrors[nodeId] ?? {}) };
+
+    if (message === null) {
+      delete currentNodeErrors[field];
+    } else {
+      currentNodeErrors[field] = message;
+    }
+
+    if (Object.keys(currentNodeErrors).length === 0) {
+      delete nodeFieldErrors[nodeId];
+    } else {
+      nodeFieldErrors[nodeId] = currentNodeErrors;
+    }
+  },
+);
+const clearNodeFieldErrors = vi.fn((nodeId: string) => {
+  delete nodeFieldErrors[nodeId];
+});
 
 const mockStoreState = {
   nodes: [] as Array<{
@@ -21,7 +42,10 @@ const mockStoreState = {
     data: AiClassifierTaggerNodeData;
   }>,
   selectedNodeId: null as string | null,
+  nodeFieldErrors,
   updateAiClassifierTaggerNodeData,
+  setNodeFieldError,
+  clearNodeFieldErrors,
 };
 
 vi.mock("@/stores/flow-editor/nodes-store", () => ({
@@ -537,6 +561,11 @@ function installDomGlobals() {
 
 function resetDomGlobals() {
   updateAiClassifierTaggerNodeData.mockClear();
+  setNodeFieldError.mockClear();
+  clearNodeFieldErrors.mockClear();
+  for (const key of Object.keys(nodeFieldErrors)) {
+    delete nodeFieldErrors[key];
+  }
   mockStoreState.nodes = [];
   mockStoreState.selectedNodeId = null;
   applyNodeUpdate = null;
@@ -677,9 +706,7 @@ describe("ai classifier tagger node setting", () => {
   it("renders and updates the dedicated aiClassifierTagger settings panel", async () => {
     const { container, root } = await renderClassifierTaggerSettings();
 
-    expect(container.textContent).toContain("AI自動分類與標籤設定");
-    expect(container.textContent).toContain("標題欄位 mapping");
-    expect(container.textContent).toContain("內文欄位 mapping");
+    expect(container.textContent).toContain("進階指令（User Prompt）");
     expect(container.textContent).toContain("Prompt 模板");
     expect(container.textContent).toContain("產生分類數量");
     expect(container.textContent).toContain("產生標籤數量");
@@ -782,6 +809,11 @@ describe("ai classifier tagger node setting", () => {
     });
 
     expect(updateAiClassifierTaggerNodeData).toHaveBeenCalledTimes(5);
+    expect(setNodeFieldError).toHaveBeenCalledWith(
+      "aiClassifierTagger-node",
+      "categoryAmount",
+      "只能產生 1-3 個分類",
+    );
 
     act(() => {
       categoryInput.value = "1.5";
@@ -789,6 +821,19 @@ describe("ai classifier tagger node setting", () => {
     });
 
     expect(updateAiClassifierTaggerNodeData).toHaveBeenCalledTimes(5);
+    expect(setNodeFieldError).toHaveBeenCalledWith(
+      "aiClassifierTagger-node",
+      "categoryAmount",
+      "請輸入 1-3 的數字",
+    );
+
+    act(() => {
+      categoryInput.value = "";
+      categoryInput.dispatchEvent(new MockEvent("input", { bubbles: true }));
+    });
+
+    expect(updateAiClassifierTaggerNodeData).toHaveBeenCalledTimes(6);
+    expect(container.textContent).toContain("請輸入 1-3 的數字");
 
     act(() => {
       root.unmount();
@@ -819,7 +864,7 @@ describe("ai classifier tagger node setting", () => {
       );
     });
 
-    expect(container.textContent).toContain("AI自動分類與標籤設定");
+    expect(container.textContent).toContain("AI自動分類與標籤");
 
     act(() => {
       root.unmount();

@@ -91,7 +91,6 @@ describe("cms output node setting", () => {
       />,
     );
 
-    expect(markup).toContain("輸出文字到 CMS 設定");
     expect(markup).toContain('value="Readr CMS"');
     expect(markup).toContain(">Posts<");
     expect(markup).toContain("disabled");

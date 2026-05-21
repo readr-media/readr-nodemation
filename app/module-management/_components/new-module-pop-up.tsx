@@ -85,9 +85,6 @@ export default function NewModulePopUp() {
                   <SelectItem value="cms" className="cursor-pointer">
                     CMS 模組
                   </SelectItem>
-                  <SelectItem value="content" className="cursor-pointer">
-                    內容整理模組
-                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>

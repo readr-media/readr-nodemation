@@ -8,11 +8,12 @@ const ModuleList = () => {
   const {
     addAiNode,
     addAiClassifierTaggerNode,
+    addAiTitleGenerationNode,
+    addAiVoteSuggestionNode,
     addCodeNode,
     addCmsNode,
     addCmsOutputAudioNode,
     addCmsOutputNode,
-    addExportNode,
     addPodcastGenerationNode,
   } = useNodesStore();
 
@@ -35,6 +36,12 @@ const ModuleList = () => {
                   if (nodeType === "aiClassifierTagger") {
                     addAiClassifierTaggerNode();
                   }
+                  if (nodeType === "aiTitleGeneration") {
+                    addAiTitleGenerationNode();
+                  }
+                  if (nodeType === "aiVoteSuggestion") {
+                    addAiVoteSuggestionNode();
+                  }
                   if (nodeType === "codeBlock") {
                     addCodeNode();
                   }
@@ -46,9 +53,6 @@ const ModuleList = () => {
                   }
                   if (nodeType === "cmsOutputAudio") {
                     addCmsOutputAudioNode();
-                  }
-                  if (nodeType === "exportResult") {
-                    addExportNode();
                   }
                   if (nodeType === "podcastGeneration") {
                     addPodcastGenerationNode();

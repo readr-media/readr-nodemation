@@ -61,20 +61,6 @@ const moduleSeed = [
       },
     ],
   },
-  {
-    name: "內容整理模組",
-    sort_order: 4,
-    units: [
-      {
-        action: "匯出結果",
-        action_code: "content",
-        description: "將處理結果匯出為檔案",
-        active: true,
-        icon_key: "Download",
-        sort_order: 1,
-      },
-    ],
-  },
 ];
 
 const templateSeed = [
@@ -213,12 +199,12 @@ const demoArticleClassificationNodes = JSON.stringify([
       cmsPostSlugs: "",
       mappings: [
         {
-          id: "ai-categories-to-categories",
+          id: "classifier-ai-categories-to-categories",
           sourceField: "{{ ai.categories }}",
           targetField: "categories",
         },
         {
-          id: "ai-tags-to-tags",
+          id: "classifier-ai-tags-to-tags",
           sourceField: "{{ ai.tags }}",
           targetField: "tags",
         },
@@ -302,9 +288,9 @@ const demoTitleGenerationNodes = JSON.stringify([
       cmsPostSlugs: "",
       mappings: [
         {
-          id: "title-ai-to-cms",
+          id: "title-ai-output-to-recommendedTitle",
           sourceField: "{{ ai.output }}",
-          targetField: "title",
+          targetField: "recommendedTitle",
         },
       ],
       mode: "overwrite",
@@ -386,7 +372,12 @@ const demoEarthquakeNodes = JSON.stringify([
       cmsPostSlugs: "",
       mappings: [
         {
-          id: "earthquake-ai-to-content",
+          id: "earthquake-ai-output-to-title",
+          sourceField: "{{ ai.output }}",
+          targetField: "title",
+        },
+        {
+          id: "earthquake-ai-output-to-content",
           sourceField: "{{ ai.output }}",
           targetField: "content",
         },
@@ -462,7 +453,7 @@ const demoPodcastNodes = JSON.stringify([
       cmsAudioFileIds: "",
       mappings: [
         {
-          id: "podcast-audio-to-audioFile",
+          id: "podcast-ai-output-to-audioFile",
           sourceField: "{{ ai.audioFile }}",
           targetField: "audioFile",
         },
@@ -527,7 +518,7 @@ const demoVotingNodes = JSON.stringify([
       outputFormat: "JSON",
       promptTemplate:
         "請依新聞內容提出 3 個可投票選項，並附上各選項一行理由，使用 JSON 回傳。",
-      cmsField: "content",
+      cmsField: "recommendedPoll",
       testInput: "",
     },
   },
@@ -545,9 +536,9 @@ const demoVotingNodes = JSON.stringify([
       cmsPostSlugs: "",
       mappings: [
         {
-          id: "voting-ai-to-content",
+          id: "voting-ai-output-to-recommendedPoll",
           sourceField: "{{ ai.output }}",
-          targetField: "content",
+          targetField: "recommendedPoll",
         },
       ],
       mode: "overwrite",

@@ -1,5 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import { Code2, Database, Download, Share2, Sparkles } from "lucide-react";
+import { Code2, Database, Share2, Sparkles } from "lucide-react";
 
 export type ModuleNodeType =
   | "aiCall"
@@ -7,15 +7,16 @@ export type ModuleNodeType =
   | "codeBlock"
   | "cmsInput"
   | "cmsOutput"
-  | "exportResult"
   | "podcastGeneration"
-  | "cmsOutputAudio";
+  | "cmsOutputAudio"
+  | "aiTitleGeneration"
+  | "aiVoteSuggestion";
 
 export type ModuleItem = {
   title: string;
   description: string;
   icon: LucideIcon;
-  accent: "ai" | "code" | "cms" | "content";
+  accent: "ai" | "code" | "cms";
   nodeType: ModuleNodeType;
 };
 
@@ -32,10 +33,17 @@ export const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
       },
       {
         title: "AI自動分類與標籤",
-        description: "專用於文章分類與標籤產生",
+        description: "透過 AI 為文章分類",
         icon: Sparkles,
         accent: "ai",
         nodeType: "aiClassifierTagger",
+      },
+      {
+        title: "AI 文章標題",
+        description: "透過 AI 為文章下標",
+        icon: Sparkles,
+        accent: "ai",
+        nodeType: "aiTitleGeneration",
       },
       {
         title: "Podcast 生成",
@@ -43,6 +51,13 @@ export const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
         icon: Sparkles,
         accent: "ai",
         nodeType: "podcastGeneration",
+      },
+      {
+        title: "AI 投票建議",
+        description: "AI 產生文章的投票建議",
+        icon: Sparkles,
+        accent: "ai",
+        nodeType: "aiVoteSuggestion",
       },
     ],
   },
@@ -69,7 +84,7 @@ export const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
         nodeType: "cmsInput",
       },
       {
-        title: "輸出到 CMS",
+        title: "輸出文字到 CMS",
         description: "將內容輸出到 CMS 系統",
         icon: Share2,
         accent: "cms",
@@ -81,18 +96,6 @@ export const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
         icon: Share2,
         accent: "cms",
         nodeType: "cmsOutputAudio",
-      },
-    ],
-  },
-  {
-    title: "內容整理模組",
-    modules: [
-      {
-        title: "匯出結果",
-        description: "將處理結果匯出為檔案",
-        icon: Download,
-        accent: "content",
-        nodeType: "exportResult",
       },
     ],
   },

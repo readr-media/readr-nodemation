@@ -25,6 +25,7 @@ import {
 import { appToast } from "@/components/ui/sonner";
 import { useFlowJSON } from "@/hooks/use-flow-json";
 import { buildSchedulePayload } from "@/lib/build-schedule-payload";
+import { hasWorkflowInputErrors } from "@/lib/workflow-node-validation";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
 
@@ -72,10 +73,11 @@ export default function WorkflowBuilderHeader() {
   const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
-  const { nodes, edges } = useNodesStore(
+  const { nodes, edges, hasInputErrors } = useNodesStore(
     useShallow((state) => ({
       nodes: state.nodes,
       edges: state.edges,
+      hasInputErrors: hasWorkflowInputErrors(state.nodeFieldErrors),
     })),
   );
   const workflowId = useWorkflowEditorStore((state) => state.workflowId);
@@ -90,13 +92,18 @@ export default function WorkflowBuilderHeader() {
     () =>
       workflowStatus !== "template" &&
       workflowName.trim().length > 0 &&
+      !hasInputErrors &&
       !isSaving &&
       !isRunning,
-    [workflowName, workflowStatus, isRunning, isSaving],
+    [hasInputErrors, workflowName, workflowStatus, isRunning, isSaving],
   );
   const canRunWorkflow = useMemo(
-    () => workflowStatus !== "template" && !isRunning && !isSaving,
-    [isRunning, isSaving, workflowStatus],
+    () =>
+      workflowStatus !== "template" &&
+      !hasInputErrors &&
+      !isRunning &&
+      !isSaving,
+    [hasInputErrors, isRunning, isSaving, workflowStatus],
   );
 
   const handleBack = useCallback(() => {
@@ -111,6 +118,11 @@ export default function WorkflowBuilderHeader() {
     async (targetStatus: "published" | "running") => {
       if (!workflowName.trim()) {
         appToast.error("請先輸入工作流名稱");
+        return;
+      }
+
+      if (hasInputErrors) {
+        appToast.error("請修正節點設定錯誤後再儲存");
         return;
       }
 
@@ -143,7 +155,9 @@ export default function WorkflowBuilderHeader() {
         }
 
         setWorkflowStatus(targetStatus);
-        appToast.success(targetStatus === "published" ? "工作流已儲存" : "工作流已執行");
+        appToast.success(
+          targetStatus === "published" ? "工作流已儲存" : "工作流已執行",
+        );
       } catch (error) {
         console.error(error);
         appToast.error(
@@ -169,6 +183,7 @@ export default function WorkflowBuilderHeader() {
       setWorkflowStatus,
       workflowDescription,
       workflowId,
+      hasInputErrors,
       workflowName,
     ],
   );

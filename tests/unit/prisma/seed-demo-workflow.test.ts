@@ -163,12 +163,12 @@ describe("demo article classification workflow seed", () => {
       cmsPostSlugs: "",
       mappings: [
         {
-          id: "ai-categories-to-categories",
+          id: "classifier-ai-categories-to-categories",
           sourceField: "{{ ai.categories }}",
           targetField: "categories",
         },
         {
-          id: "ai-tags-to-tags",
+          id: "classifier-ai-tags-to-tags",
           sourceField: "{{ ai.tags }}",
           targetField: "tags",
         },

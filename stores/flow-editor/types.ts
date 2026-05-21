@@ -11,7 +11,6 @@ import type { CmsOutputAudioNodeData } from "@/components/flow/nodes/cms-output-
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
 import type { CodeNodeData } from "@/components/flow/nodes/code-node";
-import type { ExportResultNodeData } from "@/components/flow/nodes/export-result-node";
 import type { PodcastGenerationNodeData } from "./slices/podcast-generation-node-slice";
 
 export type FlowSlice = {
@@ -29,6 +28,22 @@ export type FlowSlice = {
 export type AiNodeSlice = {
   addAiNode: () => void;
   updateNodeData: (nodeId: string, data: Partial<AiCallNodeData>) => void;
+};
+
+export type AiTitleGenerationNodeSlice = {
+  addAiTitleGenerationNode: () => void;
+  updateAiTitleGenerationNodeData: (
+    nodeId: string,
+    data: Partial<AiCallNodeData>,
+  ) => void;
+};
+
+export type AiVoteSuggestionNodeSlice = {
+  addAiVoteSuggestionNode: () => void;
+  updateAiVoteSuggestionNodeData: (
+    nodeId: string,
+    data: Partial<AiCallNodeData>,
+  ) => void;
 };
 
 export type AiClassifierTaggerNodeSlice = {
@@ -65,14 +80,6 @@ export type CmsOutputAudioNodeSlice = {
   ) => void;
 };
 
-export type ExportNodeSlice = {
-  addExportNode: () => void;
-  updateExportNodeData: (
-    nodeId: string,
-    data: Partial<ExportResultNodeData>,
-  ) => void;
-};
-
 export type PodcastGenerationNodeSlice = {
   addPodcastGenerationNode: () => void;
   updatePodcastGenerationNodeData: (
@@ -81,12 +88,26 @@ export type PodcastGenerationNodeSlice = {
   ) => void;
 };
 
+export type WorkflowValidationSlice = {
+  nodeFieldErrors: Record<string, Record<string, string>>;
+  setNodeFieldError: (
+    nodeId: string,
+    field: string,
+    message: string | null,
+  ) => void;
+  clearNodeFieldErrors: (nodeId: string) => void;
+  clearAllNodeFieldErrors: () => void;
+  hasWorkflowInputErrors: () => boolean;
+};
+
 export type NodesStore = FlowSlice &
   AiNodeSlice &
+  AiTitleGenerationNodeSlice &
+  AiVoteSuggestionNodeSlice &
   AiClassifierTaggerNodeSlice &
   CodeNodeSlice &
   CmsNodeSlice &
   CmsOutputNodeSlice &
   CmsOutputAudioNodeSlice &
-  ExportNodeSlice &
-  PodcastGenerationNodeSlice;
+  PodcastGenerationNodeSlice &
+  WorkflowValidationSlice;

@@ -22,7 +22,7 @@ export const createFlowSlice: StateCreator<
   [["zustand/devtools", never]],
   [],
   FlowSlice
-> = (set) => ({
+> = (set, get) => ({
   nodes: [],
   edges: [],
   selectedNodeId: null,
@@ -35,6 +35,7 @@ export const createFlowSlice: StateCreator<
     set(() => ({ selectedNodeId: nodeId }));
   },
   loadSnapshot: (payload) => {
+    get().clearAllNodeFieldErrors();
     set(() => ({
       nodes: payload.nodes ?? [],
       edges: payload.edges ?? [],

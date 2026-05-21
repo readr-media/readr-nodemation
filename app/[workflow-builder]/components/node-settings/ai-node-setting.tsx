@@ -94,13 +94,8 @@ const AiNodeSettings = ({
     updateNodeData(nodeId, { testInput: value });
 
   return (
-    <div className="flex flex-1 flex-col overflow-y-auto px-6 py-6">
+    <div className="flex flex-1 flex-col overflow-y-auto p-4">
       <div className="space-y-6">
-        <div className="space-y-2">
-          <p className="text-lg font-medium text-module-title">呼叫 AI 設定</p>
-          <Separator className="bg-module-border" />
-        </div>
-
         <section className="space-y-3">
           <div className="space-y-2">
             <p className={fieldLabelClass}>輸入來源</p>

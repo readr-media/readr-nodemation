@@ -7,8 +7,10 @@ import {
   useExecutionScheduleStore,
 } from "@/stores/execution-schedule-store";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
+import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
 
 type ExportPayload = {
+  name?: string;
   nodes: unknown[];
   edges: unknown[];
   schedule: Pick<
@@ -27,7 +29,12 @@ export function useFlowJSON() {
     const { nodes, edges } = useNodesStore.getState();
     const { enabled, frequency, slots, lastUpdated } =
       useExecutionScheduleStore.getState();
+    const { name } = useWorkflowEditorStore.getState();
+
+    const sanitizedName = name.replace(/\s*[（(].*$/u, "").trim();
+
     const payload: ExportPayload = {
+      name: sanitizedName || name,
       nodes,
       edges,
       schedule: { enabled, frequency, slots, lastUpdated: lastUpdated ?? "" },

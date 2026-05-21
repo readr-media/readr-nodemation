@@ -21,7 +21,7 @@ const createPodcastGenerationNode = (
   data: {
     title: "Podcast 生成",
     model: "gemini-1.5-flash",
-    promptTemplate: `請為以下新聞進行處理：\n\n標題：\${title}\n內文：\${content}`,
+    promptTemplate: `[基本對話規則]\n"female"開場、"male"收尾\n兩人輪流發言，每段1-3句話\n自然口語、避免直接念誦原文\n角色設定：一位主持人風格為「數據記者」，負責分析數據趨勢，一位主持人為「閱聽人代表」，負責提問與總結影響。`,
     podcastMode: "deepDive",
     podcastLength: "medium",
   },

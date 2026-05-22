@@ -7,8 +7,6 @@ import { createCmsNodeSlice } from "@/stores/flow-editor/slices/cms-node-slice";
 import { createCmsOutputNodeSlice } from "@/stores/flow-editor/slices/cms-output-node-slice";
 import type { NodesStore } from "@/stores/flow-editor/types";
 
-const approvedAiClassifierTaggerPromptTemplate = `你是一個新聞編輯助理，請根據文章內容產出分類與標籤。\n\n請嚴格依照以下 JSON 格式輸出，且不要加入任何說明文字：\n\n{\n  "categories": ["string"],\n  "tags": ["string"]\n}\n\n文章標題：{{title}}\n文章內文：{{content}}\n\n請產出 {{categoryAmount}} 個分類與 {{tagAmount}} 個標籤。`;
-
 describe("loadWorkflowIntoStores", () => {
   it("normalizes legacy workflow nodes before hydrating the stores", async () => {
     const loadSnapshot = vi.fn();
@@ -355,7 +353,7 @@ describe("loadWorkflowIntoStores", () => {
               title: "source.title",
               content: "source.content",
             },
-            promptTemplate: approvedAiClassifierTaggerPromptTemplate,
+            promptTemplate: "",
             categoryAmount: 1,
             tagAmount: 3,
             responseFormat: {
@@ -391,7 +389,7 @@ describe("loadWorkflowIntoStores", () => {
               title: "source.title",
               content: "source.content",
             },
-            promptTemplate: approvedAiClassifierTaggerPromptTemplate,
+            promptTemplate: "",
             categoryAmount: 1,
             tagAmount: 3,
             responseFormat: {
@@ -465,7 +463,7 @@ describe("loadWorkflowIntoStores", () => {
               title: "source.title",
               content: "source.content",
             },
-            promptTemplate: approvedAiClassifierTaggerPromptTemplate,
+            promptTemplate: "",
             categoryAmount: 1,
             tagAmount: 3,
             responseFormat: {
@@ -492,7 +490,7 @@ describe("loadWorkflowIntoStores", () => {
               title: "source.title",
               content: "source.content",
             },
-            promptTemplate: approvedAiClassifierTaggerPromptTemplate,
+            promptTemplate: "",
             categoryAmount: 1,
             tagAmount: 3,
             responseFormat: {
@@ -528,7 +526,7 @@ describe("loadWorkflowIntoStores", () => {
               title: "source.title",
               content: "source.content",
             },
-            promptTemplate: approvedAiClassifierTaggerPromptTemplate,
+            promptTemplate: "",
             categoryAmount: 1,
             tagAmount: 3,
             responseFormat: {
@@ -555,7 +553,7 @@ describe("loadWorkflowIntoStores", () => {
               title: "source.title",
               content: "source.content",
             },
-            promptTemplate: approvedAiClassifierTaggerPromptTemplate,
+            promptTemplate: "",
             categoryAmount: 1,
             tagAmount: 3,
             responseFormat: {
@@ -626,7 +624,7 @@ describe("loadWorkflowIntoStores", () => {
               title: "source.title",
               content: "source.content",
             },
-            promptTemplate: approvedAiClassifierTaggerPromptTemplate,
+            promptTemplate: "",
             categoryAmount: 1,
             tagAmount: 3,
             responseFormat: {
@@ -662,7 +660,7 @@ describe("loadWorkflowIntoStores", () => {
               title: "source.title",
               content: "source.content",
             },
-            promptTemplate: approvedAiClassifierTaggerPromptTemplate,
+            promptTemplate: "",
             categoryAmount: 1,
             tagAmount: 3,
             responseFormat: {

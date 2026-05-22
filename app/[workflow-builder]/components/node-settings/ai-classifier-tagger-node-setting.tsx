@@ -66,7 +66,11 @@ const AiClassifierTaggerNodeSetting = ({
 
     const errorMessage = validateTagAmountInput(nextInput);
     setTagAmountError(errorMessage);
-    setNodeFieldError(nodeId, AI_CLASSIFIER_TAGGER_FIELDS.tagAmount, errorMessage);
+    setNodeFieldError(
+      nodeId,
+      AI_CLASSIFIER_TAGGER_FIELDS.tagAmount,
+      errorMessage,
+    );
   }, [data.tagAmount, nodeId, setNodeFieldError]);
 
   return (
@@ -75,6 +79,9 @@ const AiClassifierTaggerNodeSetting = ({
         <section className="space-y-2">
           <p className={fieldLabelClass}> 進階指令（User Prompt）</p>
           <Textarea
+            placeholder={
+              "[可在此輸入進階指令 （選填）]\n例如：請優先提取關鍵人名（不含職稱）、或添加特定專案標籤⋯⋯。"
+            }
             className="min-h-[140px] rounded-[10px] border-module-border bg-white text-sm leading-6 text-module-title"
             value={data.promptTemplate ?? ""}
             onInput={(event: FormEvent<HTMLTextAreaElement>) =>

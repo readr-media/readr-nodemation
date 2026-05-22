@@ -20,6 +20,7 @@ import type { WorkflowStatus } from "@/lib/workflow-status";
 import { useExecutionScheduleStore } from "@/stores/execution-schedule-store";
 import { createAiClassifierTaggerNodeData } from "@/stores/flow-editor/slices/ai-classifier-tagger-node-slice";
 import { createCmsInputNodeData } from "@/stores/flow-editor/slices/cms-node-slice";
+import { createCmsOutputAudioNodeData } from "@/stores/flow-editor/slices/cms-output-audio-node-slice";
 import { createCmsOutputNodeData } from "@/stores/flow-editor/slices/cms-output-node-slice";
 import type { PodcastGenerationNodeData } from "@/stores/flow-editor/slices/podcast-generation-node-slice";
 import { generateId } from "@/utils/generate-id";
@@ -273,59 +274,52 @@ const normalizeCmsOutputData = (
   };
 };
 
-const getDefaultAudioMappings = (): CmsAudioFieldMapping[] => [
-  {
-    id: generateId(),
-    sourceField: "{{ ai.podcastTitle }}",
-    targetField: "title",
-  },
-  {
-    id: generateId(),
-    sourceField: "{{ ai.podcastScript }}",
-    targetField: "description",
-  },
-  {
-    id: generateId(),
-    sourceField: "{{ ai.audioFile }}",
-    targetField: "audioFile",
-  },
-];
-
 const normalizeCmsOutputAudioData = (
   data: Record<string, unknown>,
-): CmsOutputAudioNodeData => ({
-  title:
-    typeof data.title === "string"
-      ? data.title
-      : typeof data.label === "string"
-        ? data.label
-        : "輸出音檔到CMS",
-  cmsConfigId: typeof data.cmsConfigId === "string" ? data.cmsConfigId : "",
-  cmsName: typeof data.cmsName === "string" ? data.cmsName : "Readr CMS",
-  cmsList: typeof data.cmsList === "string" ? data.cmsList : "Audio File",
-  cmsAudioFileIds:
-    typeof data.cmsAudioFileIds === "string" ? data.cmsAudioFileIds : "",
-  mappings: Array.isArray(data.mappings)
-    ? data.mappings.map(
-        (mapping): CmsAudioFieldMapping => ({
-          id:
-            typeof (mapping as Record<string, unknown>).id === "string"
-              ? ((mapping as Record<string, unknown>).id as string)
-              : generateId(),
-          sourceField:
-            typeof (mapping as Record<string, unknown>).sourceField === "string"
-              ? ((mapping as Record<string, unknown>).sourceField as string)
-              : "",
-          targetField:
-            typeof (mapping as Record<string, unknown>).targetField === "string"
-              ? ((mapping as Record<string, unknown>)
-                  .targetField as CmsOutputAudioTargetField)
-              : "title",
-        }),
-      )
-    : getDefaultAudioMappings(),
-  mode: "create",
-});
+): CmsOutputAudioNodeData => {
+  const defaults = createCmsOutputAudioNodeData();
+
+  return {
+    ...defaults,
+    title:
+      typeof data.title === "string"
+        ? data.title
+        : typeof data.label === "string"
+          ? data.label
+          : defaults.title,
+    cmsConfigId:
+      typeof data.cmsConfigId === "string"
+        ? data.cmsConfigId
+        : defaults.cmsConfigId,
+    cmsName: typeof data.cmsName === "string" ? data.cmsName : defaults.cmsName,
+    cmsList: typeof data.cmsList === "string" ? data.cmsList : defaults.cmsList,
+    cmsAudioFileIds:
+      typeof data.cmsAudioFileIds === "string"
+        ? data.cmsAudioFileIds
+        : defaults.cmsAudioFileIds,
+    mappings: Array.isArray(data.mappings)
+      ? data.mappings.map(
+          (mapping): CmsAudioFieldMapping => ({
+            id:
+              typeof (mapping as Record<string, unknown>).id === "string"
+                ? ((mapping as Record<string, unknown>).id as string)
+                : generateId(),
+            sourceField:
+              typeof (mapping as Record<string, unknown>).sourceField ===
+              "string"
+                ? ((mapping as Record<string, unknown>).sourceField as string)
+                : "",
+            targetField:
+              typeof (mapping as Record<string, unknown>).targetField ===
+              "string"
+                ? ((mapping as Record<string, unknown>)
+                    .targetField as CmsOutputAudioTargetField)
+                : "title",
+          }),
+        )
+      : defaults.mappings,
+  };
+};
 
 const normalizeCodeData = (data: Record<string, unknown>): CodeNodeData => ({
   title:

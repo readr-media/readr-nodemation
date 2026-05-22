@@ -346,6 +346,52 @@ describe("loadWorkflowIntoStores", () => {
     expect(audioNode.data.cmsList).toBe("Audio File");
   });
 
+  it("normalizes cmsOutputAudio defaults from the shared slice source of truth", async () => {
+    const loadSnapshot = vi.fn();
+    const hydrateFromWorkflow = vi.fn();
+    const fetchImpl = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "cms-output-audio-defaults",
+          name: "Podcast 輸出流程",
+          description: "既有流程",
+          status: "draft",
+          nodes: JSON.stringify([
+            {
+              id: "cmsOutputAudio-node",
+              type: "cmsOutputAudio",
+              position: { x: 640, y: 160 },
+              data: {},
+            },
+          ]),
+          edges: JSON.stringify([]),
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        },
+      ),
+    );
+
+    const result = await loadWorkflowIntoStores({
+      workflowId: "cms-output-audio-defaults",
+      fetchImpl,
+      loadSnapshot,
+      hydrateFromWorkflow,
+    });
+
+    expect(result).toEqual({ status: "loaded" });
+    // The loader must take its cmsOutputAudio defaults from the node slice
+    // (single source of truth) instead of divergent hardcoded values — the
+    // divergence is what produced the cmsList bug. These values mirror
+    // createCmsOutputAudioNodeData in cms-output-audio-node-slice.ts.
+    const audioNode = loadSnapshot.mock.calls[0]?.[0]?.nodes[0];
+    expect(audioNode.data.title).toBe("輸出音檔到 CMS");
+    expect(audioNode.data.cmsName).toBe("READr CMS");
+    expect(audioNode.data.cmsList).toBe("Audio File");
+    expect(audioNode.data.mode).toBe("create");
+  });
+
   it("normalizes aiClassifierTagger workflow nodes before hydrating the stores", async () => {
     const loadSnapshot = vi.fn();
     const hydrateFromWorkflow = vi.fn();

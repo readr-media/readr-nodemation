@@ -302,6 +302,50 @@ describe("loadWorkflowIntoStores", () => {
     expect(normalizedNode.data).not.toHaveProperty("articleIdOrSlug");
   });
 
+  it("normalizes cmsOutputAudio nodes with the registered Keystone list name", async () => {
+    const loadSnapshot = vi.fn();
+    const hydrateFromWorkflow = vi.fn();
+    const fetchImpl = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "cms-output-audio-workflow",
+          name: "Podcast 輸出流程",
+          description: "既有流程",
+          status: "draft",
+          nodes: JSON.stringify([
+            {
+              id: "cmsOutputAudio-node",
+              type: "cmsOutputAudio",
+              position: { x: 640, y: 160 },
+              data: {
+                label: "輸出音檔到CMS",
+              },
+            },
+          ]),
+          edges: JSON.stringify([]),
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        },
+      ),
+    );
+
+    const result = await loadWorkflowIntoStores({
+      workflowId: "cms-output-audio-workflow",
+      fetchImpl,
+      loadSnapshot,
+      hydrateFromWorkflow,
+    });
+
+    expect(result).toEqual({ status: "loaded" });
+    // The Keystone list is registered as the singular "Audio File"; the loader
+    // fallback must match it (and the slice default) or the backend cmsOutput
+    // executor rejects the value with "unsupported cmsList".
+    const audioNode = loadSnapshot.mock.calls[0]?.[0]?.nodes[0];
+    expect(audioNode.data.cmsList).toBe("Audio File");
+  });
+
   it("normalizes aiClassifierTagger workflow nodes before hydrating the stores", async () => {
     const loadSnapshot = vi.fn();
     const hydrateFromWorkflow = vi.fn();

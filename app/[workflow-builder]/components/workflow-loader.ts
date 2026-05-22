@@ -302,7 +302,7 @@ const normalizeCmsOutputAudioData = (
         : "輸出音檔到CMS",
   cmsConfigId: typeof data.cmsConfigId === "string" ? data.cmsConfigId : "",
   cmsName: typeof data.cmsName === "string" ? data.cmsName : "Readr CMS",
-  cmsList: typeof data.cmsList === "string" ? data.cmsList : "Audio Files",
+  cmsList: typeof data.cmsList === "string" ? data.cmsList : "Audio File",
   cmsAudioFileIds:
     typeof data.cmsAudioFileIds === "string" ? data.cmsAudioFileIds : "",
   mappings: Array.isArray(data.mappings)

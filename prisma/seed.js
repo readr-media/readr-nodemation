@@ -452,6 +452,16 @@ const demoPodcastNodes = JSON.stringify([
       cmsAudioFileIds: "",
       mappings: [
         {
+          key: "title",
+          sourceField: "{{ ai.podcastTitle }}",
+          targetField: "title",
+        },
+        {
+          key: "description",
+          sourceField: "{{ ai.podcastScript }}",
+          targetField: "description",
+        },
+        {
           id: "podcast-ai-output-to-audioFile",
           sourceField: "{{ ai.audioFile }}",
           targetField: "audioFile",

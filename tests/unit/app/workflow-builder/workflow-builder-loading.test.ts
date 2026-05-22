@@ -389,7 +389,7 @@ describe("loadWorkflowIntoStores", () => {
               title: "source.title",
               content: "source.content",
             },
-            promptTemplate: approvedAiClassifierTaggerPromptTemplate,
+            promptTemplate: "",
             categoryAmount: 1,
             tagAmount: 3,
             responseFormat: {
@@ -463,7 +463,7 @@ describe("loadWorkflowIntoStores", () => {
               title: "source.title",
               content: "source.content",
             },
-            promptTemplate: approvedAiClassifierTaggerPromptTemplate,
+            promptTemplate: "",
             categoryAmount: 1,
             tagAmount: 3,
             responseFormat: {
@@ -490,7 +490,7 @@ describe("loadWorkflowIntoStores", () => {
               title: "source.title",
               content: "source.content",
             },
-            promptTemplate: approvedAiClassifierTaggerPromptTemplate,
+            promptTemplate: "",
             categoryAmount: 1,
             tagAmount: 3,
             responseFormat: {
@@ -526,7 +526,7 @@ describe("loadWorkflowIntoStores", () => {
               title: "source.title",
               content: "source.content",
             },
-            promptTemplate: approvedAiClassifierTaggerPromptTemplate,
+            promptTemplate: "",
             categoryAmount: 1,
             tagAmount: 3,
             responseFormat: {
@@ -553,7 +553,7 @@ describe("loadWorkflowIntoStores", () => {
               title: "source.title",
               content: "source.content",
             },
-            promptTemplate: approvedAiClassifierTaggerPromptTemplate,
+            promptTemplate: "",
             categoryAmount: 1,
             tagAmount: 3,
             responseFormat: {
@@ -624,7 +624,7 @@ describe("loadWorkflowIntoStores", () => {
               title: "source.title",
               content: "source.content",
             },
-            promptTemplate: approvedAiClassifierTaggerPromptTemplate,
+            promptTemplate: "",
             categoryAmount: 1,
             tagAmount: 3,
             responseFormat: {
@@ -660,7 +660,7 @@ describe("loadWorkflowIntoStores", () => {
               title: "source.title",
               content: "source.content",
             },
-            promptTemplate: approvedAiClassifierTaggerPromptTemplate,
+            promptTemplate: "",
             categoryAmount: 1,
             tagAmount: 3,
             responseFormat: {

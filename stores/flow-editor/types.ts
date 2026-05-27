@@ -7,6 +7,7 @@ import type {
 } from "@xyflow/react";
 import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
 import type { AiClassifierTaggerNodeData } from "@/components/flow/nodes/ai-classifier-tagger-node";
+import type { AiTitleGenerationNodeData } from "@/components/flow/nodes/ai-title-generation-node";
 import type { CmsOutputAudioNodeData } from "@/components/flow/nodes/cms-output-audio-node";
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
@@ -34,7 +35,7 @@ export type AiTitleGenerationNodeSlice = {
   addAiTitleGenerationNode: () => void;
   updateAiTitleGenerationNodeData: (
     nodeId: string,
-    data: Partial<AiCallNodeData>,
+    data: Partial<AiTitleGenerationNodeData>,
   ) => void;
 };
 

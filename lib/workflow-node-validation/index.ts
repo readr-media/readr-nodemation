@@ -3,6 +3,10 @@ export {
   validateCategoryAmountInput,
   validateTagAmountInput,
 } from "./ai-classifier-tagger";
+export {
+  AI_TITLE_GENERATION_FIELDS,
+  validateTitleKeywordsInput,
+} from "./ai-title-generation";
 export { parsePositiveIntegerInput } from "./parse-positive-integer-input";
 
 export type NodeFieldErrors = Record<string, Record<string, string>>;

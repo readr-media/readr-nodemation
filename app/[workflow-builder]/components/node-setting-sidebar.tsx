@@ -6,6 +6,7 @@ import { useShallow } from "zustand/react/shallow";
 
 import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
 import type { AiClassifierTaggerNodeData } from "@/components/flow/nodes/ai-classifier-tagger-node";
+import type { AiTitleGenerationNodeData } from "@/components/flow/nodes/ai-title-generation-node";
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import type { CmsOutputAudioNodeData } from "@/components/flow/nodes/cms-output-audio-node";
 import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
@@ -23,6 +24,7 @@ import type { PodcastGenerationNodeData } from "@/stores/flow-editor/slices/podc
 import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
 import AiClassifierTaggerNodeSetting from "./node-settings/ai-classifier-tagger-node-setting";
 import AiNodeSettings from "./node-settings/ai-node-setting";
+import AiTitleGenerationNodeSetting from "./node-settings/ai-title-generation-node-setting";
 import CmsNodeSetting from "./node-settings/cms-node-setting";
 import CmsOutputAudioNodeSetting from "./node-settings/cms-output-audio-node-setting";
 import CmsOutputNodeSetting from "./node-settings/cms-output-node-setting";
@@ -68,6 +70,14 @@ const NodeSettingSidebar = () => {
         <AiNodeSettings
           nodeId={selectedNode.id}
           data={selectedNode.data as AiCallNodeData}
+        />
+      );
+      break;
+    case "aiTitle":
+      content = (
+        <AiTitleGenerationNodeSetting
+          nodeId={selectedNode.id}
+          data={selectedNode.data as AiTitleGenerationNodeData}
         />
       );
       break;

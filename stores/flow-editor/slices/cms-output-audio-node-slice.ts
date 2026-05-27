@@ -1,6 +1,5 @@
 import type { Node } from "@xyflow/react";
 import type { StateCreator } from "zustand";
-import type { CmsFieldMapping } from "@/components/flow/nodes/cms-output-node";
 import type {
   CmsAudioFieldMapping,
   CmsOutputAudioNodeData,
@@ -27,21 +26,23 @@ const createDefaultMappings = (): CmsAudioFieldMapping[] => [
   },
 ];
 
+export const createCmsOutputAudioNodeData = (): CmsOutputAudioNodeData => ({
+  title: "輸出音檔到 CMS",
+  cmsConfigId: "",
+  cmsName: "READr CMS",
+  cmsList: "Audio File",
+  cmsAudioFileIds: "",
+  mappings: createDefaultMappings(),
+  mode: "create",
+});
+
 const createCmsOutputAudioNode = (
   offset: number,
 ): Node<CmsOutputAudioNodeData, "cmsOutputAudio"> => ({
   id: generateId(),
   type: "cmsOutputAudio",
   position: { x: offset, y: offset },
-  data: {
-    title: "輸出音檔到 CMS",
-    cmsConfigId: "",
-    cmsName: "READr CMS",
-    cmsList: "Audio File",
-    cmsAudioFileIds: "",
-    mappings: createDefaultMappings(),
-    mode: "create",
-  },
+  data: createCmsOutputAudioNodeData(),
 });
 
 export const createCmsOutputAudioNodeSlice: StateCreator<

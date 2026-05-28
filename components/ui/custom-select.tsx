@@ -1,25 +1,8 @@
-/* 
-這份檔案在 pnpm dlx shadcn-ui@latest add select 後，修改了部分內容以實現設計稿的需求，
-包括以下 3 點，故命名為 custom_select.tsx：
-  1. 讓 SelectContent 元件能在 SelectTrigger 元件下方展開，而非覆蓋其上
-      詳見 commit f6d4007(https://github.com/readr-media/readr-nodemation/pull/24/commits/f6d400708f4c4f4dd68ff3f8af8e22c29debfca5)
-
-  2. 移除預設的 CheckIcon，並讓箭頭 icon 在選項展開時能旋轉 180 度，收起時再轉回來
-      詳見 commit b910719(https://github.com/readr-media/readr-nodemation/pull/24/commits/b9107199358b7392b1674f8da789085f5fe4feaf)
-      和 commit b7aae08(https://github.com/readr-media/readr-nodemation/pull/24/commits/b7aae08b7419a0ea094371ad772a9d3cd7c9b298)
-      和 commit 1d1a28e(https://github.com/readr-media/readr-nodemation/pull/24/commits/1d1a28ee38ef0f499b9dea46a7d471ea3375fd73)
-      
-  3. 移除預設的 focus 樣式以實現客製的 focus 樣式
-      詳見 commit 9b351ed（https://github.com/readr-media/readr-nodemation/pull/24/commits/9b351ed450b5612814946ace7f0637555d295b1b）
-
-使用時在引入的檔案加入客製化樣式，即可實現本專案的 select 元件需求
-*/
-
 "use client";
 
 import * as SelectPrimitive from "@radix-ui/react-select";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
-import type * as React from "react";
+import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -54,7 +37,7 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        `border-input data-placeholder:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-fit items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 data-[size=md]:h-10 data-[size=lg]:h-15 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-[state=open]:[&>svg]:rotate-180`,
+        "border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-fit items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 data-[size=md]:h-10 data-[size=lg]:h-15 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-[state=open]:[&>svg]:rotate-180",
         className,
       )}
       {...props}

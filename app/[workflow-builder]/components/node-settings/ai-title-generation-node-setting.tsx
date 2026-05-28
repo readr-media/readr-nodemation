@@ -85,10 +85,6 @@ const AiTitleGenerationNodeSetting = ({
     );
   }, [data.titleKeywords, nodeId, setNodeFieldError]);
 
-  const selectedStyleOption = titleStyleOptions.find(
-    (opt) => opt.value === data.titleStyle,
-  );
-
   return (
     <div className="flex flex-1 flex-col overflow-y-auto p-4">
       <div className="space-y-6">
@@ -104,7 +100,7 @@ const AiTitleGenerationNodeSetting = ({
           >
             <SelectTrigger
               size="lg"
-              className="h-50 w-full rounded-lg border-module-border bg-white text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)] focus-visible:border-red-400 focus-visible:ring-0"
+              className="h-auto w-full rounded-lg border-module-border bg-white text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)] focus-visible:border-red-400 focus-visible:ring-0"
             >
               <SelectValue />
             </SelectTrigger>
@@ -140,7 +136,7 @@ const AiTitleGenerationNodeSetting = ({
             min={0}
             max={1}
             step={0.1}
-            sliderTrackHeight="0.5"
+            sliderTrackHeight="data-[orientation=horizontal]:h-0.5"
             sliderTrackColor="bg-gray-400"
             value={[data.titleTemperature ?? 0]}
             onValueChange={([value]) => {

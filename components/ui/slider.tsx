@@ -11,7 +11,7 @@ function Slider({
   value,
   min = 0,
   max = 100,
-  sliderTrackHeight = "0.5",
+  sliderTrackHeight = "data-[orientation=horizontal]:h-1.5",
   sliderTrackColor = "bg-primary",
   ...props
 }: React.ComponentProps<typeof SliderPrimitive.Root> & {
@@ -50,7 +50,11 @@ function Slider({
         <SliderPrimitive.Range
           data-slot="slider-range"
           className={cn(
-            `absolute ${sliderTrackColor} data-[orientation=horizontal]:h-${sliderTrackHeight} data-[orientation=vertical]:w-full data-[orientation=horizontal]:top-1/2`,
+            "absolute",
+            sliderTrackColor,
+            sliderTrackHeight,
+            "data-[orientation=horizontal]:top-1/2 data-[orientation=horizontal]:-translate-y-1/2",
+            "data-[orientation=vertical]:w-full",
           )}
         />
       </SliderPrimitive.Track>

@@ -12,13 +12,31 @@ type SeedWorkflow = {
   edges: string;
 };
 
+type TemplateGraph = {
+  nodes: string;
+  edges: string;
+};
+
+type WorkflowNodeSnapshot = {
+  id: string;
+  type: string;
+  measured?: { width: number; height: number };
+  position?: { x: number; y: number };
+  data?: Record<string, unknown>;
+};
+
 const repoRoot = path.resolve(__dirname, "../../..");
 const seedFilePath = path.join(repoRoot, "prisma/seed.js");
 
-const loadWorkflowSeed = (): SeedWorkflow[] => {
+type SeedExports = {
+  workflowSeed?: SeedWorkflow[];
+  templateGraphSeedByName?: Record<string, TemplateGraph>;
+};
+
+const loadSeedExports = (): SeedExports => {
   const source = fs.readFileSync(seedFilePath, "utf8");
   const context = {
-    module: { exports: {} as { workflowSeed?: SeedWorkflow[] } },
+    module: { exports: {} as SeedExports },
     exports: {},
     require: (specifier: string) => {
       if (specifier === "@prisma/client") {
@@ -46,17 +64,38 @@ const loadWorkflowSeed = (): SeedWorkflow[] => {
     process: { exitCode: 0 },
   };
 
-  vm.runInNewContext(`${source}\nmodule.exports = { workflowSeed };`, context, {
-    filename: seedFilePath,
-  });
+  vm.runInNewContext(
+    `${source}\nmodule.exports = { workflowSeed, templateGraphSeedByName };`,
+    context,
+    { filename: seedFilePath },
+  );
 
-  const { workflowSeed } = context.module.exports;
+  return context.module.exports;
+};
+
+const loadWorkflowSeed = (): SeedWorkflow[] => {
+  const { workflowSeed } = loadSeedExports();
 
   if (!workflowSeed) {
     throw new Error("Failed to load workflow seed definitions");
   }
 
   return workflowSeed;
+};
+
+const getNodeOrThrow = (nodes: WorkflowNodeSnapshot[], index: number) => {
+  const node = nodes[index];
+  if (!node) {
+    throw new Error(`Expected node at index ${index}`);
+  }
+  return node;
+};
+
+const getNodeDataOrThrow = (node: WorkflowNodeSnapshot) => {
+  if (!node.data) {
+    throw new Error(`Expected node "${node.id}" to include data`);
+  }
+  return node.data;
 };
 
 describe("demo article classification workflow seed", () => {
@@ -70,10 +109,7 @@ describe("demo article classification workflow seed", () => {
       throw new Error("Expected workflow seed to include 文章自動分類與標記");
     }
 
-    const nodes = JSON.parse(workflow.nodes) as Array<{
-      type: string;
-      data?: Record<string, unknown>;
-    }>;
+    const nodes = JSON.parse(workflow.nodes) as WorkflowNodeSnapshot[];
     const edges = JSON.parse(workflow.edges) as Array<{
       source: string;
       target: string;
@@ -91,12 +127,15 @@ describe("demo article classification workflow seed", () => {
       ["aiClassifierTagger-node", "cmsOutput-node"],
     ]);
 
-    const cmsInputNode = nodes[0];
-    const aiClassifierTaggerNode = nodes[1];
-    const cmsOutputNode = nodes[2];
+    const cmsInputNode = getNodeOrThrow(nodes, 0);
+    const aiClassifierTaggerNode = getNodeOrThrow(nodes, 1);
+    const cmsOutputNode = getNodeOrThrow(nodes, 2);
+    const cmsInputData = getNodeDataOrThrow(cmsInputNode);
+    const aiClassifierTaggerData = getNodeDataOrThrow(aiClassifierTaggerNode);
+    const cmsOutputData = getNodeDataOrThrow(cmsOutputNode);
 
-    expect(cmsInputNode.data?.title).toBe("從 CMS 輸入文章");
-    expect(cmsInputNode.data).toMatchObject({
+    expect(cmsInputData.title).toBe("從 CMS 輸入文章");
+    expect(cmsInputData).toMatchObject({
       title: "從 CMS 輸入文章",
       cmsConfigId: expect.any(String),
       cmsName: expect.any(String),
@@ -117,17 +156,17 @@ describe("demo article classification workflow seed", () => {
       },
       outputFormat: "json",
     });
-    expect(cmsInputNode.data).not.toHaveProperty("source");
-    expect(cmsInputNode.data).not.toHaveProperty("entryId");
-    expect(cmsInputNode.data).not.toHaveProperty("fields");
-    expect(cmsInputNode.data).not.toHaveProperty("author");
+    expect(cmsInputData).not.toHaveProperty("source");
+    expect(cmsInputData).not.toHaveProperty("entryId");
+    expect(cmsInputData).not.toHaveProperty("fields");
+    expect(cmsInputData).not.toHaveProperty("author");
     expect(aiClassifierTaggerNode.id).toBe("aiClassifierTagger-node");
     expect(aiClassifierTaggerNode.measured).toEqual({
       width: 240,
       height: 62,
     });
-    expect(aiClassifierTaggerNode.data?.title).toBe("AI自動分類與標籤");
-    expect(aiClassifierTaggerNode.data).toMatchObject({
+    expect(aiClassifierTaggerData.title).toBe("AI自動分類與標籤");
+    expect(aiClassifierTaggerData).toMatchObject({
       model: "gemini-1.5-flash",
       inputFields: {
         title: "source.title",
@@ -147,12 +186,12 @@ describe("demo article classification workflow seed", () => {
         tags: "array[string]",
       },
     });
-    expect(aiClassifierTaggerNode.data?.promptTemplate).toBe("");
+    expect(aiClassifierTaggerData.promptTemplate).toBe("");
     expect(cmsOutputNode.measured).toEqual({
       width: 240,
       height: 62,
     });
-    expect(cmsOutputNode.data).toMatchObject({
+    expect(cmsOutputData).toMatchObject({
       title: "輸出文字到 CMS",
       cmsConfigId: "",
       cmsName: "Readr CMS",
@@ -174,7 +213,56 @@ describe("demo article classification workflow seed", () => {
       mode: "overwrite",
       postStatus: "draft",
     });
-    expect(cmsOutputNode.data).not.toHaveProperty("cmsLocation");
-    expect(cmsOutputNode.data).not.toHaveProperty("articleIdOrSlug");
+    expect(cmsOutputData).not.toHaveProperty("cmsLocation");
+    expect(cmsOutputData).not.toHaveProperty("articleIdOrSlug");
+  });
+});
+
+describe("demo AI title generation workflow seed", () => {
+  it("stores a complete CMS to aiTitle to CMS graph snapshot", () => {
+    const { templateGraphSeedByName } = loadSeedExports();
+    const graph = templateGraphSeedByName?.["AI 文章標題"];
+
+    expect(graph).toBeDefined();
+    if (!graph) {
+      throw new Error(
+        "Expected templateGraphSeedByName to include AI 文章標題",
+      );
+    }
+
+    const nodes = JSON.parse(graph.nodes) as WorkflowNodeSnapshot[];
+    const edges = JSON.parse(graph.edges) as Array<{
+      source: string;
+      target: string;
+    }>;
+
+    expect(nodes).toHaveLength(3);
+    expect(nodes.map((node) => node.type)).toEqual([
+      "cmsInput",
+      "aiTitle",
+      "cmsOutput",
+    ]);
+    expect(edges).toHaveLength(2);
+    expect(edges.map((edge) => [edge.source, edge.target])).toEqual([
+      ["title-cmsInput-node", "title-aiTitle-node"],
+      ["title-aiTitle-node", "title-cmsOutput-node"],
+    ]);
+
+    const aiTitleNode = getNodeOrThrow(nodes, 1);
+    const aiTitleData = getNodeDataOrThrow(aiTitleNode);
+
+    expect(aiTitleNode.id).toBe("title-aiTitle-node");
+    expect(aiTitleNode.measured).toEqual({ width: 240, height: 62 });
+    expect(aiTitleData).toMatchObject({
+      title: "AI 文章標題",
+      titleStyle: "seo",
+      titleTemperature: 0.5,
+      titleKeywords: "",
+    });
+    expect(aiTitleData).not.toHaveProperty("model");
+    expect(aiTitleData).not.toHaveProperty("inputs");
+    expect(aiTitleData).not.toHaveProperty("outputFormat");
+    expect(aiTitleData).not.toHaveProperty("promptTemplate");
+    expect(aiTitleData).not.toHaveProperty("cmsField");
   });
 });

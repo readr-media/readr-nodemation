@@ -32,6 +32,22 @@ const nodes: Node[] = [
   },
 ];
 
+const aiTitleNodes: Node[] = [
+  ...nodes,
+  {
+    id: "node-2",
+    type: "aiTitle",
+    position: { x: 240, y: 0 },
+    measured: { width: 240, height: 62 },
+    data: {
+      title: "AI 文章標題",
+      titleStyle: "seo",
+      titleTemperature: 0.5,
+      titleKeywords: "",
+    },
+  },
+];
+
 const aiClassifierTaggerNodes: Node[] = [
   ...nodes,
   {
@@ -113,6 +129,46 @@ const cmsOutputEdges: Edge[] = [
   },
 ];
 
+const unscheduledPayload = {
+  cronExpression: null,
+  nextRunAt: null,
+} as const;
+
+type SaveWorkflowRequestBody = {
+  name: string;
+  description: string;
+  status: string;
+  nodes: Array<{
+    id?: string;
+    type: string;
+    measured?: { width: number; height: number };
+    data?: Record<string, unknown>;
+  }>;
+  edges: Edge[];
+  cron_expression: string | null;
+  next_run_at: string | null;
+};
+
+const getRequestBodyOrThrow = (fetchImpl: ReturnType<typeof vi.fn>) => {
+  const requestInit = fetchImpl.mock.calls[0]?.[1];
+  const body = requestInit?.body;
+  if (typeof body !== "string") {
+    throw new Error("Expected fetch request body to be a JSON string");
+  }
+  return JSON.parse(body) as SaveWorkflowRequestBody;
+};
+
+const getNodeDataOrThrow = (
+  requestBody: SaveWorkflowRequestBody,
+  index: number,
+) => {
+  const node = requestBody.nodes[index];
+  if (!node?.data) {
+    throw new Error(`Expected node data at index ${index}`);
+  }
+  return node.data;
+};
+
 describe("saveWorkflow", () => {
   it("updates the original workflow with PUT and resets the baseline to the same id", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(
@@ -137,6 +193,7 @@ describe("saveWorkflow", () => {
       status: "published",
       nodes,
       edges,
+      ...unscheduledPayload,
       fetchImpl,
       resetBaseline,
     });
@@ -150,17 +207,14 @@ describe("saveWorkflow", () => {
         status: "published",
         nodes,
         edges,
+        cron_expression: null,
+        next_run_at: null,
       }),
     });
-    const requestBody = JSON.parse(
-      fetchImpl.mock.calls[0]?.[1]?.body as string,
-    ) as {
-      nodes: Array<{
-        type: string;
-        data?: Record<string, unknown>;
-      }>;
-    };
-    expect(requestBody.nodes[0].data).toMatchObject({
+    const requestBody = getRequestBodyOrThrow(fetchImpl);
+    const firstNodeData = getNodeDataOrThrow(requestBody, 0);
+
+    expect(firstNodeData).toMatchObject({
       title: "從CMS輸入",
       cmsConfigId: expect.any(String),
       cmsName: expect.any(String),
@@ -181,10 +235,11 @@ describe("saveWorkflow", () => {
       },
       outputFormat: "json",
     });
-    expect(requestBody.nodes[0].data).not.toHaveProperty("source");
-    expect(requestBody.nodes[0].data).not.toHaveProperty("entryId");
-    expect(requestBody.nodes[0].data).not.toHaveProperty("fields");
-    expect(requestBody.nodes[0].data).not.toHaveProperty("author");
+
+    expect(firstNodeData).not.toHaveProperty("source");
+    expect(firstNodeData).not.toHaveProperty("entryId");
+    expect(firstNodeData).not.toHaveProperty("fields");
+    expect(firstNodeData).not.toHaveProperty("author");
     expect(resetBaseline).toHaveBeenCalledWith({
       workflowId: "workflow-123",
       sourceWorkflowId: "workflow-123",
@@ -220,6 +275,7 @@ describe("saveWorkflow", () => {
       status: "draft",
       nodes,
       edges,
+      ...unscheduledPayload,
       fetchImpl,
       resetBaseline,
     });
@@ -233,6 +289,8 @@ describe("saveWorkflow", () => {
         status: "draft",
         nodes,
         edges,
+        cron_expression: null,
+        next_run_at: null,
       }),
     });
     expect(resetBaseline).toHaveBeenCalledWith({
@@ -245,6 +303,53 @@ describe("saveWorkflow", () => {
       workflowId: "workflow-456",
       sourceWorkflowId: "workflow-456",
     });
+  });
+
+  it("persists aiTitle nodes with the approved schema in the request body", async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "workflow-aiTitle",
+          name: "AI 文章標題流程",
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        },
+      ),
+    );
+    const resetBaseline = vi.fn();
+
+    await saveWorkflow({
+      mode: "update",
+      workflowId: "workflow-aiTitle",
+      name: "AI 文章標題流程",
+      description: "含 aiTitle 節點",
+      status: "draft",
+      nodes: aiTitleNodes,
+      edges,
+      ...unscheduledPayload,
+      fetchImpl,
+      resetBaseline,
+    });
+
+    const requestBody = getRequestBodyOrThrow(fetchImpl);
+    const aiTitleData = getNodeDataOrThrow(requestBody, 1);
+
+    expect(requestBody.nodes[1]).toMatchObject({
+      id: "node-2",
+      type: "aiTitle",
+      measured: { width: 240, height: 62 },
+    });
+    expect(aiTitleData).toMatchObject({
+      title: "AI 文章標題",
+      titleStyle: "seo",
+      titleTemperature: 0.5,
+      titleKeywords: "",
+    });
+    expect(aiTitleData).not.toHaveProperty("model");
+    expect(aiTitleData).not.toHaveProperty("inputs");
+    expect(aiTitleData).not.toHaveProperty("cmsField");
   });
 
   it("persists aiClassifierTagger nodes with the approved schema in the request body", async () => {
@@ -270,46 +375,39 @@ describe("saveWorkflow", () => {
       status: "draft",
       nodes: aiClassifierTaggerNodes,
       edges,
+      ...unscheduledPayload,
       fetchImpl,
       resetBaseline,
     });
 
-    const requestBody = JSON.parse(
-      fetchImpl.mock.calls[0]?.[1]?.body as string,
-    ) as {
-      nodes: Array<{
-        id: string;
-        type: string;
-        measured?: { width: number; height: number };
-        data?: Record<string, unknown>;
-      }>;
-    };
+    const requestBody = getRequestBodyOrThrow(fetchImpl);
+    const aiClassifierData = getNodeDataOrThrow(requestBody, 1);
 
     expect(requestBody.nodes[1]).toMatchObject({
       id: "node-2",
       type: "aiClassifierTagger",
       measured: { width: 240, height: 62 },
-      data: {
-        title: "AI自動分類與標籤",
-        model: "gemini-1.5-flash",
-        inputFields: {
-          title: "source.title",
-          content: "source.content",
-        },
-        promptTemplate: "",
-        categoryAmount: 1,
-        tagAmount: 3,
-        responseFormat: {
-          type: "json",
-          schema: {
-            categories: "array[string]",
-            tags: "array[string]",
-          },
-        },
-        outputFields: {
+    });
+    expect(aiClassifierData).toMatchObject({
+      title: "AI自動分類與標籤",
+      model: "gemini-1.5-flash",
+      inputFields: {
+        title: "source.title",
+        content: "source.content",
+      },
+      promptTemplate: "",
+      categoryAmount: 1,
+      tagAmount: 3,
+      responseFormat: {
+        type: "json",
+        schema: {
           categories: "array[string]",
           tags: "array[string]",
         },
+      },
+      outputFields: {
+        categories: "array[string]",
+        tags: "array[string]",
       },
     });
   });
@@ -337,49 +435,42 @@ describe("saveWorkflow", () => {
       status: "draft",
       nodes: cmsOutputNodes,
       edges: cmsOutputEdges,
+      ...unscheduledPayload,
       fetchImpl,
       resetBaseline,
     });
 
-    const requestBody = JSON.parse(
-      fetchImpl.mock.calls[0]?.[1]?.body as string,
-    ) as {
-      nodes: Array<{
-        id: string;
-        type: string;
-        measured?: { width: number; height: number };
-        data?: Record<string, unknown>;
-      }>;
-    };
+    const requestBody = getRequestBodyOrThrow(fetchImpl);
+    const cmsOutputData = getNodeDataOrThrow(requestBody, 2);
 
     expect(requestBody.nodes[2]).toMatchObject({
       id: "node-3",
       type: "cmsOutput",
       measured: { width: 240, height: 62 },
-      data: {
-        title: "輸出文字到CMS",
-        cmsConfigId: "",
-        cmsName: "Readr CMS",
-        cmsList: "Posts",
-        cmsPostIds: "",
-        cmsPostSlugs: "",
-        mappings: [
-          {
-            id: "mapping-1",
-            sourceField: "{{ ai.categories }}",
-            targetField: "categories",
-          },
-          {
-            id: "mapping-2",
-            sourceField: "{{ ai.tags }}",
-            targetField: "tags",
-          },
-        ],
-        mode: "overwrite",
-        postStatus: "draft",
-      },
     });
-    expect(requestBody.nodes[2].data).not.toHaveProperty("cmsLocation");
-    expect(requestBody.nodes[2].data).not.toHaveProperty("articleIdOrSlug");
+    expect(cmsOutputData).toMatchObject({
+      title: "輸出文字到CMS",
+      cmsConfigId: "",
+      cmsName: "Readr CMS",
+      cmsList: "Posts",
+      cmsPostIds: "",
+      cmsPostSlugs: "",
+      mappings: [
+        {
+          id: "mapping-1",
+          sourceField: "{{ ai.categories }}",
+          targetField: "categories",
+        },
+        {
+          id: "mapping-2",
+          sourceField: "{{ ai.tags }}",
+          targetField: "tags",
+        },
+      ],
+      mode: "overwrite",
+      postStatus: "draft",
+    });
+    expect(cmsOutputData).not.toHaveProperty("cmsLocation");
+    expect(cmsOutputData).not.toHaveProperty("articleIdOrSlug");
   });
 });

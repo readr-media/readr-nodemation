@@ -1,3 +1,4 @@
+import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -45,7 +46,7 @@ describe("module list", () => {
     ]);
   });
 
-  it("adds an aiCall title-generation node when the AI title module is clicked", async () => {
+  it("adds an aiTitle node when the AI title module is clicked", async () => {
     const { default: ModuleList } =
       await import("../../../../../app/[workflow-builder]/components/module-list");
 
@@ -58,10 +59,12 @@ describe("module list", () => {
     titleCard?.onClick?.();
 
     expect(useNodesStore.getState().nodes.at(-1)).toMatchObject({
-      type: "aiCall",
+      type: "aiTitle",
       data: {
         title: "AI 文章標題",
-        cmsField: "title",
+        titleStyle: "seo",
+        titleTemperature: 0.5,
+        titleKeywords: "",
       },
     });
   });

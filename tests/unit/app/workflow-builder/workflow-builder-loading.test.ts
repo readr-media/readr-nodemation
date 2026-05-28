@@ -3,9 +3,38 @@ import { createStore } from "zustand/vanilla";
 
 import { loadWorkflowIntoStores } from "@/app/[workflow-builder]/components/workflow-loader";
 import { createAiClassifierTaggerNodeSlice } from "@/stores/flow-editor/slices/ai-classifier-tagger-node-slice";
+import { createAiTitleGenerationNodeSlice } from "@/stores/flow-editor/slices/ai-title-generation-node-slice";
 import { createCmsNodeSlice } from "@/stores/flow-editor/slices/cms-node-slice";
 import { createCmsOutputNodeSlice } from "@/stores/flow-editor/slices/cms-output-node-slice";
-import type { NodesStore } from "@/stores/flow-editor/types";
+import type {
+  AiClassifierTaggerNodeSlice,
+  AiTitleGenerationNodeSlice,
+  CmsNodeSlice,
+  CmsOutputNodeSlice,
+  NodesStore,
+} from "@/stores/flow-editor/types";
+
+type SliceStoreBaseState = Pick<NodesStore, "nodes" | "edges" | "selectedNodeId">;
+
+const createSliceStore = <TSlice extends object>(
+  createSlice: (set: unknown, get: unknown, api: unknown) => TSlice,
+) =>
+  createStore<SliceStoreBaseState & TSlice>()((set, get, api) => ({
+    nodes: [],
+    edges: [],
+    selectedNodeId: null,
+    ...createSlice(set, get, api),
+  }));
+
+const getFirstNodeOrThrow = (store: {
+  getState: () => SliceStoreBaseState;
+}) => {
+  const firstNode = store.getState().nodes[0];
+  if (!firstNode) {
+    throw new Error("Expected store to contain at least one node");
+  }
+  return firstNode;
+};
 
 describe("loadWorkflowIntoStores", () => {
   it("normalizes legacy workflow nodes before hydrating the stores", async () => {
@@ -31,6 +60,7 @@ describe("loadWorkflowIntoStores", () => {
 
     const result = await loadWorkflowIntoStores({
       workflowId: "workflow-123",
+      templateId: null,
       fetchImpl,
       loadSnapshot,
       hydrateFromWorkflow,
@@ -113,16 +143,11 @@ describe("loadWorkflowIntoStores", () => {
   });
 
   it("creates new cmsInput nodes with the approved defaults", () => {
-    const store = createStore<NodesStore>()((set, get, api) => ({
-      nodes: [],
-      edges: [],
-      selectedNodeId: null,
-      ...createCmsNodeSlice(set, get, api),
-    }));
+    const store = createSliceStore<CmsNodeSlice>(createCmsNodeSlice as never);
 
     store.getState().addCmsNode();
 
-    const [createdNode] = store.getState().nodes;
+    const createdNode = getFirstNodeOrThrow(store) as NodesStore["nodes"][number];
 
     expect(createdNode).toMatchObject({
       type: "cmsInput",
@@ -152,16 +177,13 @@ describe("loadWorkflowIntoStores", () => {
   });
 
   it("creates new aiClassifierTagger nodes with the approved defaults", () => {
-    const store = createStore<NodesStore>()((set, get, api) => ({
-      nodes: [],
-      edges: [],
-      selectedNodeId: null,
-      ...createAiClassifierTaggerNodeSlice(set, get, api),
-    }));
+    const store = createSliceStore<AiClassifierTaggerNodeSlice>(
+      createAiClassifierTaggerNodeSlice as never,
+    );
 
     store.getState().addAiClassifierTaggerNode();
 
-    const [createdNode] = store.getState().nodes;
+    const createdNode = getFirstNodeOrThrow(store) as NodesStore["nodes"][number];
 
     expect(createdNode).toMatchObject({
       type: "aiClassifierTagger",
@@ -190,17 +212,36 @@ describe("loadWorkflowIntoStores", () => {
     expect(store.getState().selectedNodeId).toBe(createdNode.id);
   });
 
+  it("creates new aiTitle nodes with the approved defaults", () => {
+    const store = createSliceStore<AiTitleGenerationNodeSlice>(
+      createAiTitleGenerationNodeSlice as never,
+    );
+
+    store.getState().addAiTitleGenerationNode();
+
+    const createdNode = getFirstNodeOrThrow(store) as NodesStore["nodes"][number];
+
+    expect(createdNode).toMatchObject({
+      type: "aiTitle",
+      measured: { width: 240, height: 62 },
+      data: {
+        title: "AI 文章標題",
+        titleStyle: "seo",
+        titleTemperature: 0.5,
+        titleKeywords: "",
+      },
+    });
+    expect(store.getState().selectedNodeId).toBe(createdNode.id);
+  });
+
   it("creates new cmsOutput nodes with the approved defaults", () => {
-    const store = createStore<NodesStore>()((set, get, api) => ({
-      nodes: [],
-      edges: [],
-      selectedNodeId: null,
-      ...createCmsOutputNodeSlice(set, get, api),
-    }));
+    const store = createSliceStore<CmsOutputNodeSlice>(
+      createCmsOutputNodeSlice as never,
+    );
 
     store.getState().addCmsOutputNode();
 
-    const [createdNode] = store.getState().nodes;
+    const createdNode = getFirstNodeOrThrow(store) as NodesStore["nodes"][number];
 
     expect(createdNode).toMatchObject({
       type: "cmsOutput",
@@ -263,6 +304,7 @@ describe("loadWorkflowIntoStores", () => {
 
     const result = await loadWorkflowIntoStores({
       workflowId: "cms-output-workflow",
+      templateId: null,
       fetchImpl,
       loadSnapshot,
       hydrateFromWorkflow,
@@ -334,6 +376,7 @@ describe("loadWorkflowIntoStores", () => {
 
     const result = await loadWorkflowIntoStores({
       workflowId: "ai-classifier-workflow",
+      templateId: null,
       fetchImpl,
       loadSnapshot,
       hydrateFromWorkflow,
@@ -444,6 +487,7 @@ describe("loadWorkflowIntoStores", () => {
 
     const result = await loadWorkflowIntoStores({
       workflowId: "ai-classifier-workflow-missing-data",
+      templateId: null,
       fetchImpl,
       loadSnapshot,
       hydrateFromWorkflow,
@@ -605,6 +649,7 @@ describe("loadWorkflowIntoStores", () => {
 
     const result = await loadWorkflowIntoStores({
       workflowId: "ai-classifier-workflow-default-title",
+      templateId: null,
       fetchImpl,
       loadSnapshot,
       hydrateFromWorkflow,
@@ -751,6 +796,7 @@ describe("loadWorkflowIntoStores", () => {
 
     const result = await loadWorkflowIntoStores({
       workflowId: "sample-workflow-3",
+      templateId: null,
       fetchImpl,
       loadSnapshot,
       hydrateFromWorkflow,
@@ -863,6 +909,7 @@ describe("loadWorkflowIntoStores", () => {
 
     const result = await loadWorkflowIntoStores({
       workflowId: "legacy-cms-input-workflow",
+      templateId: null,
       fetchImpl,
       loadSnapshot,
       hydrateFromWorkflow,
@@ -973,6 +1020,7 @@ describe("loadWorkflowIntoStores", () => {
 
     const result = await loadWorkflowIntoStores({
       workflowId: "legacy-code-workflow",
+      templateId: null,
       fetchImpl,
       loadSnapshot,
       hydrateFromWorkflow,
@@ -1027,6 +1075,7 @@ describe("loadWorkflowIntoStores", () => {
 
     const result = await loadWorkflowIntoStores({
       workflowId: "missing-workflow",
+      templateId: null,
       fetchImpl,
       loadSnapshot,
       hydrateFromWorkflow,
@@ -1044,6 +1093,7 @@ describe("loadWorkflowIntoStores", () => {
 
     const result = await loadWorkflowIntoStores({
       workflowId: null,
+      templateId: null,
       fetchImpl,
       loadSnapshot,
       hydrateFromWorkflow,
@@ -1053,5 +1103,171 @@ describe("loadWorkflowIntoStores", () => {
     expect(fetchImpl).not.toHaveBeenCalled();
     expect(loadSnapshot).not.toHaveBeenCalled();
     expect(hydrateFromWorkflow).not.toHaveBeenCalled();
+  });
+
+  it("normalizes aiTitle workflow nodes before hydrating the stores", async () => {
+    const loadSnapshot = vi.fn();
+    const hydrateFromWorkflow = vi.fn();
+    const fetchImpl = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "ai-title-workflow",
+          name: "AI 文章標題流程",
+          description: "既有流程",
+          status: "draft",
+          nodes: JSON.stringify([
+            {
+              id: "aiTitle-node",
+              type: "aiTitle",
+              position: { x: 360, y: 160 },
+              data: {
+                label: "舊標題節點",
+                titleStyle: "social",
+                titleTemperature: 0.8,
+                titleKeywords: "AI,新聞",
+              },
+            },
+          ]),
+          edges: JSON.stringify([]),
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        },
+      ),
+    );
+
+    const result = await loadWorkflowIntoStores({
+      workflowId: "ai-title-workflow",
+      templateId: null,
+      fetchImpl,
+      loadSnapshot,
+      hydrateFromWorkflow,
+    });
+
+    expect(result).toEqual({ status: "loaded" });
+    expect(loadSnapshot).toHaveBeenCalledWith({
+      nodes: [
+        {
+          id: "aiTitle-node",
+          type: "aiTitle",
+          position: { x: 360, y: 160 },
+          data: {
+            title: "舊標題節點",
+            titleStyle: "social",
+            titleTemperature: 0.8,
+            titleKeywords: "AI,新聞",
+          },
+        },
+      ],
+      edges: [],
+    });
+  });
+
+  it("normalizes aiTitle workflow nodes when node data is missing or invalid", async () => {
+    const loadSnapshot = vi.fn();
+    const hydrateFromWorkflow = vi.fn();
+    const fetchImpl = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "ai-title-workflow-missing-data",
+          name: "AI 文章標題流程",
+          description: "既有流程",
+          status: "draft",
+          nodes: JSON.stringify([
+            {
+              id: "aiTitle-node",
+              type: "aiTitle",
+              position: { x: 360, y: 160 },
+            },
+          ]),
+          edges: JSON.stringify([]),
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        },
+      ),
+    );
+
+    await loadWorkflowIntoStores({
+      workflowId: "ai-title-workflow-missing-data",
+      templateId: null,
+      fetchImpl,
+      loadSnapshot,
+      hydrateFromWorkflow,
+    });
+
+    expect(loadSnapshot).toHaveBeenCalledWith({
+      nodes: [
+        {
+          id: "aiTitle-node",
+          type: "aiTitle",
+          position: { x: 360, y: 160 },
+          data: {
+            title: "AI 文章標題",
+            titleStyle: "seo",
+            titleTemperature: 0.5,
+            titleKeywords: "",
+          },
+        },
+      ],
+      edges: [],
+    });
+  });
+
+  it("falls back to the default aiTitle title when title and label are missing", async () => {
+    const loadSnapshot = vi.fn();
+    const hydrateFromWorkflow = vi.fn();
+    const fetchImpl = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "ai-title-workflow-default-title",
+          name: "AI 文章標題流程",
+          description: "既有流程",
+          status: "draft",
+          nodes: JSON.stringify([
+            {
+              id: "aiTitle-node",
+              type: "aiTitle",
+              position: { x: 360, y: 160 },
+              data: {
+                titleStyle: "professional",
+              },
+            },
+          ]),
+          edges: JSON.stringify([]),
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        },
+      ),
+    );
+
+    await loadWorkflowIntoStores({
+      workflowId: "ai-title-workflow-default-title",
+      templateId: null,
+      fetchImpl,
+      loadSnapshot,
+      hydrateFromWorkflow,
+    });
+
+    expect(loadSnapshot).toHaveBeenCalledWith({
+      nodes: [
+        {
+          id: "aiTitle-node",
+          type: "aiTitle",
+          position: { x: 360, y: 160 },
+          data: {
+            title: "AI 文章標題",
+            titleStyle: "professional",
+            titleTemperature: 0.5,
+            titleKeywords: "",
+          },
+        },
+      ],
+      edges: [],
+    });
   });
 });

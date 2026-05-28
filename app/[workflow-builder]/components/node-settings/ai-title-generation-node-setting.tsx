@@ -140,6 +140,8 @@ const AiTitleGenerationNodeSetting = ({
             min={0}
             max={1}
             step={0.1}
+            sliderTrackHeight="0.5"
+            sliderTrackColor="bg-gray-400"
             value={[data.titleTemperature ?? 0]}
             onValueChange={([value]) => {
               updateAiTitleGenerationNodeData(nodeId, {

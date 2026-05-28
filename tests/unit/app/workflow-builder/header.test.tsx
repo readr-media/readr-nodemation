@@ -13,6 +13,7 @@ const workflowEditorState = vi.hoisted(() => ({
 const nodesStoreState = vi.hoisted(() => ({
   nodes: [] as unknown[],
   edges: [] as unknown[],
+  nodeFieldErrors: {},
 }));
 
 vi.mock("next/navigation", () => ({
@@ -64,9 +65,8 @@ describe("workflow builder header", () => {
     workflowEditorState.name = "既有工作流程";
     workflowEditorState.status = "published";
 
-    const { default: Header } = await import(
-      "@/components/layout/header-workflow-builder"
-    );
+    const { default: Header } =
+      await import("@/components/layout/header-workflow-builder");
     const markup = renderToStaticMarkup(<Header />);
 
     expect(markup).toContain("既有工作流程");
@@ -75,9 +75,8 @@ describe("workflow builder header", () => {
   it("shows template badge when status is template", async () => {
     workflowEditorState.status = "template";
 
-    const { default: Header } = await import(
-      "@/components/layout/header-workflow-builder"
-    );
+    const { default: Header } =
+      await import("@/components/layout/header-workflow-builder");
     const markup = renderToStaticMarkup(<Header />);
 
     expect(markup).toContain("模板");
@@ -86,9 +85,8 @@ describe("workflow builder header", () => {
   it("does not show template badge for non-template status", async () => {
     workflowEditorState.status = "draft";
 
-    const { default: Header } = await import(
-      "@/components/layout/header-workflow-builder"
-    );
+    const { default: Header } =
+      await import("@/components/layout/header-workflow-builder");
     const markup = renderToStaticMarkup(<Header />);
 
     expect(markup).not.toContain("模板");

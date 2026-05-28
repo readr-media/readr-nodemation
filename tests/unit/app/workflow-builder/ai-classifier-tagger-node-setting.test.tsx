@@ -707,7 +707,6 @@ describe("ai classifier tagger node setting", () => {
     const { container, root } = await renderClassifierTaggerSettings();
 
     expect(container.textContent).toContain("進階指令（User Prompt）");
-    expect(container.textContent).toContain("Prompt 模板");
     expect(container.textContent).toContain("產生分類數量");
     expect(container.textContent).toContain("產生標籤數量");
     expect(container.textContent).not.toContain("responseFormat");
@@ -717,52 +716,16 @@ describe("ai classifier tagger node setting", () => {
     const inputs = findAllByTagName(container, "input");
 
     expect(textareas).toHaveLength(1);
-    expect(inputs).toHaveLength(4);
+    expect(inputs).toHaveLength(2);
 
-    const [titleInput, contentInput, categoryInput, tagInput] = inputs;
+    const [categoryInput, tagInput] = inputs;
     const promptInput = textareas[0];
 
-    expect(titleInput).not.toBeNull();
-    expect(contentInput).not.toBeNull();
     expect(categoryInput).not.toBeNull();
     expect(tagInput).not.toBeNull();
     expect(promptInput).not.toBeNull();
-    expect((titleInput as HTMLInputElement).value).toBe("source.title");
-    expect((contentInput as HTMLInputElement).value).toBe("source.content");
     expect((categoryInput as HTMLInputElement).value).toBe("1");
     expect((tagInput as HTMLInputElement).value).toBe("3");
-
-    act(() => {
-      titleInput.value = "source.headline";
-      titleInput.dispatchEvent(new MockEvent("input", { bubbles: true }));
-    });
-
-    expect(updateAiClassifierTaggerNodeData).toHaveBeenNthCalledWith(
-      1,
-      "aiClassifierTagger-node",
-      {
-        inputFields: {
-          title: "source.headline",
-          content: "source.content",
-        },
-      },
-    );
-
-    act(() => {
-      contentInput.value = "source.body";
-      contentInput.dispatchEvent(new MockEvent("input", { bubbles: true }));
-    });
-
-    expect(updateAiClassifierTaggerNodeData).toHaveBeenNthCalledWith(
-      2,
-      "aiClassifierTagger-node",
-      {
-        inputFields: {
-          title: "source.title",
-          content: "source.body",
-        },
-      },
-    );
 
     act(() => {
       promptInput.value = "updated prompt";
@@ -770,7 +733,7 @@ describe("ai classifier tagger node setting", () => {
     });
 
     expect(updateAiClassifierTaggerNodeData).toHaveBeenNthCalledWith(
-      3,
+      1,
       "aiClassifierTagger-node",
       {
         promptTemplate: "updated prompt",
@@ -783,7 +746,7 @@ describe("ai classifier tagger node setting", () => {
     });
 
     expect(updateAiClassifierTaggerNodeData).toHaveBeenNthCalledWith(
-      4,
+      2,
       "aiClassifierTagger-node",
       {
         categoryAmount: 2,
@@ -796,7 +759,7 @@ describe("ai classifier tagger node setting", () => {
     });
 
     expect(updateAiClassifierTaggerNodeData).toHaveBeenNthCalledWith(
-      5,
+      3,
       "aiClassifierTagger-node",
       {
         tagAmount: 5,
@@ -808,11 +771,11 @@ describe("ai classifier tagger node setting", () => {
       categoryInput.dispatchEvent(new MockEvent("input", { bubbles: true }));
     });
 
-    expect(updateAiClassifierTaggerNodeData).toHaveBeenCalledTimes(5);
+    expect(updateAiClassifierTaggerNodeData).toHaveBeenCalledTimes(3);
     expect(setNodeFieldError).toHaveBeenCalledWith(
       "aiClassifierTagger-node",
       "categoryAmount",
-      "只能產生 1-3 個分類",
+      "請輸入 1-3 的數字",
     );
 
     act(() => {
@@ -820,7 +783,7 @@ describe("ai classifier tagger node setting", () => {
       categoryInput.dispatchEvent(new MockEvent("input", { bubbles: true }));
     });
 
-    expect(updateAiClassifierTaggerNodeData).toHaveBeenCalledTimes(5);
+    expect(updateAiClassifierTaggerNodeData).toHaveBeenCalledTimes(3);
     expect(setNodeFieldError).toHaveBeenCalledWith(
       "aiClassifierTagger-node",
       "categoryAmount",
@@ -832,7 +795,7 @@ describe("ai classifier tagger node setting", () => {
       categoryInput.dispatchEvent(new MockEvent("input", { bubbles: true }));
     });
 
-    expect(updateAiClassifierTaggerNodeData).toHaveBeenCalledTimes(6);
+    expect(updateAiClassifierTaggerNodeData).toHaveBeenCalledTimes(3);
     expect(container.textContent).toContain("請輸入 1-3 的數字");
 
     act(() => {
@@ -876,9 +839,9 @@ describe("ai classifier tagger node setting", () => {
       await renderControlledClassifierTaggerSettings();
 
     const inputs = findAllByTagName(container, "input");
-    const categoryInput = inputs[2];
+    const categoryInput = inputs[0];
 
-    expect((categoryInput as HTMLInputElement).value).toBe("1");
+    expect((categoryInput as unknown as HTMLInputElement).value).toBe("1");
 
     act(() => {
       categoryInput.value = "";
@@ -887,7 +850,7 @@ describe("ai classifier tagger node setting", () => {
 
     await rerender?.();
 
-    expect((categoryInput as HTMLInputElement).value).toBe("");
+    expect((categoryInput as unknown as HTMLInputElement).value).toBe("");
 
     act(() => {
       root.unmount();

@@ -138,7 +138,7 @@ const AiTitleGenerationNodeSetting = ({
             step={0.1}
             sliderTrackHeight="data-[orientation=horizontal]:h-0.5"
             sliderTrackColor="bg-gray-400"
-            value={[data.titleTemperature ?? 0]}
+            value={[data.titleTemperature]}
             onValueChange={([value]) => {
               updateAiTitleGenerationNodeData(nodeId, {
                 titleTemperature: Math.round((value ?? 0) * 10) / 10,

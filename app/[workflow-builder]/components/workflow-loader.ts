@@ -3,6 +3,7 @@
 import type { Edge, Node } from "@xyflow/react";
 import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
 import type { AiClassifierTaggerNodeData } from "@/components/flow/nodes/ai-classifier-tagger-node";
+import type { AiTitleGenerationNodeData } from "@/components/flow/nodes/ai-title-generation-node";
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import type {
   CmsAudioFieldMapping,
@@ -19,6 +20,7 @@ import { cronToSchedule } from "@/lib/cron-to-schedule";
 import type { WorkflowStatus } from "@/lib/workflow-status";
 import { useExecutionScheduleStore } from "@/stores/execution-schedule-store";
 import { createAiClassifierTaggerNodeData } from "@/stores/flow-editor/slices/ai-classifier-tagger-node-slice";
+import { createAiTitleGenerationNodeData } from "@/stores/flow-editor/slices/ai-title-generation-node-slice";
 import { createCmsInputNodeData } from "@/stores/flow-editor/slices/cms-node-slice";
 import { createCmsOutputAudioNodeData } from "@/stores/flow-editor/slices/cms-output-audio-node-slice";
 import { createCmsOutputNodeData } from "@/stores/flow-editor/slices/cms-output-node-slice";
@@ -208,6 +210,37 @@ const normalizeAiClassifierTaggerData = (
   };
 };
 
+const normalizeAiTitleGenerationData = (
+  data: Record<string, unknown>,
+): AiTitleGenerationNodeData => {
+  const defaults = createAiTitleGenerationNodeData();
+
+  return {
+    title:
+      typeof data.title === "string"
+        ? data.title
+        : typeof data.label === "string"
+          ? data.label
+          : defaults.title,
+    titleStyle:
+      data.titleStyle === "seo" ||
+      data.titleStyle === "social" ||
+      data.titleStyle === "professional"
+        ? data.titleStyle
+        : defaults.titleStyle,
+    titleTemperature:
+      typeof data.titleTemperature === "number" &&
+      data.titleTemperature >= 0 &&
+      data.titleTemperature <= 1
+        ? Math.round(data.titleTemperature * 10) / 10
+        : defaults.titleTemperature,
+    titleKeywords:
+      typeof data.titleKeywords === "string"
+        ? data.titleKeywords
+        : defaults.titleKeywords,
+  };
+};
+
 const normalizeCmsOutputData = (
   data: Record<string, unknown>,
 ): CmsOutputNodeData => {
@@ -367,22 +400,13 @@ const normalizePodcastGenerationData = (
 });
 
 const normalizeNode = (node: Node): Node => {
-  if (node.type === "aiClassifierTagger") {
-    return {
-      ...node,
-      data: normalizeAiClassifierTaggerData(
-        isRecord(node.data) ? node.data : {},
-      ),
-    };
-  }
-
-  if (!node.data || typeof node.data !== "object") {
-    return node;
-  }
-
-  const data = node.data as Record<string, unknown>;
+  const data = isRecord(node.data) ? node.data : {};
 
   switch (node.type) {
+    case "aiClassifierTagger":
+      return { ...node, data: normalizeAiClassifierTaggerData(data) };
+    case "aiTitle":
+      return { ...node, data: normalizeAiTitleGenerationData(data) };
     case "cmsInput":
       return { ...node, data: normalizeCmsInputData(data) };
     case "aiCall":

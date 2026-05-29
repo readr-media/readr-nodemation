@@ -1,15 +1,15 @@
+import React from "react";
 import { act, useState } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { AiClassifierTaggerNodeData } from "@/components/flow/nodes/ai-classifier-tagger-node";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import type { AiTitleGenerationNodeData } from "@/components/flow/nodes/ai-title-generation-node";
 
 let applyNodeUpdate:
-  | ((data: Partial<AiClassifierTaggerNodeData>) => void)
+  | ((data: Partial<AiTitleGenerationNodeData>) => void)
   | null = null;
-const updateAiClassifierTaggerNodeData = vi.fn(
-  (_nodeId: string, data: Partial<AiClassifierTaggerNodeData>) => {
+const updateAiTitleGenerationNodeData = vi.fn(
+  (_nodeId: string, data: Partial<AiTitleGenerationNodeData>) => {
     applyNodeUpdate?.(data);
   },
 );
@@ -39,11 +39,11 @@ const mockStoreState = {
   nodes: [] as Array<{
     id: string;
     type: string;
-    data: AiClassifierTaggerNodeData;
+    data: AiTitleGenerationNodeData;
   }>,
   selectedNodeId: null as string | null,
   nodeFieldErrors,
-  updateAiClassifierTaggerNodeData,
+  updateAiTitleGenerationNodeData,
   setNodeFieldError,
   clearNodeFieldErrors,
 };
@@ -66,6 +66,67 @@ vi.mock("@/components/ui/sonner", () => ({
     info: vi.fn(),
     warning: vi.fn(),
   },
+}));
+
+vi.mock("@/components/ui/custom-select", () => ({
+  Select: ({
+    children,
+    onValueChange,
+    value,
+  }: {
+    children: React.ReactNode;
+    onValueChange?: (value: string) => void;
+    value?: string;
+  }) => (
+    <select
+      value={value}
+      onChange={(e) => onValueChange?.(e.target.value)}
+      data-testid="title-style-select"
+    >
+      {children}
+    </select>
+  ),
+  SelectTrigger: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
+  SelectValue: () => null,
+  SelectContent: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
+  SelectItem: ({
+    value,
+    children,
+  }: {
+    value: string;
+    children: React.ReactNode;
+  }) => <option value={value}>{children}</option>,
+}));
+
+vi.mock("@/components/ui/slider", () => ({
+  Slider: ({
+    value,
+    onValueChange,
+    min,
+    max,
+    step,
+  }: {
+    value: number[];
+    onValueChange: (value: number[]) => void;
+    min?: number;
+    max?: number;
+    step?: number;
+  }) => (
+    <input
+      type="range"
+      min={min}
+      max={max}
+      step={step}
+      value={value[0]}
+      onInput={(e) =>
+        onValueChange([parseFloat((e.target as HTMLInputElement).value)])
+      }
+    />
+  ),
 }));
 
 class MockEvent {
@@ -193,11 +254,11 @@ class MockNode {
     return this.childNodes.some((child) => child.contains(node));
   }
 
-  get firstChild() {
+  get firstChild(): MockNode | null {
     return this.childNodes[0] ?? null;
   }
 
-  get lastChild() {
+  get lastChild(): MockNode | null {
     return this.childNodes[this.childNodes.length - 1] ?? null;
   }
 }
@@ -333,7 +394,9 @@ class MockElement extends MockNode {
   }
 
   get textContent() {
-    return this.childNodes.map((node) => node.textContent).join("");
+    return this.childNodes
+      .map((node) => (node as MockTextNode).textContent)
+      .join("");
   }
 
   set textContent(value: string) {
@@ -502,27 +565,11 @@ type RenderedTree = {
   rerender?: () => Promise<void>;
 };
 
-const sampleData: AiClassifierTaggerNodeData = {
-  title: "AI自動分類與標籤",
-  model: "gemini-1.5-flash",
-  inputFields: {
-    title: "source.title",
-    content: "source.content",
-  },
-  promptTemplate: "prompt template",
-  categoryAmount: 1,
-  tagAmount: 3,
-  responseFormat: {
-    type: "json",
-    schema: {
-      categories: "array[string]",
-      tags: "array[string]",
-    },
-  },
-  outputFields: {
-    categories: "array[string]",
-    tags: "array[string]",
-  },
+const sampleData: AiTitleGenerationNodeData = {
+  title: "AI 文章標題",
+  titleStyle: "seo",
+  titleTemperature: 0.5,
+  titleKeywords: "",
 };
 
 function installDomGlobals() {
@@ -538,29 +585,66 @@ function installDomGlobals() {
     MouseEvent?: typeof MockMouseEvent;
   };
 
-  globalObject.window = mockWindow;
-  globalObject.document = mockWindow.document;
+  globalObject.window = mockWindow as unknown as Window &
+    typeof globalThis &
+    MockWindow;
+  globalObject.document = mockWindow.document as unknown as Document &
+    typeof globalThis &
+    MockDocument;
   Object.defineProperty(globalObject, "navigator", {
     value: mockWindow.navigator,
     configurable: true,
     writable: true,
   });
-  globalObject.Node = MockNode;
-  globalObject.HTMLElement = MockElement;
-  globalObject.SVGElement = MockElement;
-  globalObject.HTMLIFrameElement = mockWindow.HTMLIFrameElement;
-  globalObject.Event = MockEvent;
-  globalObject.MouseEvent = MockMouseEvent;
-  globalObject.setTimeout = mockWindow.setTimeout;
+  globalObject.Node = MockNode as unknown as Node & {
+    new (): Node;
+    prototype: Node;
+    readonly ELEMENT_NODE: 1;
+    readonly ATTRIBUTE_NODE: 2;
+    readonly TEXT_NODE: 3;
+    readonly CDATA_SECTION_NODE: 4;
+    readonly ENTITY_REFERENCE_NODE: 5;
+  } & typeof MockNode;
+  globalObject.HTMLElement = MockElement as unknown as {
+    new (): HTMLElement;
+    prototype: HTMLElement;
+  } & typeof MockElement;
+  globalObject.SVGElement = MockElement as unknown as {
+    new (): SVGElement;
+    prototype: SVGElement;
+  } & typeof MockElement;
+  globalObject.HTMLIFrameElement = mockWindow.HTMLIFrameElement as unknown as {
+    new (): HTMLIFrameElement;
+    prototype: HTMLIFrameElement;
+  } & typeof MockWindow.prototype.HTMLIFrameElement;
+  globalObject.Event = MockEvent as unknown as {
+    new (type: string, eventInitDict?: EventInit | undefined): Event;
+    prototype: Event;
+    readonly NONE: 0;
+    readonly CAPTURING_PHASE: 1;
+    readonly AT_TARGET: 2;
+    readonly BUBBLING_PHASE: 3;
+  } & typeof MockEvent;
+  globalObject.MouseEvent = MockMouseEvent as unknown as {
+    new (type: string, eventInitDict?: MouseEventInit | undefined): MouseEvent;
+    prototype: MouseEvent;
+  } & typeof MockMouseEvent;
+  globalObject.setTimeout =
+    mockWindow.setTimeout as unknown as typeof setTimeout;
   globalObject.clearTimeout = mockWindow.clearTimeout;
-  globalObject.requestAnimationFrame = mockWindow.requestAnimationFrame;
+  globalObject.requestAnimationFrame =
+    mockWindow.requestAnimationFrame as unknown as (
+      callback: FrameRequestCallback,
+    ) => number;
   globalObject.cancelAnimationFrame = mockWindow.cancelAnimationFrame;
   globalObject.matchMedia = mockWindow.matchMedia.bind(mockWindow);
-  globalObject.IS_REACT_ACT_ENVIRONMENT = true;
+  (
+    globalObject as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT?: boolean }
+  ).IS_REACT_ACT_ENVIRONMENT = true;
 }
 
 function resetDomGlobals() {
-  updateAiClassifierTaggerNodeData.mockClear();
+  updateAiTitleGenerationNodeData.mockClear();
   setNodeFieldError.mockClear();
   clearNodeFieldErrors.mockClear();
   for (const key of Object.keys(nodeFieldErrors)) {
@@ -629,56 +713,39 @@ function findAllByTagName(node: MockNode, tagName: string): MockElement[] {
   return matches;
 }
 
-async function renderClassifierTaggerSettings(): Promise<RenderedTree> {
-  const container = document.createElement("div") as MockElement;
-  const root = createRoot(container);
+async function renderTitleGenerationSettings(
+  data = sampleData,
+): Promise<RenderedTree> {
+  const container = document.createElement("div") as unknown as MockElement;
+  const root = createRoot(container as unknown as Element | DocumentFragment);
 
-  const { default: AiClassifierTaggerNodeSetting } =
-    await import("@/app/[workflow-builder]/components/node-settings/ai-classifier-tagger-node-setting");
+  const { default: AiTitleGenerationNodeSetting } =
+    await import("@/app/[workflow-builder]/components/node-settings/ai-title-generation-node-setting");
 
   await act(async () => {
     root.render(
-      <AiClassifierTaggerNodeSetting
-        nodeId="aiClassifierTagger-node"
-        data={sampleData}
-      />,
+      <AiTitleGenerationNodeSetting nodeId="aiTitle-node" data={data} />,
     );
   });
 
   return { container, root };
 }
 
-async function renderControlledClassifierTaggerSettings(): Promise<RenderedTree> {
-  const container = document.createElement("div") as MockElement;
-  const root = createRoot(container);
+async function renderControlledTitleGenerationSettings(): Promise<RenderedTree> {
+  const container = document.createElement("div") as unknown as MockElement;
+  const root = createRoot(container as unknown as Element | DocumentFragment);
 
-  const { default: AiClassifierTaggerNodeSetting } =
-    await import("@/app/[workflow-builder]/components/node-settings/ai-classifier-tagger-node-setting");
+  const { default: AiTitleGenerationNodeSetting } =
+    await import("@/app/[workflow-builder]/components/node-settings/ai-title-generation-node-setting");
 
   const ControlledHarness = () => {
     const [data, setData] = useState(sampleData);
 
     applyNodeUpdate = (nextData) => {
-      setData((current) => ({
-        ...current,
-        ...nextData,
-        inputFields: nextData.inputFields
-          ? {
-              ...current.inputFields,
-              ...nextData.inputFields,
-            }
-          : current.inputFields,
-        responseFormat: nextData.responseFormat ?? current.responseFormat,
-        outputFields: nextData.outputFields ?? current.outputFields,
-      }));
+      setData((current) => ({ ...current, ...nextData }));
     };
 
-    return (
-      <AiClassifierTaggerNodeSetting
-        nodeId="aiClassifierTagger-node"
-        data={data}
-      />
-    );
+    return <AiTitleGenerationNodeSetting nodeId="aiTitle-node" data={data} />;
   };
 
   const rerender = async () => {
@@ -692,7 +759,7 @@ async function renderControlledClassifierTaggerSettings(): Promise<RenderedTree>
   return { container, root, rerender };
 }
 
-describe("ai classifier tagger node setting", () => {
+describe("ai title generation node setting", () => {
   beforeEach(() => {
     installDomGlobals();
     resetDomGlobals();
@@ -703,157 +770,141 @@ describe("ai classifier tagger node setting", () => {
     restoreDomGlobals();
   });
 
-  it("renders and updates the dedicated aiClassifierTagger settings panel", async () => {
-    const { container, root } = await renderClassifierTaggerSettings();
+  it("renders the dedicated aiTitle settings panel with correct sections", async () => {
+    const { container } = await renderTitleGenerationSettings();
 
-    expect(container.textContent).toContain("進階指令（User Prompt）");
-    expect(container.textContent).toContain("產生分類數量");
-    expect(container.textContent).toContain("產生標籤數量");
-    expect(container.textContent).not.toContain("responseFormat");
-    expect(container.textContent).not.toContain("outputFields");
-
-    const textareas = findAllByTagName(container, "textarea");
-    const inputs = findAllByTagName(container, "input");
-
-    expect(textareas).toHaveLength(1);
-    expect(inputs).toHaveLength(2);
-
-    const [categoryInput, tagInput] = inputs;
-    const promptInput = textareas[0];
-
-    expect(categoryInput).not.toBeNull();
-    expect(tagInput).not.toBeNull();
-    expect(promptInput).not.toBeNull();
-    expect((categoryInput as HTMLInputElement).value).toBe("1");
-    expect((tagInput as HTMLInputElement).value).toBe("3");
-
-    act(() => {
-      promptInput.value = "updated prompt";
-      promptInput.dispatchEvent(new MockEvent("input", { bubbles: true }));
-    });
-
-    expect(updateAiClassifierTaggerNodeData).toHaveBeenNthCalledWith(
-      1,
-      "aiClassifierTagger-node",
-      {
-        promptTemplate: "updated prompt",
-      },
-    );
-
-    act(() => {
-      categoryInput.value = "2";
-      categoryInput.dispatchEvent(new MockEvent("input", { bubbles: true }));
-    });
-
-    expect(updateAiClassifierTaggerNodeData).toHaveBeenNthCalledWith(
-      2,
-      "aiClassifierTagger-node",
-      {
-        categoryAmount: 2,
-      },
-    );
-
-    act(() => {
-      tagInput.value = "5";
-      tagInput.dispatchEvent(new MockEvent("input", { bubbles: true }));
-    });
-
-    expect(updateAiClassifierTaggerNodeData).toHaveBeenNthCalledWith(
-      3,
-      "aiClassifierTagger-node",
-      {
-        tagAmount: 5,
-      },
-    );
-
-    act(() => {
-      categoryInput.value = "-1";
-      categoryInput.dispatchEvent(new MockEvent("input", { bubbles: true }));
-    });
-
-    expect(updateAiClassifierTaggerNodeData).toHaveBeenCalledTimes(3);
-    expect(setNodeFieldError).toHaveBeenCalledWith(
-      "aiClassifierTagger-node",
-      "categoryAmount",
-      "請輸入 1-3 的數字",
-    );
-
-    act(() => {
-      categoryInput.value = "1.5";
-      categoryInput.dispatchEvent(new MockEvent("input", { bubbles: true }));
-    });
-
-    expect(updateAiClassifierTaggerNodeData).toHaveBeenCalledTimes(3);
-    expect(setNodeFieldError).toHaveBeenCalledWith(
-      "aiClassifierTagger-node",
-      "categoryAmount",
-      "請輸入 1-3 的數字",
-    );
-
-    act(() => {
-      categoryInput.value = "";
-      categoryInput.dispatchEvent(new MockEvent("input", { bubbles: true }));
-    });
-
-    expect(updateAiClassifierTaggerNodeData).toHaveBeenCalledTimes(3);
-    expect(container.textContent).toContain("請輸入 1-3 的數字");
-
-    act(() => {
-      root.unmount();
-    });
+    expect(container.textContent).toContain("標題風格選擇");
+    expect(container.textContent).toContain("創意溫度控制");
+    expect(container.textContent).toContain("SEO 強制關鍵字");
+    expect(container.textContent).not.toContain("titleStyle");
+    expect(container.textContent).not.toContain("titleTemperature");
+    expect(container.textContent).not.toContain("titleKeywords");
   });
 
-  it("renders the dedicated settings panel from the sidebar", async () => {
-    mockStoreState.nodes = [
+  it("shows the current temperature value", async () => {
+    const { container } = await renderTitleGenerationSettings({
+      ...sampleData,
+      titleTemperature: 0.7,
+    });
+
+    expect(container.textContent).toContain("0.7");
+  });
+
+  it("updates titleTemperature when slider value changes", async () => {
+    const { container } = await renderControlledTitleGenerationSettings();
+
+    const inputs = findAllByTagName(container, "input");
+    const rangeInput = inputs.find(
+      (el) => el.getAttribute("type") === "range" || el.type === "range",
+    );
+
+    expect(rangeInput).toBeDefined();
+
+    act(() => {
+      if (rangeInput) {
+        rangeInput.value = "0.8";
+        rangeInput.dispatchEvent(new MockEvent("input", { bubbles: true }));
+      }
+    });
+
+    expect(updateAiTitleGenerationNodeData).toHaveBeenCalledWith(
+      "aiTitle-node",
       {
-        id: "aiClassifierTagger-node",
-        type: "aiClassifierTagger",
-        data: sampleData,
+        titleTemperature: 0.8,
       },
-    ];
-    mockStoreState.selectedNodeId = "aiClassifierTagger-node";
+    );
+  });
 
-    const { default: NodeSettingSidebar } =
-      await import("@/app/[workflow-builder]/components/node-setting-sidebar");
+  it("updates titleKeywords when input changes with valid value", async () => {
+    const { container } = await renderControlledTitleGenerationSettings();
 
-    const container = document.createElement("div") as MockElement;
-    const root = createRoot(container);
+    const inputs = findAllByTagName(container, "input");
+    const keywordsInput = inputs.find(
+      (el) => el.getAttribute("placeholder") === "請輸入關鍵字",
+    );
+
+    expect(keywordsInput).toBeDefined();
+
+    act(() => {
+      if (keywordsInput) {
+        keywordsInput.value = "AI,新聞";
+        keywordsInput.dispatchEvent(new MockEvent("input", { bubbles: true }));
+      }
+    });
+
+    expect(updateAiTitleGenerationNodeData).toHaveBeenCalledWith(
+      "aiTitle-node",
+      {
+        titleKeywords: "AI,新聞",
+      },
+    );
+    expect(setNodeFieldError).toHaveBeenCalledWith(
+      "aiTitle-node",
+      "titleKeywords",
+      null,
+    );
+  });
+
+  it("shows error and blocks store update when keywords exceed 3", async () => {
+    const { container } = await renderControlledTitleGenerationSettings();
+
+    const inputs = findAllByTagName(container, "input");
+    const keywordsInput = inputs.find(
+      (el) => el.getAttribute("placeholder") === "請輸入關鍵字",
+    );
+
+    act(() => {
+      if (keywordsInput) {
+        keywordsInput.value = "AI,新聞,ETF,台股";
+        keywordsInput.dispatchEvent(new MockEvent("input", { bubbles: true }));
+      }
+    });
+
+    expect(setNodeFieldError).toHaveBeenCalledWith(
+      "aiTitle-node",
+      "titleKeywords",
+      "關鍵字限輸入1-3個",
+    );
+    expect(container.textContent).toContain("關鍵字限輸入1-3個");
+
+    const callsWithData = updateAiTitleGenerationNodeData.mock.calls.filter(
+      (call) => "titleKeywords" in call[1],
+    );
+    expect(callsWithData).toHaveLength(0);
+  });
+
+  it("clears node field errors on unmount", async () => {
+    const { root } = await renderTitleGenerationSettings();
 
     await act(async () => {
-      root.render(
-        <SidebarProvider defaultOpen>
-          <NodeSettingSidebar />
-        </SidebarProvider>,
-      );
-    });
-
-    expect(container.textContent).toContain("AI自動分類與標籤");
-
-    act(() => {
       root.unmount();
     });
+
+    expect(clearNodeFieldErrors).toHaveBeenCalledWith("aiTitle-node");
   });
 
-  it("keeps the count input cleared while editing before a valid integer is committed", async () => {
-    const { container, root, rerender } =
-      await renderControlledClassifierTaggerSettings();
+  it("sets field error in store on mount when data has invalid keywords", async () => {
+    const dataWithInvalidKeywords: AiTitleGenerationNodeData = {
+      ...sampleData,
+      titleKeywords: "一,二,三,四",
+    };
 
-    const inputs = findAllByTagName(container, "input");
-    const categoryInput = inputs[0];
+    await renderTitleGenerationSettings(dataWithInvalidKeywords);
 
-    expect((categoryInput as unknown as HTMLInputElement).value).toBe("1");
+    expect(setNodeFieldError).toHaveBeenCalledWith(
+      "aiTitle-node",
+      "titleKeywords",
+      "關鍵字限輸入1-3個",
+    );
+  });
 
-    act(() => {
-      categoryInput.value = "";
-      categoryInput.dispatchEvent(new MockEvent("input", { bubbles: true }));
-    });
+  it("does not set field error in store on mount when keywords are empty", async () => {
+    await renderTitleGenerationSettings({ ...sampleData, titleKeywords: "" });
 
-    await rerender?.();
-
-    expect((categoryInput as unknown as HTMLInputElement).value).toBe("");
-
-    act(() => {
-      root.unmount();
-    });
+    expect(setNodeFieldError).toHaveBeenCalledWith(
+      "aiTitle-node",
+      "titleKeywords",
+      null,
+    );
   });
 });

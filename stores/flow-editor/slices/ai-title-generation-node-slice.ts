@@ -1,29 +1,26 @@
 import type { Node } from "@xyflow/react";
 import type { StateCreator } from "zustand";
 
-import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
+import type { AiTitleGenerationNodeData } from "@/components/flow/nodes/ai-title-generation-node";
 import { generateId } from "@/utils/generate-id";
 
 import { NODE_OFFSET_STEP } from "../constants";
 import type { AiTitleGenerationNodeSlice, NodesStore } from "../types";
 
-export const createAiTitleGenerationNodeData = (): AiCallNodeData => ({
+export const createAiTitleGenerationNodeData = (): AiTitleGenerationNodeData => ({
   title: "AI 文章標題",
-  model: "gemini-1.5-flash",
-  inputs: { title: true, content: true, summary: false },
-  outputFormat: "JSON",
-  promptTemplate:
-    "請閱讀新聞內容並產生 3 個可用於發布的中文新聞標題，請回傳 JSON。",
-  cmsField: "title",
-  testInput: "",
+  titleStyle: "seo",
+  titleTemperature: 0.5,
+  titleKeywords: "",
 });
 
 export const createAiTitleGenerationNode = (
   offset: number,
-): Node<AiCallNodeData, "aiCall"> => ({
+): Node<AiTitleGenerationNodeData, "aiTitle"> => ({
   id: generateId(),
-  type: "aiCall",
+  type: "aiTitle",
   position: { x: offset, y: offset },
+  measured: { width: 240, height: 62 },
   data: createAiTitleGenerationNodeData(),
 });
 
@@ -51,7 +48,7 @@ export const createAiTitleGenerationNodeSlice: StateCreator<
           ? {
               ...node,
               data: {
-                ...(node.data as AiCallNodeData),
+                ...(node.data as AiTitleGenerationNodeData),
                 ...data,
               },
             }

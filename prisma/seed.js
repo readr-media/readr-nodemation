@@ -255,22 +255,15 @@ const demoTitleGenerationNodes = JSON.stringify([
     },
   },
   {
-    id: "title-aiCall-node",
-    type: "aiCall",
+    id: "title-aiTitle-node",
+    type: "aiTitle",
     position: { x: 360, y: 160 },
+    measured: { width: 240, height: 62 },
     data: {
       title: "AI 文章標題",
-      model: "gemini-1.5-flash",
-      inputs: {
-        title: true,
-        content: true,
-        summary: false,
-      },
-      outputFormat: "JSON",
-      promptTemplate:
-        "請閱讀新聞內容並產生 3 個可用於發布的中文新聞標題，請回傳 JSON。",
-      cmsField: "title",
-      testInput: "",
+      titleStyle: "seo",
+      titleTemperature: 0.5,
+      titleKeywords: "",
     },
   },
   {
@@ -300,13 +293,13 @@ const demoTitleGenerationNodes = JSON.stringify([
 
 const demoTitleGenerationEdges = JSON.stringify([
   {
-    id: "title-cmsInput-node->title-aiCall-node",
+    id: "title-cmsInput-node->title-aiTitle-node",
     source: "title-cmsInput-node",
-    target: "title-aiCall-node",
+    target: "title-aiTitle-node",
   },
   {
-    id: "title-aiCall-node->title-cmsOutput-node",
-    source: "title-aiCall-node",
+    id: "title-aiTitle-node->title-cmsOutput-node",
+    source: "title-aiTitle-node",
     target: "title-cmsOutput-node",
   },
 ]);

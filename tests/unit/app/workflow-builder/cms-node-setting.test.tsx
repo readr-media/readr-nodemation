@@ -14,9 +14,8 @@ const mockStoreState = {
 
 describe("cms node setting", () => {
   it("renders the approved cmsInput settings UI", async () => {
-    const { default: CmsNodeSetting } = await import(
-      "@/app/[workflow-builder]/components/node-settings/cms-node-setting"
-    );
+    const { default: CmsNodeSetting } =
+      await import("@/app/[workflow-builder]/components/node-settings/cms-node-setting");
 
     const markup = renderToStaticMarkup(
       <CmsNodeSetting
@@ -47,8 +46,8 @@ describe("cms node setting", () => {
       />,
     );
 
-    expect(markup).toContain("來源CMS名稱");
-    expect(markup).toContain("來源CMS List");
+    expect(markup).toContain("模組說明");
+    expect(markup).toContain("輸入 CMS List");
     expect(markup).toContain("文章ID");
     expect(markup).toContain("文章slug");
     expect(markup).toContain('value="Readr CMS"');

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { moduleGroups } from "../../../../../app/[workflow-builder]/components/module-list-config";
+import { moduleGroups } from "@/app/[workflow-builder]/components/module-list-config";
 
 describe("module list config", () => {
   it("does not include the deprecated content module group", () => {

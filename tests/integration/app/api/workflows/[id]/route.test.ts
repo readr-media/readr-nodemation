@@ -1,26 +1,29 @@
-import { Prisma } from "@prisma/client";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DELETE, PATCH, PUT } from "@/app/api/workflows/[id]/route";
 
-const { prisma } = vi.hoisted(() => ({
+const { prisma, getActiveUserId } = vi.hoisted(() => ({
   prisma: {
     workflow: {
-      delete: vi.fn(),
-      update: vi.fn(),
+      deleteMany: vi.fn(),
+      updateMany: vi.fn(),
     },
   },
+  getActiveUserId: vi.fn(),
 }));
 
 vi.mock("@/lib/prisma", () => ({ prisma }));
+vi.mock("@/lib/active-user", () => ({ getActiveUserId }));
 
 describe("workflow resource route", () => {
+  beforeEach(() => {
+    prisma.workflow.deleteMany.mockReset();
+    prisma.workflow.updateMany.mockReset();
+    getActiveUserId.mockReset();
+    getActiveUserId.mockResolvedValue("user-1");
+  });
+
   it("returns 404 when deleting a workflow that does not exist", async () => {
-    prisma.workflow.delete.mockRejectedValueOnce(
-      new Prisma.PrismaClientKnownRequestError("Workflow not found", {
-        code: "P2025",
-        clientVersion: "test",
-      }),
-    );
+    prisma.workflow.deleteMany.mockResolvedValueOnce({ count: 0 });
 
     const response = await DELETE(
       new Request("http://localhost/api/workflows/missing", {
@@ -36,7 +39,7 @@ describe("workflow resource route", () => {
   });
 
   it("returns 200 with deleted workflow id when deletion succeeds", async () => {
-    prisma.workflow.delete.mockResolvedValueOnce({ id: "wf-1" });
+    prisma.workflow.deleteMany.mockResolvedValueOnce({ count: 1 });
 
     const response = await DELETE(
       new Request("http://localhost/api/workflows/wf-1", {
@@ -45,8 +48,8 @@ describe("workflow resource route", () => {
       { params: Promise.resolve({ id: "wf-1" }) },
     );
 
-    expect(prisma.workflow.delete).toHaveBeenCalledWith({
-      where: { id: "wf-1" },
+    expect(prisma.workflow.deleteMany).toHaveBeenCalledWith({
+      where: { id: "wf-1", user_id: "user-1" },
     });
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toMatchObject({
@@ -55,17 +58,7 @@ describe("workflow resource route", () => {
   });
 
   it("updates a workflow with a complete payload via PUT", async () => {
-    prisma.workflow.update.mockResolvedValueOnce({
-      id: "wf-1",
-      name: "Updated workflow",
-      description: "Updated description",
-      nodes: '[{"id":"n1"}]',
-      edges: "[]",
-      status: "published",
-      cron_expression: "0 8 * * *",
-      next_run_at: new Date("2026-03-11T08:00:00.000Z"),
-      last_run_at: null,
-    });
+    prisma.workflow.updateMany.mockResolvedValueOnce({ count: 1 });
 
     const response = await PUT(
       new Request("http://localhost/api/workflows/wf-1", {
@@ -84,8 +77,8 @@ describe("workflow resource route", () => {
       { params: Promise.resolve({ id: "wf-1" }) },
     );
 
-    expect(prisma.workflow.update).toHaveBeenCalledWith({
-      where: { id: "wf-1" },
+    expect(prisma.workflow.updateMany).toHaveBeenCalledWith({
+      where: { id: "wf-1", user_id: "user-1" },
       data: {
         name: "Updated workflow",
         description: "Updated description",
@@ -94,7 +87,6 @@ describe("workflow resource route", () => {
         status: "published",
         cron_expression: "0 8 * * *",
         next_run_at: new Date("2026-03-11T08:00:00.000Z"),
-        last_run_at: null,
       },
     });
     expect(response.status).toBe(200);
@@ -117,9 +109,7 @@ describe("workflow resource route", () => {
   });
 
   it("clears omitted nullable fields via PUT full replacement", async () => {
-    prisma.workflow.update.mockResolvedValueOnce({
-      id: "wf-1",
-    });
+    prisma.workflow.updateMany.mockResolvedValueOnce({ count: 1 });
 
     const response = await PUT(
       new Request("http://localhost/api/workflows/wf-1", {
@@ -135,8 +125,8 @@ describe("workflow resource route", () => {
       { params: Promise.resolve({ id: "wf-1" }) },
     );
 
-    expect(prisma.workflow.update).toHaveBeenCalledWith({
-      where: { id: "wf-1" },
+    expect(prisma.workflow.updateMany).toHaveBeenCalledWith({
+      where: { id: "wf-1", user_id: "user-1" },
       data: {
         name: "Updated workflow",
         description: null,
@@ -144,8 +134,6 @@ describe("workflow resource route", () => {
         edges: "[]",
         status: "published",
         cron_expression: null,
-        next_run_at: null,
-        last_run_at: null,
       },
     });
     expect(response.status).toBe(200);
@@ -168,12 +156,7 @@ describe("workflow resource route", () => {
   });
 
   it("returns 404 when PUT updates a workflow that does not exist", async () => {
-    prisma.workflow.update.mockRejectedValueOnce(
-      new Prisma.PrismaClientKnownRequestError("Workflow not found", {
-        code: "P2025",
-        clientVersion: "test",
-      }),
-    );
+    prisma.workflow.updateMany.mockResolvedValueOnce({ count: 0 });
 
     const response = await PUT(
       new Request("http://localhost/api/workflows/missing", {
@@ -196,7 +179,7 @@ describe("workflow resource route", () => {
   });
 
   it("returns 500 when PUT update fails unexpectedly", async () => {
-    prisma.workflow.update.mockRejectedValueOnce(new Error("boom"));
+    prisma.workflow.updateMany.mockRejectedValueOnce(new Error("boom"));
 
     const response = await PUT(
       new Request("http://localhost/api/workflows/wf-1", {
@@ -219,14 +202,14 @@ describe("workflow resource route", () => {
   });
 
   it("awaits promised route params before issuing a PUT update", async () => {
-    prisma.workflow.update.mockClear();
+    prisma.workflow.updateMany.mockClear();
 
     let resolveParams: ((value: { id: string }) => void) | undefined;
     const params = new Promise<{ id: string }>((resolve) => {
       resolveParams = resolve;
     });
 
-    prisma.workflow.update.mockResolvedValueOnce({ id: "wf-async" });
+    prisma.workflow.updateMany.mockResolvedValueOnce({ count: 1 });
 
     const responsePromise = PUT(
       new Request("http://localhost/api/workflows/wf-async", {
@@ -243,14 +226,14 @@ describe("workflow resource route", () => {
     );
 
     await Promise.resolve();
-    expect(prisma.workflow.update).not.toHaveBeenCalled();
+    expect(prisma.workflow.updateMany).not.toHaveBeenCalled();
 
     resolveParams?.({ id: "wf-async" });
 
     const response = await responsePromise;
 
-    expect(prisma.workflow.update).toHaveBeenCalledWith({
-      where: { id: "wf-async" },
+    expect(prisma.workflow.updateMany).toHaveBeenCalledWith({
+      where: { id: "wf-async", user_id: "user-1" },
       data: {
         name: "Updated workflow",
         description: null,
@@ -258,25 +241,13 @@ describe("workflow resource route", () => {
         edges: "[]",
         status: "draft",
         cron_expression: null,
-        next_run_at: null,
-        last_run_at: null,
       },
     });
     expect(response.status).toBe(200);
   });
 
   it("updates only provided workflow fields via PATCH", async () => {
-    prisma.workflow.update.mockResolvedValueOnce({
-      id: "wf-1",
-      name: "Renamed",
-      description: "Existing description",
-      nodes: "[]",
-      edges: "[]",
-      status: "draft",
-      cron_expression: null,
-      next_run_at: null,
-      last_run_at: null,
-    });
+    prisma.workflow.updateMany.mockResolvedValueOnce({ count: 1 });
 
     const response = await PATCH(
       new Request("http://localhost/api/workflows/wf-1", {
@@ -290,8 +261,8 @@ describe("workflow resource route", () => {
       { params: Promise.resolve({ id: "wf-1" }) },
     );
 
-    expect(prisma.workflow.update).toHaveBeenCalledWith({
-      where: { id: "wf-1" },
+    expect(prisma.workflow.updateMany).toHaveBeenCalledWith({
+      where: { id: "wf-1", user_id: "user-1" },
       data: {
         name: "Renamed",
         status: "draft",
@@ -316,8 +287,8 @@ describe("workflow resource route", () => {
     });
   });
 
-  it("rejects PATCH when next_run_at is null", async () => {
-    prisma.workflow.update.mockClear();
+  it("accepts PATCH when next_run_at is null and clears the value", async () => {
+    prisma.workflow.updateMany.mockResolvedValueOnce({ count: 1 });
 
     const response = await PATCH(
       new Request("http://localhost/api/workflows/wf-1", {
@@ -328,15 +299,15 @@ describe("workflow resource route", () => {
       { params: Promise.resolve({ id: "wf-1" }) },
     );
 
-    expect(prisma.workflow.update).not.toHaveBeenCalled();
-    expect(response.status).toBe(400);
-    await expect(response.json()).resolves.toMatchObject({
-      error: "Invalid payload",
+    expect(prisma.workflow.updateMany).toHaveBeenCalledWith({
+      where: { id: "wf-1", user_id: "user-1" },
+      data: { next_run_at: null },
     });
+    expect(response.status).toBe(200);
   });
 
-  it("rejects PATCH when last_run_at is null", async () => {
-    prisma.workflow.update.mockClear();
+  it("accepts PATCH when last_run_at is null and clears the value", async () => {
+    prisma.workflow.updateMany.mockResolvedValueOnce({ count: 1 });
 
     const response = await PATCH(
       new Request("http://localhost/api/workflows/wf-1", {
@@ -347,20 +318,15 @@ describe("workflow resource route", () => {
       { params: Promise.resolve({ id: "wf-1" }) },
     );
 
-    expect(prisma.workflow.update).not.toHaveBeenCalled();
-    expect(response.status).toBe(400);
-    await expect(response.json()).resolves.toMatchObject({
-      error: "Invalid payload",
+    expect(prisma.workflow.updateMany).toHaveBeenCalledWith({
+      where: { id: "wf-1", user_id: "user-1" },
+      data: { last_run_at: null },
     });
+    expect(response.status).toBe(200);
   });
 
   it("returns 404 when PATCH updates a workflow that does not exist", async () => {
-    prisma.workflow.update.mockRejectedValueOnce(
-      new Prisma.PrismaClientKnownRequestError("Workflow not found", {
-        code: "P2025",
-        clientVersion: "test",
-      }),
-    );
+    prisma.workflow.updateMany.mockResolvedValueOnce({ count: 0 });
 
     const response = await PATCH(
       new Request("http://localhost/api/workflows/missing", {
@@ -380,7 +346,7 @@ describe("workflow resource route", () => {
   });
 
   it("returns 500 when PATCH update fails unexpectedly", async () => {
-    prisma.workflow.update.mockRejectedValueOnce(new Error("boom"));
+    prisma.workflow.updateMany.mockRejectedValueOnce(new Error("boom"));
 
     const response = await PATCH(
       new Request("http://localhost/api/workflows/wf-1", {
@@ -417,7 +383,7 @@ describe("workflow resource route", () => {
   });
 
   it("serializes array and object workflow fields consistently for updates", async () => {
-    prisma.workflow.update.mockResolvedValueOnce({ id: "wf-1" });
+    prisma.workflow.updateMany.mockResolvedValueOnce({ count: 1 });
 
     await PATCH(
       new Request("http://localhost/api/workflows/wf-1", {
@@ -431,8 +397,8 @@ describe("workflow resource route", () => {
       { params: Promise.resolve({ id: "wf-1" }) },
     );
 
-    expect(prisma.workflow.update).toHaveBeenCalledWith({
-      where: { id: "wf-1" },
+    expect(prisma.workflow.updateMany).toHaveBeenCalledWith({
+      where: { id: "wf-1", user_id: "user-1" },
       data: {
         nodes: '[{"id":"n1"}]',
         edges: '[{"id":"e1","source":"n1","target":"n2"}]',

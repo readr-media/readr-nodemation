@@ -441,7 +441,7 @@ const demoPodcastNodes = JSON.stringify([
       title: "輸出音檔到 CMS",
       cmsConfigId: "",
       cmsName: "Readr CMS",
-      cmsList: "Audio Files",
+      cmsList: "Audio File",
       cmsAudioFileIds: "",
       mappings: [
         {

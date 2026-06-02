@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { appToast } from "@/components/ui/sonner";
 import { useFlowJSON } from "@/hooks/use-flow-json";
+import { buildPersistPayload } from "@/lib/build-persist-payload";
 import { buildSchedulePayload } from "@/lib/build-schedule-payload";
 import { hasWorkflowInputErrors } from "@/lib/workflow-node-validation";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
@@ -88,14 +89,17 @@ export default function WorkflowBuilderHeader() {
   );
   const workflowStatus = useWorkflowEditorStore((state) => state.status);
   const setWorkflowStatus = useWorkflowEditorStore((state) => state.setStatus);
+  // "Save" only persists the form state, so a workflow with node errors can
+  // still be saved as a draft for the user to come back and fix later.
+  // "Run" sends the workflow JSON to the backend for execution, so input
+  // errors must be resolved first.
   const canPersistWorkflow = useMemo(
     () =>
       workflowStatus !== "template" &&
       workflowName.trim().length > 0 &&
-      !hasInputErrors &&
       !isSaving &&
       !isRunning,
-    [hasInputErrors, workflowName, workflowStatus, isRunning, isSaving],
+    [workflowName, workflowStatus, isRunning, isSaving],
   );
   const canRunWorkflow = useMemo(
     () =>
@@ -114,34 +118,43 @@ export default function WorkflowBuilderHeader() {
     }
   }, [router]);
 
+  // "save" only persists workflow form state — preserves the current status
+  // and schedule, never triggers execution. "run" promotes the workflow to
+  // `published` and overrides next_run_at to NOW so the worker picks it up
+  // on its next poll tick; the cron schedule (if any) is preserved and will
+  // continue firing after this manual run.
   const handlePersistWorkflow = useCallback(
-    async (targetStatus: "published" | "running") => {
+    async (action: "save" | "run") => {
       if (!workflowName.trim()) {
         appToast.error("請先輸入工作流名稱");
         return;
       }
 
-      if (hasInputErrors) {
-        appToast.error("請修正節點設定錯誤後再儲存");
+      if (action === "run" && hasInputErrors) {
+        appToast.error("請修正節點設定錯誤後再執行");
         return;
       }
 
       const mode = workflowId ? "update" : "save-as-new";
-      if (targetStatus === "published") {
+      if (action === "save") {
         setIsSaving(true);
       } else {
         setIsRunning(true);
       }
 
       try {
-        const { cronExpression, nextRunAt } = buildSchedulePayload();
+        const { cronExpression, nextRunAt: scheduledNextRunAt } =
+          buildSchedulePayload();
+        const { status: nextStatus, nextRunAt } = buildPersistPayload(action, {
+          scheduledNextRunAt,
+        });
 
         const result = await saveWorkflow({
           mode,
           workflowId,
           name: workflowName,
           description: workflowDescription,
-          status: targetStatus,
+          status: nextStatus,
           nodes,
           edges,
           cronExpression,
@@ -154,21 +167,21 @@ export default function WorkflowBuilderHeader() {
           router.replace(`/workflow-builder?workflowId=${result.workflowId}`);
         }
 
-        setWorkflowStatus(targetStatus);
+        setWorkflowStatus(nextStatus);
         appToast.success(
-          targetStatus === "published" ? "工作流已儲存" : "工作流已執行",
+          action === "save" ? "工作流已儲存" : "工作流已送出執行",
         );
       } catch (error) {
         console.error(error);
         appToast.error(
-          targetStatus === "running"
-            ? "工作流執行失敗，請檢查錯誤節點"
+          action === "run"
+            ? "工作流執行失敗，請稍後再試"
             : error instanceof Error
               ? error.message
               : "工作流儲存失敗，請稍後再試",
         );
       } finally {
-        if (targetStatus === "published") {
+        if (action === "save") {
           setIsSaving(false);
         } else {
           setIsRunning(false);
@@ -247,7 +260,7 @@ export default function WorkflowBuilderHeader() {
           <Button
             className="border-green-500 text-green-700 hover:bg-green-100 disabled:bg-gray-300 disabled:text-gray-600"
             disabled={!canPersistWorkflow}
-            onClick={() => void handlePersistWorkflow("published")}
+            onClick={() => void handlePersistWorkflow("save")}
           >
             <SaveIcon aria-hidden="true" />
             {isSaving ? "儲存中..." : "儲存"}
@@ -255,7 +268,7 @@ export default function WorkflowBuilderHeader() {
           <Button
             className="border-green-500 bg-green-500 text-white hover:bg-green-700 disabled:bg-gray-300 disabled:text-gray-600"
             disabled={!canRunWorkflow}
-            onClick={() => void handlePersistWorkflow("running")}
+            onClick={() => void handlePersistWorkflow("run")}
           >
             <PlayIcon aria-hidden="true" />
             {isRunning ? "執行中..." : "執行"}

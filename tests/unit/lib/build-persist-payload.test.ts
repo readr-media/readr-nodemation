@@ -6,30 +6,38 @@ const FIXED_NOW = new Date("2026-06-02T05:00:00.000Z");
 const fixedNow = () => FIXED_NOW;
 
 describe("buildPersistPayload — save action", () => {
-  it("preserves a draft workflow's status and schedule", () => {
+  it("sets status to draft on save (new workflow)", () => {
     const out = buildPersistPayload("save", {
-      currentStatus: "draft",
       scheduledNextRunAt: null,
       now: fixedNow,
     });
     expect(out).toEqual({ status: "draft", nextRunAt: null });
   });
 
-  it("does NOT promote a published workflow back to draft (preserves schedule)", () => {
+  it("demotes the workflow to draft on save (pauses any active schedule)", () => {
+    // Per PRD: 儲存 is a pure form save and should never leave the workflow
+    // in a worker-eligible state. Even if it was already published with a
+    // future scheduled run, saving demotes it back to draft.
     const out = buildPersistPayload("save", {
-      currentStatus: "published",
       scheduledNextRunAt: "2026-06-03T00:00:00.000Z",
       now: fixedNow,
     });
-    expect(out).toEqual({
-      status: "published",
-      nextRunAt: "2026-06-03T00:00:00.000Z",
+    expect(out.status).toBe("draft");
+  });
+
+  it("preserves the schedule's nextRunAt on save (kept in sync with schedule UI)", () => {
+    // status='draft' already makes the row worker-ineligible regardless of
+    // next_run_at; we pass through whatever the schedule store computed so
+    // the UI state stays internally consistent.
+    const out = buildPersistPayload("save", {
+      scheduledNextRunAt: "2026-06-03T00:00:00.000Z",
+      now: fixedNow,
     });
+    expect(out.nextRunAt).toBe("2026-06-03T00:00:00.000Z");
   });
 
   it("never sets next_run_at to NOW on save", () => {
     const out = buildPersistPayload("save", {
-      currentStatus: "draft",
       scheduledNextRunAt: null,
       now: fixedNow,
     });
@@ -38,9 +46,8 @@ describe("buildPersistPayload — save action", () => {
 });
 
 describe("buildPersistPayload — run action", () => {
-  it("promotes any non-template status to published", () => {
+  it("promotes the workflow to published", () => {
     const out = buildPersistPayload("run", {
-      currentStatus: "draft",
       scheduledNextRunAt: null,
       now: fixedNow,
     });
@@ -49,7 +56,6 @@ describe("buildPersistPayload — run action", () => {
 
   it("overrides next_run_at to NOW so the worker picks it up on the next tick", () => {
     const out = buildPersistPayload("run", {
-      currentStatus: "draft",
       scheduledNextRunAt: "2026-06-03T00:00:00.000Z",
       now: fixedNow,
     });
@@ -59,10 +65,8 @@ describe("buildPersistPayload — run action", () => {
 
   it("uses wall clock when no now() is injected", () => {
     const out = buildPersistPayload("run", {
-      currentStatus: "draft",
       scheduledNextRunAt: null,
     });
-    // Loose check: it's a valid ISO string close to now.
     expect(out.nextRunAt).not.toBeNull();
     const parsed = Date.parse(out.nextRunAt!);
     expect(Number.isNaN(parsed)).toBe(false);

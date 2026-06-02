@@ -4,14 +4,18 @@ export type PersistAction = "save" | "run";
 
 export type PersistPayload = {
   // Status to send to the backend.
-  // - "save" preserves the current status (draft stays draft, published stays
-  //   published — schedule keeps firing if it was already active).
-  // - "run" promotes the workflow to "published" so the worker's poll query
-  //   (`status='published' AND next_run_at <= NOW()`) can pick it up.
+  // - "save" always sets "draft" — per PRD, 儲存 is a pure form save: a
+  //   draft is never auto-run by the worker, and a previously-published
+  //   workflow is demoted to draft to pause its schedule until the user
+  //   explicitly re-runs.
+  // - "run" promotes the workflow to "published" so the worker's poll
+  //   query (`status='published' AND next_run_at <= NOW()`) can pick it up.
   status: WorkflowStatus;
   // ISO-8601 string of the next intended run.
-  // - "save" passes through whatever the schedule store computed (null when
-  //   no schedule is set).
+  // - "save" passes through whatever the schedule store computed (null
+  //   when no schedule is set). The value is harmless while status='draft'
+  //   because the worker also filters on status; preserving it means the
+  //   schedule UI state stays internally consistent.
   // - "run" forces NOW so the worker picks it up on its next poll tick;
   //   after that execution completes, MarkAsExecuted advances next_run_at
   //   based on cron_expression (so an active schedule continues firing).
@@ -19,7 +23,6 @@ export type PersistPayload = {
 };
 
 export type PersistContext = {
-  currentStatus: WorkflowStatus;
   scheduledNextRunAt: string | null;
   // Injected for deterministic testing; defaults to the wall clock.
   now?: () => Date;
@@ -34,7 +37,7 @@ export const buildPersistPayload = (
     return { status: "published", nextRunAt: now.toISOString() };
   }
   return {
-    status: ctx.currentStatus,
+    status: "draft",
     nextRunAt: ctx.scheduledNextRunAt,
   };
 };

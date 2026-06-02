@@ -146,7 +146,6 @@ export default function WorkflowBuilderHeader() {
         const { cronExpression, nextRunAt: scheduledNextRunAt } =
           buildSchedulePayload();
         const { status: nextStatus, nextRunAt } = buildPersistPayload(action, {
-          currentStatus: workflowStatus,
           scheduledNextRunAt,
         });
 
@@ -197,7 +196,6 @@ export default function WorkflowBuilderHeader() {
       setWorkflowStatus,
       workflowDescription,
       workflowId,
-      workflowStatus,
       hasInputErrors,
       workflowName,
     ],

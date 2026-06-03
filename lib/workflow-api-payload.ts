@@ -24,7 +24,10 @@ export const CreateWorkflowSchema = z
   })
   .strict();
 
-export const PutWorkflowSchema = CreateWorkflowSchema;
+export const PutWorkflowSchema = CreateWorkflowSchema.omit({
+  created_at: true,
+  updated_at: true,
+});
 
 export const PatchWorkflowSchema = PutWorkflowSchema.partial().refine(
   (value) => Object.keys(value).length > 0,

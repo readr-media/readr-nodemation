@@ -14,7 +14,10 @@ import type {
   NodesStore,
 } from "@/stores/flow-editor/types";
 
-type SliceStoreBaseState = Pick<NodesStore, "nodes" | "edges" | "selectedNodeId">;
+type SliceStoreBaseState = Pick<
+  NodesStore,
+  "nodes" | "edges" | "selectedNodeId"
+>;
 
 const createSliceStore = <TSlice extends object>(
   createSlice: (set: unknown, get: unknown, api: unknown) => TSlice,
@@ -147,7 +150,9 @@ describe("loadWorkflowIntoStores", () => {
 
     store.getState().addCmsNode();
 
-    const createdNode = getFirstNodeOrThrow(store) as NodesStore["nodes"][number];
+    const createdNode = getFirstNodeOrThrow(
+      store,
+    ) as NodesStore["nodes"][number];
 
     expect(createdNode).toMatchObject({
       type: "cmsInput",
@@ -183,13 +188,14 @@ describe("loadWorkflowIntoStores", () => {
 
     store.getState().addAiClassifierTaggerNode();
 
-    const createdNode = getFirstNodeOrThrow(store) as NodesStore["nodes"][number];
+    const createdNode = getFirstNodeOrThrow(
+      store,
+    ) as NodesStore["nodes"][number];
 
     expect(createdNode).toMatchObject({
       type: "aiClassifierTagger",
       data: {
         title: "AI自動分類與標籤",
-        model: "gemini-1.5-flash",
         inputFields: {
           title: "source.title",
           content: "source.content",
@@ -219,7 +225,9 @@ describe("loadWorkflowIntoStores", () => {
 
     store.getState().addAiTitleGenerationNode();
 
-    const createdNode = getFirstNodeOrThrow(store) as NodesStore["nodes"][number];
+    const createdNode = getFirstNodeOrThrow(
+      store,
+    ) as NodesStore["nodes"][number];
 
     expect(createdNode).toMatchObject({
       type: "aiTitle",
@@ -241,7 +249,9 @@ describe("loadWorkflowIntoStores", () => {
 
     store.getState().addCmsOutputNode();
 
-    const createdNode = getFirstNodeOrThrow(store) as NodesStore["nodes"][number];
+    const createdNode = getFirstNodeOrThrow(
+      store,
+    ) as NodesStore["nodes"][number];
 
     expect(createdNode).toMatchObject({
       type: "cmsOutput",
@@ -378,6 +388,7 @@ describe("loadWorkflowIntoStores", () => {
       fetchImpl,
       loadSnapshot,
       hydrateFromWorkflow,
+      templateId: null,
     });
 
     expect(result).toEqual({ status: "loaded" });
@@ -420,6 +431,7 @@ describe("loadWorkflowIntoStores", () => {
       fetchImpl,
       loadSnapshot,
       hydrateFromWorkflow,
+      templateId: null,
     });
 
     expect(result).toEqual({ status: "loaded" });
@@ -432,6 +444,68 @@ describe("loadWorkflowIntoStores", () => {
     expect(audioNode.data.cmsName).toBe("READr CMS");
     expect(audioNode.data.cmsList).toBe("Audio File");
     expect(audioNode.data.mode).toBe("create");
+  });
+
+  it("normalizes podcastGeneration nodes without retaining removed promptTemplate field", async () => {
+    const loadSnapshot = vi.fn();
+    const hydrateFromWorkflow = vi.fn();
+    const fetchImpl = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "podcast-workflow",
+          name: "Podcast 生成流程",
+          description: "既有流程",
+          status: "draft",
+          nodes: JSON.stringify([
+            {
+              id: "podcast-node",
+              type: "podcastGeneration",
+              position: { x: 360, y: 160 },
+              data: {
+                label: "Podcast 舊節點",
+                promptTemplate: "legacy promptTemplate",
+                prompt: "legacy prompt",
+                podcastMode: "summary",
+                podcastLength: "short",
+              },
+            },
+          ]),
+          edges: JSON.stringify([]),
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        },
+      ),
+    );
+
+    const result = await loadWorkflowIntoStores({
+      workflowId: "podcast-workflow",
+      templateId: null,
+      fetchImpl,
+      loadSnapshot,
+      hydrateFromWorkflow,
+    });
+
+    expect(result).toEqual({ status: "loaded" });
+    expect(loadSnapshot).toHaveBeenCalledWith({
+      nodes: [
+        {
+          id: "podcast-node",
+          type: "podcastGeneration",
+          position: { x: 360, y: 160 },
+          data: {
+            title: "Podcast 舊節點",
+            podcastMode: "summary",
+            podcastLength: "short",
+          },
+        },
+      ],
+      edges: [],
+    });
+    const podcastNode = loadSnapshot.mock.calls[0]?.[0]?.nodes[0];
+    expect(podcastNode.data).not.toHaveProperty("promptTemplate");
+    expect(podcastNode.data).not.toHaveProperty("prompt");
   });
 
   it("normalizes aiClassifierTagger workflow nodes before hydrating the stores", async () => {
@@ -451,7 +525,6 @@ describe("loadWorkflowIntoStores", () => {
               position: { x: 320, y: 160 },
               data: {
                 label: "舊標籤器",
-                model: "gemini-1.5-pro",
               },
             },
           ]),
@@ -481,7 +554,6 @@ describe("loadWorkflowIntoStores", () => {
           position: { x: 320, y: 160 },
           data: {
             title: "舊標籤器",
-            model: "gemini-1.5-pro",
             inputFields: {
               title: "source.title",
               content: "source.content",
@@ -517,7 +589,6 @@ describe("loadWorkflowIntoStores", () => {
           position: { x: 320, y: 160 },
           data: {
             title: "舊標籤器",
-            model: "gemini-1.5-pro",
             inputFields: {
               title: "source.title",
               content: "source.content",
@@ -592,7 +663,6 @@ describe("loadWorkflowIntoStores", () => {
           position: { x: 320, y: 160 },
           data: {
             title: "AI自動分類與標籤",
-            model: "gemini-1.5-flash",
             inputFields: {
               title: "source.title",
               content: "source.content",
@@ -619,7 +689,6 @@ describe("loadWorkflowIntoStores", () => {
           position: { x: 560, y: 160 },
           data: {
             title: "AI自動分類與標籤",
-            model: "gemini-1.5-flash",
             inputFields: {
               title: "source.title",
               content: "source.content",
@@ -655,7 +724,6 @@ describe("loadWorkflowIntoStores", () => {
           position: { x: 320, y: 160 },
           data: {
             title: "AI自動分類與標籤",
-            model: "gemini-1.5-flash",
             inputFields: {
               title: "source.title",
               content: "source.content",
@@ -682,7 +750,6 @@ describe("loadWorkflowIntoStores", () => {
           position: { x: 560, y: 160 },
           data: {
             title: "AI自動分類與標籤",
-            model: "gemini-1.5-flash",
             inputFields: {
               title: "source.title",
               content: "source.content",
@@ -724,7 +791,6 @@ describe("loadWorkflowIntoStores", () => {
               type: "aiClassifierTagger",
               position: { x: 320, y: 160 },
               data: {
-                model: "gemini-1.5-pro",
               },
             },
           ]),
@@ -754,7 +820,6 @@ describe("loadWorkflowIntoStores", () => {
           position: { x: 320, y: 160 },
           data: {
             title: "AI自動分類與標籤",
-            model: "gemini-1.5-pro",
             inputFields: {
               title: "source.title",
               content: "source.content",
@@ -790,7 +855,6 @@ describe("loadWorkflowIntoStores", () => {
           position: { x: 320, y: 160 },
           data: {
             title: "AI自動分類與標籤",
-            model: "gemini-1.5-pro",
             inputFields: {
               title: "source.title",
               content: "source.content",
@@ -847,7 +911,6 @@ describe("loadWorkflowIntoStores", () => {
               data: {
                 label: "AI 分類與標記",
                 provider: "demo-ai",
-                model: "gpt-demo",
                 prompt: "legacy prompt",
                 targetField: "{{ cms.article.content }}",
               },
@@ -927,7 +990,6 @@ describe("loadWorkflowIntoStores", () => {
           position: { x: 360, y: 160 },
           data: {
             title: "AI 分類與標記",
-            model: "gpt-demo",
             inputs: {
               title: true,
               content: true,

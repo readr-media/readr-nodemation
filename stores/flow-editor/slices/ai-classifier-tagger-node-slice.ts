@@ -10,7 +10,6 @@ import type { AiClassifierTaggerNodeSlice, NodesStore } from "../types";
 export const createAiClassifierTaggerNodeData =
   (): AiClassifierTaggerNodeData => ({
     title: "AI自動分類與標籤",
-    model: "gemini-1.5-flash",
     inputFields: {
       title: "source.title",
       content: "source.content",

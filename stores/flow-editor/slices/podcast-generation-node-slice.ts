@@ -6,8 +6,6 @@ import type { NodesStore, PodcastGenerationNodeSlice } from "../types";
 
 export type PodcastGenerationNodeData = {
   title: string;
-  model: string;
-  promptTemplate: string;
   podcastMode: "summary" | "deepDive" | "commentary" | "debate";
   podcastLength: "short" | "medium" | "long";
 };
@@ -20,8 +18,6 @@ const createPodcastGenerationNode = (
   position: { x: positionOffset, y: positionOffset },
   data: {
     title: "Podcast 生成",
-    model: "gemini-1.5-flash",
-    promptTemplate: `[基本對話規則]\n"female"開場、"male"收尾\n兩人輪流發言，每段1-3句話\n自然口語、避免直接念誦原文\n角色設定：一位主持人風格為「數據記者」，負責分析數據趨勢，一位主持人為「閱聽人代表」，負責提問與總結影響。`,
     podcastMode: "deepDive",
     podcastLength: "medium",
   },

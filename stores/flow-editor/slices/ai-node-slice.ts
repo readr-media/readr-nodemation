@@ -13,7 +13,6 @@ const createAiCallNode = (
   position: { x: positionOffset, y: positionOffset },
   data: {
     title: "呼叫 AI",
-    model: "gemini-1.5-flash",
     inputs: { title: true, content: true, summary: false },
     outputFormat: "JSON",
     promptTemplate: `請為以下新聞進行處理：\n\n標題：\${title}\n內文：\${content}`,

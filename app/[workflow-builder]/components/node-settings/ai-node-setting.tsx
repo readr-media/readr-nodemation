@@ -7,7 +7,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 
-const modelOptions = ["gemini-1.5-flash", "gemini-1.5-pro"];
 const outputOptions = ["JSON", "Text"];
 const fieldLabelClass =
   "text-sm font-medium leading-6 text-module-title tracking-tight";
@@ -71,9 +70,6 @@ const AiNodeSettings = ({
   data: AiCallNodeData;
 }) => {
   const updateNodeData = useNodesStore((state) => state.updateNodeData);
-
-  const handleModelChange = (value: string) =>
-    updateNodeData(nodeId, { model: value });
 
   const handleOutputChange = (value: string) =>
     updateNodeData(nodeId, { outputFormat: value });

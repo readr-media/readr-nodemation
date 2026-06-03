@@ -142,6 +142,7 @@ describe("workflow detail route", () => {
         cron_expression: "0 9 * * *",
         next_run_at: new Date("2026-03-26T09:00:00.000Z"),
         last_run_at: new Date("2026-03-25T09:00:00.000Z"),
+        updated_at: expect.any(Date),
       },
     });
   });
@@ -177,6 +178,7 @@ describe("workflow detail route", () => {
         nodes: '[{"id":"node-2"}]',
         edges: '[{"id":"edge-1"}]',
         cron_expression: "0 9 * * *",
+        updated_at: expect.any(Date),
       },
     });
   });

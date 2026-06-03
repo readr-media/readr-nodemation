@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils";
 
 export type AiCallNodeData = {
   title: string;
-  model: string;
   inputs: {
     title: boolean;
     content: boolean;

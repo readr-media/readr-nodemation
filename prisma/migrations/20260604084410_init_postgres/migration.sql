@@ -96,9 +96,6 @@ CREATE TABLE "WorkflowTemplate" (
 );
 
 -- CreateIndex
-CREATE INDEX "Workflow_status_idx" ON "Workflow"("status");
-
--- CreateIndex
 CREATE INDEX "Workflow_next_run_at_idx" ON "Workflow"("next_run_at");
 
 -- CreateIndex

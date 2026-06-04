@@ -33,7 +33,6 @@ model Workflow {
   user            User?    @relation(fields: [user_id], references: [id])
   jobs            Job[]
 
-  @@index([status])
   @@index([next_run_at])
   @@index([status, next_run_at])
 }

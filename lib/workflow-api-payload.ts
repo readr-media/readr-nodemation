@@ -19,15 +19,10 @@ export const CreateWorkflowSchema = z
     cron_expression: z.string().nullable().optional(),
     next_run_at: z.string().datetime().nullable().optional(),
     last_run_at: z.string().datetime().nullable().optional(),
-    created_at: z.string().datetime().nullable().optional(),
-    updated_at: z.string().datetime().nullable().optional(),
   })
   .strict();
 
-export const PutWorkflowSchema = CreateWorkflowSchema.omit({
-  created_at: true,
-  updated_at: true,
-});
+export const PutWorkflowSchema = CreateWorkflowSchema;
 
 export const PatchWorkflowSchema = PutWorkflowSchema.partial().refine(
   (value) => Object.keys(value).length > 0,
@@ -51,8 +46,6 @@ export function buildWorkflowCreateData(
   data: z.infer<typeof CreateWorkflowSchema>,
 ) {
   const now = new Date();
-  const createdAt = data.created_at ? new Date(data.created_at) : now;
-  const updatedAt = data.updated_at ? new Date(data.updated_at) : now;
   const nextRunAt = data.next_run_at ? new Date(data.next_run_at) : null;
   const lastRunAt = data.last_run_at ? new Date(data.last_run_at) : null;
 
@@ -65,8 +58,6 @@ export function buildWorkflowCreateData(
     cron_expression: data.cron_expression ?? null,
     next_run_at: nextRunAt,
     last_run_at: lastRunAt,
-    created_at: createdAt,
-    updated_at: updatedAt,
   };
 }
 

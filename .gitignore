@@ -49,3 +49,6 @@ prisma/data/workflow.db
 
 # local dev compose (dev-only artifact, not for commit)
 docker-compose.dev.yml
+
+# Claude Code local dir / stray worktrees
+.claude/

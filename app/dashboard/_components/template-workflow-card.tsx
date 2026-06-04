@@ -2,6 +2,7 @@ import { TagsIcon } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { WORKFLOW_STATUS_LABELS } from "@/lib/workflow-status";
 
 type Status = "published" | "draft" | "template" | "running";
 
@@ -10,13 +11,6 @@ type CardProps = {
   name: string;
   description: string;
   status: Status;
-};
-
-const statusMap = {
-  published: "已發佈",
-  draft: "草稿",
-  template: "模板",
-  running: "執行中",
 };
 
 export default function TemplateWorkflowCard({
@@ -37,7 +31,7 @@ export default function TemplateWorkflowCard({
           <div className="body-2 text-gray-800 flex flex-col gap-y-2 mt-4">
             <div className="flex items-center justify-between">
               <p>{description}</p>
-              <Badge variant={status}>{statusMap[status]}</Badge>
+              <Badge variant={status}>{WORKFLOW_STATUS_LABELS[status]}</Badge>
             </div>
           </div>
         </CardContent>

@@ -46,3 +46,6 @@ next-env.d.ts
 .vscode/settings.json
 prisma/data/workflow.db
 .worktrees/
+
+# local dev compose (dev-only artifact, not for commit)
+docker-compose.dev.yml

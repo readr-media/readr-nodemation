@@ -18,23 +18,14 @@ describe("resolveDatabaseUrl", () => {
     );
   });
 
-  it("sets DATABASE_URL when prisma environment bootstrap module is loaded", async () => {
-    const previousDatabaseUrl = process.env.DATABASE_URL;
-
-    process.env.DATABASE_URL =
-      "postgresql://ndx:ndx@localhost:5433/workflow?schema=public";
-
+  it("throws at bootstrap when DATABASE_URL is not set", async () => {
+    const prev = process.env.DATABASE_URL;
+    delete process.env.DATABASE_URL;
     vi.resetModules();
-    await import("../../../lib/load-prisma-environment.ts");
-
-    expect(process.env.DATABASE_URL).toBe(
-      "postgresql://ndx:ndx@localhost:5433/workflow?schema=public",
-    );
-
-    if (previousDatabaseUrl === undefined) {
-      delete process.env.DATABASE_URL;
-    } else {
-      process.env.DATABASE_URL = previousDatabaseUrl;
-    }
+    await expect(
+      import("../../../lib/load-prisma-environment.ts"),
+    ).rejects.toThrow("DATABASE_URL is not set");
+    if (prev !== undefined) process.env.DATABASE_URL = prev;
+    else delete process.env.DATABASE_URL;
   });
 });

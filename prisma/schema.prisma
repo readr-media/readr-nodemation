@@ -1,5 +1,5 @@
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -12,8 +12,8 @@ model User {
   role       String
   name       String
   email      String
-  created_at DateTime   @default(now())
-  updated_at DateTime   @updatedAt
+  created_at DateTime   @default(now()) @db.Timestamptz(3)
+  updated_at DateTime   @updatedAt @db.Timestamptz(3)
   workflows  Workflow[]
 }
 
@@ -25,13 +25,17 @@ model Workflow {
   edges           String
   status          String
   cron_expression String?
-  next_run_at     DateTime?
-  last_run_at     DateTime?
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
+  next_run_at     DateTime? @db.Timestamptz(3)
+  last_run_at     DateTime? @db.Timestamptz(3)
+  created_at      DateTime @default(now()) @db.Timestamptz(3)
+  updated_at      DateTime @updatedAt @db.Timestamptz(3)
   user_id         String?
   user            User?    @relation(fields: [user_id], references: [id])
   jobs            Job[]
+
+  @@index([status])
+  @@index([next_run_at])
+  @@index([status, next_run_at])
 }
 
 model Job {
@@ -42,11 +46,15 @@ model Job {
   result            String?
   error             String?
   node_results      String?
-  created_at        DateTime @default(now())
-  started_at        DateTime?
-  completed_at      DateTime?
+  created_at        DateTime @default(now()) @db.Timestamptz(3)
+  started_at        DateTime? @db.Timestamptz(3)
+  completed_at      DateTime? @db.Timestamptz(3)
   workflow          Workflow @relation(fields: [workflow_id], references: [id])
   logs              JobLog[]
+
+  @@index([workflow_id])
+  @@index([status])
+  @@index([created_at])
 }
 
 model JobLog {
@@ -56,8 +64,11 @@ model JobLog {
   level     String
   message   String
   data      String?
-  timestamp DateTime
+  timestamp DateTime @db.Timestamptz(3)
   job       Job      @relation(fields: [job_id], references: [id])
+
+  @@index([job_id])
+  @@index([timestamp])
 }
 
 model ModuleType {
@@ -87,6 +98,6 @@ model WorkflowTemplate {
   nodes       String   @default("[]")
   edges       String   @default("[]")
   sort_order  Int      @default(0)
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  created_at  DateTime @default(now()) @db.Timestamptz(3)
+  updated_at  DateTime @updatedAt @db.Timestamptz(3)
 }

@@ -1,12 +1,9 @@
 import { cn } from "@/lib/utils";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import type { PodcastGenerationNodeData } from "@/stores/flow-editor/slices/podcast-generation-node-slice";
-import { Textarea } from "@/components/ui/textarea";
 
-const modelOptions = ["gemini-1.5-flash", "gemini-1.5-pro"];
 const fieldLabelClass =
   "text-sm font-medium leading-6 text-module-title tracking-tight";
-const helperTextClass = "text-xs text-module-muted";
 
 const styleOptions: Array<{
   value: PodcastGenerationNodeData["podcastMode"];
@@ -26,28 +23,6 @@ const lengthOptions: Array<{
   { value: "medium", label: "適中" },
   { value: "long", label: "長" },
 ];
-
-const SelectField = ({
-  value,
-  onChange,
-  options,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  options: string[];
-}) => (
-  <select
-    value={value}
-    onChange={(event) => onChange(event.target.value)}
-    className="h-10 w-full rounded-lg border border-module-border bg-white px-3 text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)] focus-visible:border-red-400 focus-visible:ring-0"
-  >
-    {options.map((option) => (
-      <option key={option} value={option}>
-        {option}
-      </option>
-    ))}
-  </select>
-);
 
 const RadioField = ({
   label,
@@ -91,12 +66,6 @@ const PodcastGenerationNodeSetting = ({
     (state) => state.updatePodcastGenerationNodeData,
   );
 
-  const handleModelChange = (value: string) =>
-    updatePodcastGenerationNodeData(nodeId, { model: value });
-
-  const handlePromptChange = (value: string) =>
-    updatePodcastGenerationNodeData(nodeId, { promptTemplate: value });
-
   const handleStyleChange = (value: PodcastGenerationNodeData["podcastMode"]) =>
     updatePodcastGenerationNodeData(nodeId, { podcastMode: value });
 
@@ -107,15 +76,6 @@ const PodcastGenerationNodeSetting = ({
   return (
     <div className="flex flex-1 flex-col overflow-y-auto p-4">
       <div className="space-y-6">
-        <section className="space-y-2">
-          <p className={fieldLabelClass}>進階指令（User Prompt）</p>
-          <Textarea
-            className="min-h-[140px] rounded-[10px] border-module-border bg-white text-sm leading-6 text-module-title"
-            value={data.promptTemplate}
-            onChange={(event) => handlePromptChange(event.target.value)}
-          />
-        </section>
-
         <section className="space-y-2">
           <p className={fieldLabelClass}>格式</p>
           <div className="space-y-2">

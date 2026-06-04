@@ -87,6 +87,7 @@ describe("workflow resource route", () => {
         status: "published",
         cron_expression: "0 8 * * *",
         next_run_at: new Date("2026-03-11T08:00:00.000Z"),
+        updated_at: expect.any(Date),
       },
     });
     expect(response.status).toBe(200);
@@ -134,6 +135,7 @@ describe("workflow resource route", () => {
         edges: "[]",
         status: "published",
         cron_expression: null,
+        updated_at: expect.any(Date),
       },
     });
     expect(response.status).toBe(200);
@@ -241,6 +243,7 @@ describe("workflow resource route", () => {
         edges: "[]",
         status: "draft",
         cron_expression: null,
+        updated_at: expect.any(Date),
       },
     });
     expect(response.status).toBe(200);
@@ -266,6 +269,7 @@ describe("workflow resource route", () => {
       data: {
         name: "Renamed",
         status: "draft",
+        updated_at: expect.any(Date),
       },
     });
     expect(response.status).toBe(200);
@@ -301,7 +305,7 @@ describe("workflow resource route", () => {
 
     expect(prisma.workflow.updateMany).toHaveBeenCalledWith({
       where: { id: "wf-1", user_id: "user-1" },
-      data: { next_run_at: null },
+      data: { next_run_at: null, updated_at: expect.any(Date) },
     });
     expect(response.status).toBe(200);
   });
@@ -320,7 +324,7 @@ describe("workflow resource route", () => {
 
     expect(prisma.workflow.updateMany).toHaveBeenCalledWith({
       where: { id: "wf-1", user_id: "user-1" },
-      data: { last_run_at: null },
+      data: { last_run_at: null, updated_at: expect.any(Date) },
     });
     expect(response.status).toBe(200);
   });
@@ -402,6 +406,7 @@ describe("workflow resource route", () => {
       data: {
         nodes: '[{"id":"n1"}]',
         edges: '[{"id":"e1","source":"n1","target":"n2"}]',
+        updated_at: expect.any(Date),
       },
     });
   });

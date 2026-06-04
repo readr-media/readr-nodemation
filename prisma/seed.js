@@ -163,7 +163,6 @@ const demoArticleClassificationNodes = JSON.stringify([
     measured: { width: 240, height: 62 },
     data: {
       title: "AI自動分類與標籤",
-      model: "gemini-1.5-flash",
       inputFields: {
         title: "source.title",
         content: "source.content",
@@ -337,7 +336,6 @@ const demoEarthquakeNodes = JSON.stringify([
     position: { x: 360, y: 160 },
     data: {
       title: "自動地震文",
-      model: "gemini-1.5-flash",
       inputs: {
         title: true,
         content: true,
@@ -426,8 +424,6 @@ const demoPodcastNodes = JSON.stringify([
     position: { x: 360, y: 160 },
     data: {
       title: "Podcast 生成",
-      model: "gemini-1.5-flash",
-      promptTemplate: `[基本對話規則]\n"female"開場、"male"收尾\n兩人輪流發言，每段1-3句話\n自然口語、避免直接念誦原文\n角色設定：一位主持人風格為「數據記者」，負責分析數據趨勢，一位主持人為「閱聽人代表」，負責提問與總結影響。`,
       podcastMode: "deepDive",
       podcastLength: "medium",
     },
@@ -511,7 +507,6 @@ const demoVotingNodes = JSON.stringify([
     position: { x: 360, y: 160 },
     data: {
       title: "AI 投票建議",
-      model: "gemini-1.5-flash",
       inputs: {
         title: true,
         content: true,

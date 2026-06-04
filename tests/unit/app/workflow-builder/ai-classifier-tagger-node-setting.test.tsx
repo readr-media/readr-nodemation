@@ -504,7 +504,6 @@ type RenderedTree = {
 
 const sampleData: AiClassifierTaggerNodeData = {
   title: "AI自動分類與標籤",
-  model: "gemini-1.5-flash",
   inputFields: {
     title: "source.title",
     content: "source.content",

@@ -167,7 +167,6 @@ describe("demo article classification workflow seed", () => {
     });
     expect(aiClassifierTaggerData.title).toBe("AI自動分類與標籤");
     expect(aiClassifierTaggerData).toMatchObject({
-      model: "gemini-1.5-flash",
       inputFields: {
         title: "source.title",
         content: "source.content",
@@ -187,6 +186,7 @@ describe("demo article classification workflow seed", () => {
       },
     });
     expect(aiClassifierTaggerData.promptTemplate).toBe("");
+    expect(aiClassifierTaggerData).not.toHaveProperty("model");
     expect(cmsOutputNode.measured).toEqual({
       width: 240,
       height: 62,
@@ -264,5 +264,35 @@ describe("demo AI title generation workflow seed", () => {
     expect(aiTitleData).not.toHaveProperty("outputFormat");
     expect(aiTitleData).not.toHaveProperty("promptTemplate");
     expect(aiTitleData).not.toHaveProperty("cmsField");
+  });
+});
+
+describe("demo podcast workflow seed", () => {
+  it("stores podcast nodes without the removed promptTemplate field", () => {
+    const { templateGraphSeedByName } = loadSeedExports();
+    const graph = templateGraphSeedByName?.["Podcast 生成"];
+
+    expect(graph).toBeDefined();
+    if (!graph) {
+      throw new Error("Expected templateGraphSeedByName to include Podcast 生成");
+    }
+
+    const nodes = JSON.parse(graph.nodes) as WorkflowNodeSnapshot[];
+    const podcastNode = nodes.find((node) => node.type === "podcastGeneration");
+
+    expect(podcastNode).toBeDefined();
+    if (!podcastNode) {
+      throw new Error("Expected podcast graph to include podcastGeneration node");
+    }
+
+    const podcastData = getNodeDataOrThrow(podcastNode);
+    expect(podcastData).toMatchObject({
+      title: "Podcast 生成",
+      podcastMode: "deepDive",
+      podcastLength: "medium",
+    });
+    expect(podcastData).not.toHaveProperty("model");
+    expect(podcastData).not.toHaveProperty("promptTemplate");
+    expect(podcastData).not.toHaveProperty("prompt");
   });
 });

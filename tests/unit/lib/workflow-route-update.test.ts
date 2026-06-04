@@ -45,6 +45,7 @@ describe("handleWorkflowUpdate", () => {
         edges: "[]",
         status: "draft",
         cron_expression: null,
+        updated_at: expect.any(Date),
       },
     });
     expect(response.status).toBe(200);
@@ -74,6 +75,7 @@ describe("handleWorkflowUpdate", () => {
       data: {
         name: "Renamed",
         status: "published",
+        updated_at: expect.any(Date),
       },
     });
     expect(response.status).toBe(200);

@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils";
 
 export type AiClassifierTaggerNodeData = {
   title: string;
-  model: string;
   inputFields: {
     title: string;
     content: string;

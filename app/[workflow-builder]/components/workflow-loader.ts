@@ -133,7 +133,6 @@ const normalizeAiCallData = (
       : typeof data.label === "string"
         ? data.label
         : "呼叫 AI",
-  model: typeof data.model === "string" ? data.model : "gemini-1.5-flash",
   inputs:
     typeof data.inputs === "object" && data.inputs !== null
       ? {
@@ -176,7 +175,6 @@ const normalizeAiClassifierTaggerData = (
         : typeof data.label === "string"
           ? data.label
           : defaults.title,
-    model: typeof data.model === "string" ? data.model : defaults.model,
     inputFields:
       typeof data.inputFields === "object" && data.inputFields !== null
         ? {
@@ -377,13 +375,6 @@ const normalizePodcastGenerationData = (
       : typeof data.label === "string"
         ? data.label
         : "Podcast 生成",
-  model: typeof data.model === "string" ? data.model : "gemini-1.5-flash",
-  promptTemplate:
-    typeof data.promptTemplate === "string"
-      ? data.promptTemplate
-      : typeof data.prompt === "string"
-        ? data.prompt
-        : "",
   podcastMode:
     data.podcastMode === "summary" ||
     data.podcastMode === "commentary" ||

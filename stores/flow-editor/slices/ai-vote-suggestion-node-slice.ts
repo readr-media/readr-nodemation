@@ -9,7 +9,6 @@ import type { AiVoteSuggestionNodeSlice, NodesStore } from "../types";
 
 export const createAiVoteSuggestionNodeData = (): AiCallNodeData => ({
   title: "AI 投票建議",
-  model: "gemini-1.5-flash",
   inputs: { title: true, content: true, summary: true },
   outputFormat: "JSON",
   promptTemplate:

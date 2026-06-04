@@ -45,6 +45,10 @@ function toNullableDate(value: string | null): Date | null {
 export function buildWorkflowCreateData(
   data: z.infer<typeof CreateWorkflowSchema>,
 ) {
+  const now = new Date();
+  const nextRunAt = data.next_run_at ? new Date(data.next_run_at) : null;
+  const lastRunAt = data.last_run_at ? new Date(data.last_run_at) : null;
+
   return {
     name: data.name,
     description: data.description ?? null,
@@ -52,8 +56,8 @@ export function buildWorkflowCreateData(
     edges: toJsonString(data.edges),
     status: data.status,
     cron_expression: data.cron_expression ?? null,
-    next_run_at: data.next_run_at ? new Date(data.next_run_at) : null,
-    last_run_at: data.last_run_at ? new Date(data.last_run_at) : null,
+    next_run_at: nextRunAt,
+    last_run_at: lastRunAt,
   };
 }
 
@@ -71,6 +75,7 @@ export function buildWorkflowUpdateData(
       edges: toJsonString(putData.edges),
       status: putData.status,
       cron_expression: putData.cron_expression ?? null,
+      updated_at: new Date(),
       ...(putData.next_run_at !== undefined && {
         next_run_at: toNullableDate(putData.next_run_at),
       }),
@@ -114,6 +119,8 @@ export function buildWorkflowUpdateData(
   if (patchData.last_run_at !== undefined) {
     updateData.last_run_at = toNullableDate(patchData.last_run_at);
   }
+
+  updateData.updated_at = new Date();
 
   return updateData;
 }

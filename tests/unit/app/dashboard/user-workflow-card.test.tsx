@@ -17,8 +17,8 @@ describe("UserWorkflowCard", () => {
       <UserWorkflowCard
         id="workflow-123"
         name="晨間自動發稿"
-        description="編輯於 2026/03/25"
-        time="執行於 2026/03/24"
+        description="編輯於 2026/03/25 08:30:45"
+        time="執行於 2026/03/25 08:30:45"
         status="draft"
       />,
     );
@@ -28,7 +28,7 @@ describe("UserWorkflowCard", () => {
     );
     expect(markup).toContain("<a");
     expect(markup).toContain("晨間自動發稿");
-    expect(markup).toContain("編輯於 2026/03/25");
-    expect(markup).toContain("執行於 2026/03/24");
+    expect(markup).toContain("編輯於 2026/03/25 08:30:45");
+    expect(markup).toContain("執行於 2026/03/25 08:30:45");
   });
 });

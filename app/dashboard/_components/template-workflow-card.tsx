@@ -2,15 +2,13 @@ import { TagsIcon } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { WORKFLOW_STATUS_LABELS } from "@/lib/workflow-status";
-
-type Status = "published" | "draft" | "template" | "running";
+import { WORKFLOW_STATUS_LABELS, WorkflowStatus } from "@/lib/workflow-status";
 
 type CardProps = {
   id: number;
   name: string;
   description: string;
-  status: Status;
+  status: WorkflowStatus;
 };
 
 export default function TemplateWorkflowCard({

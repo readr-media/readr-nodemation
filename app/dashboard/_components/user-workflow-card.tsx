@@ -34,16 +34,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { appToast } from "@/components/ui/sonner";
-import { WORKFLOW_STATUS_LABELS } from "@/lib/workflow-status";
-
-type Status = "published" | "draft" | "template" | "running";
+import { WORKFLOW_STATUS_LABELS, WorkflowStatus } from "@/lib/workflow-status";
 
 type CardProps = {
   id: string;
   name: string;
   description: string;
   time: string;
-  status: Status;
+  status: WorkflowStatus;
 };
 
 export default function UserWorkflowCard({

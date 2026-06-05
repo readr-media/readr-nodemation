@@ -25,6 +25,11 @@ steps:
       - "--region=$_DEPLOY_REGION"
       - "--platform=managed"
       - "--allow-unauthenticated"
+      # Cloud SQL: keep DB config in the deploy pipeline so it survives every deploy
+      # (Cloud Run does not reliably carry the secret/connection across revisions).
+      - "--update-secrets=DATABASE_URL=database-url-fe:latest"
+      - "--set-cloudsql-instances=$PROJECT_ID:asia-east1:ndx-workflow"
+      - "--remove-env-vars=DATABASE_PATH"
 
 images:
   - "$_AR_HOSTNAME/$PROJECT_ID/$_AR_REPO_NAME/$_IMAGE_NAME:$COMMIT_SHA"

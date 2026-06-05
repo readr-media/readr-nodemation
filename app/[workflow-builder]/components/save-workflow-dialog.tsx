@@ -26,7 +26,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { buildSchedulePayload } from "@/lib/build-schedule-payload";
 import { cn } from "@/lib/utils";
-import { WORKFLOW_STATUSES, type WorkflowStatus } from "@/lib/workflow-status";
+import {
+  WORKFLOW_STATUSES,
+  WORKFLOW_STATUS_LABELS,
+  type WorkflowStatus,
+} from "@/lib/workflow-status";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
 import { saveWorkflow } from "./save-workflow-action";
@@ -49,13 +53,6 @@ const selectTriggerStyle =
   "w-full cursor-pointer data-[placeholder]:text-gray-600 data-[state=open]:border-gray-600";
 
 const emptyDisplay = "(空白)";
-
-const statusLabels: Record<WorkflowStatus, string> = {
-  template: "模板",
-  draft: "草稿",
-  published: "已發佈",
-  running: "執行中",
-};
 
 type SaveWorkflowDialogProps = {
   workflowName: string;
@@ -262,7 +259,7 @@ const SaveWorkflowDialog = ({
                     value={status}
                     className="cursor-pointer"
                   >
-                    {statusLabels[status]}
+                    {WORKFLOW_STATUS_LABELS[status]}
                   </SelectItem>
                 ))}
               </SelectContent>

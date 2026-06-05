@@ -34,22 +34,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { appToast } from "@/components/ui/sonner";
-
-type Status = "published" | "draft" | "template" | "running";
+import { WORKFLOW_STATUS_LABELS, WorkflowStatus } from "@/lib/workflow-status";
 
 type CardProps = {
   id: string;
   name: string;
   description: string;
   time: string;
-  status: Status;
-};
-
-const statusMap = {
-  published: "已發佈",
-  draft: "草稿",
-  template: "模板",
-  running: "執行中",
+  status: WorkflowStatus;
 };
 
 export default function UserWorkflowCard({
@@ -226,7 +218,7 @@ export default function UserWorkflowCard({
                   <PlayIcon size={16} />
                   <p>{description}</p>
                 </div>
-                <Badge variant={status}>{statusMap[status]}</Badge>
+                <Badge variant={status}>{WORKFLOW_STATUS_LABELS[status]}</Badge>
               </div>
             </div>
           </CardContent>

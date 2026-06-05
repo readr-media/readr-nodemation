@@ -27,46 +27,9 @@ import { useFlowJSON } from "@/hooks/use-flow-json";
 import { buildPersistPayload } from "@/lib/build-persist-payload";
 import { buildSchedulePayload } from "@/lib/build-schedule-payload";
 import { hasWorkflowInputErrors } from "@/lib/workflow-node-validation";
+import { WORKFLOW_STATUS_LABELS } from "@/lib/workflow-status";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
-
-const statusLabels = {
-  template: "模板",
-  draft: "草稿",
-  published: "已發佈",
-  running: "執行中",
-} as const;
-
-// function InlineEditableText() {
-//   const [isEditing, setIsEditing] = useState(false);
-//   const inputRef = useRef<HTMLInputElement>(null);
-//   const workflowName = useWorkflowEditorStore((state) => state.name);
-//   const setWorkflowName = useWorkflowEditorStore((state) => state.setName);
-
-//   useEffect(() => {
-//     if (isEditing && inputRef.current) {
-//       inputRef.current.focus();
-//     }
-//   }, [isEditing]);
-
-//   return (
-//     <div>
-//       <Input
-//         ref={inputRef}
-//         aria-label="Workflow 名稱"
-//         value={workflowName}
-//         onChange={(event) => setWorkflowName(event.target.value)}
-//         onFocus={() => setIsEditing(true)}
-//         onBlur={() => setIsEditing(false)}
-//         className={`transition-all w-36 body-1 px-2 py-1 ${
-//           isEditing
-//             ? "border-gray-600 w-[200px]"
-//             : "shadow-none border-none hover:bg-gray-300 cursor-pointer"
-//         }`}
-//       />
-//     </div>
-//   );
-// }
 
 export default function WorkflowBuilderHeader() {
   const { handleExport } = useFlowJSON();
@@ -216,7 +179,7 @@ export default function WorkflowBuilderHeader() {
           <h2 className="body-1 text-gray-900 px-2">{workflowName}</h2>
           {workflowStatus === "template" && (
             <Badge variant={workflowStatus}>
-              {statusLabels[workflowStatus]}
+              {WORKFLOW_STATUS_LABELS[workflowStatus]}
             </Badge>
           )}
         </div>

@@ -18,7 +18,7 @@ The frontend editor in NDX is built around a visual canvas. Users arrange module
 That visual state must be serializable so it can be:
 
 - copied as JSON
-- saved to SQLite
+- saved to the database
 - loaded back into the editor
 - interpreted by backend execution logic
 

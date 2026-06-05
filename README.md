@@ -27,7 +27,15 @@ Update `.env` with the values required for your local setup.
 
 ### Database Setup
 
-This project uses a local SQLite database file for development. You do not need to install or start a separate database server.
+This project uses PostgreSQL. For local development, a Docker Compose file is provided so you do not need to install Postgres manually.
+
+Start the local Postgres container:
+
+```bash
+docker compose -f docker-compose.dev.yml up -d
+```
+
+The local connection string is `postgresql://ndx:ndx@localhost:5433/workflow?schema=public`. Set `DATABASE_URL` in `.env` to this value (the `.env.example` already contains it).
 
 Apply local migrations:
 
@@ -41,14 +49,12 @@ Seed sample data for local development:
 pnpm prisma db seed
 ```
 
-By default, the SQLite database file is stored at `./data/workflow.db` as configured in `.env`.
-
 If you are setting up the project for the first time, a typical local database flow is:
 
 1. Copy `.env.example` to `.env`
-2. Run `pnpm prisma migrate dev`
-3. Run `pnpm prisma db seed`
-4. Confirm that the SQLite file exists at `./data/workflow.db`
+2. Start Postgres: `docker compose -f docker-compose.dev.yml up -d`
+3. Run `pnpm prisma migrate dev`
+4. Run `pnpm prisma db seed`
 5. Start the app with `pnpm dev`
 
 If you change the Prisma schema, regenerate the Prisma client:

@@ -3,7 +3,10 @@
 import type { Edge, Node } from "@xyflow/react";
 import type { StoreApi, UseBoundStore } from "zustand";
 import { create } from "zustand";
-import type { WorkflowStatus } from "@/lib/workflow-status";
+import {
+  isWorkflowExecutionPending,
+  type WorkflowStatus,
+} from "@/lib/workflow-status";
 
 type WorkflowGraphSnapshot = {
   nodes: Node[];
@@ -65,6 +68,9 @@ export type WorkflowEditorState = WorkflowGraphSnapshot & {
   baseline: WorkflowEditorBaseline | null;
   isDirty: boolean;
   isHydrating: boolean;
+  // Set when the user explicitly clicks Run so status polling only tracks
+  // in-flight runs, not saves that bump updated_at without executing.
+  runTriggered: boolean;
   hydrateFromWorkflow: (workflow: HydrateWorkflowInput) => void;
   setName: (name: string) => void;
   setDescription: (description: string) => void;
@@ -72,6 +78,7 @@ export type WorkflowEditorState = WorkflowGraphSnapshot & {
   syncGraphSnapshot: (snapshot: WorkflowGraphSnapshot) => void;
   resetBaseline: (snapshot: ResetBaselineInput) => void;
   setCreatedAt: (createdAt: string | null) => void;
+  setRunTriggered: (runTriggered: boolean) => void;
   syncServerStatus: (snapshot: ServerStatusSnapshot) => void;
 };
 
@@ -156,6 +163,7 @@ const createWorkflowEditorState = (
   baseline: null,
   isDirty: false,
   isHydrating: false,
+  runTriggered: false,
   hydrateFromWorkflow: (workflow) => {
     const description = workflow.description ?? "";
     const graphFingerprints = fingerprintGraphSnapshot(workflow);
@@ -185,6 +193,7 @@ const createWorkflowEditorState = (
       baseline,
       isDirty: false,
       isHydrating: false,
+      runTriggered: false,
     });
   },
   setName: (name) => {
@@ -226,6 +235,9 @@ const createWorkflowEditorState = (
   setCreatedAt: (createdAt) => {
     set({ createdAt });
   },
+  setRunTriggered: (runTriggered) => {
+    set({ runTriggered });
+  },
   resetBaseline: (snapshot) => {
     set((state) => {
       const workflowId = snapshot.workflowId ?? state.workflowId;
@@ -266,12 +278,21 @@ const createWorkflowEditorState = (
         ? { ...state.baseline, status }
         : state.baseline;
       const nextState = { ...state, status, baseline };
+      const runTriggered = isWorkflowExecutionPending(
+        status,
+        updatedAt,
+        lastRunAt,
+        state.runTriggered,
+      )
+        ? state.runTriggered
+        : false;
 
       return {
         status,
         updatedAt,
         lastRunAt,
         baseline,
+        runTriggered,
         isDirty: computeIsDirty(nextState),
       };
     });

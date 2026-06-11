@@ -36,7 +36,12 @@ type WorkflowStatusResponse = {
 export const useWorkflowStatusPolling = () => {
   const workflowId = useWorkflowEditorStore((state) => state.workflowId);
   const isPending = useWorkflowEditorStore((state) =>
-    isWorkflowExecutionPending(state.status, state.updatedAt, state.lastRunAt),
+    isWorkflowExecutionPending(
+      state.status,
+      state.updatedAt,
+      state.lastRunAt,
+      state.runTriggered,
+    ),
   );
 
   useEffect(() => {
@@ -56,6 +61,7 @@ export const useWorkflowStatusPolling = () => {
         state.status,
         state.updatedAt,
         state.lastRunAt,
+        state.runTriggered,
       );
     };
 

@@ -72,15 +72,22 @@ export const isWorkflowRunCompleted = (
 // True while the workflow is mid-execution-cycle (submitted/published but not
 // yet completed, or actively running). The builder polls for fresh status
 // while this is true, then stops once the run settles.
+//
+// `runTriggered` is client-owned: only a user-initiated Run sets it, so a save
+// that bumps updated_at without executing does not start polling.
 export const isWorkflowExecutionPending = (
   status: WorkflowStatus,
   updatedAt: string | null | undefined,
   lastRunAt: string | null | undefined,
+  runTriggered = false,
 ): boolean => {
   if (status === "running") {
     return true;
   }
   if (status === "published") {
+    if (!runTriggered) {
+      return false;
+    }
     return !isWorkflowRunCompleted(updatedAt, lastRunAt);
   }
   return false;

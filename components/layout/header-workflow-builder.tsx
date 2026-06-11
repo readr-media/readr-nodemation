@@ -53,6 +53,9 @@ export default function WorkflowBuilderHeader() {
     (state) => state.syncServerStatus,
   );
   const setCreatedAt = useWorkflowEditorStore((state) => state.setCreatedAt);
+  const setRunTriggered = useWorkflowEditorStore(
+    (state) => state.setRunTriggered,
+  );
   const workflowName = useWorkflowEditorStore((state) => state.name);
   const workflowDescription = useWorkflowEditorStore(
     (state) => state.description,
@@ -117,6 +120,7 @@ export default function WorkflowBuilderHeader() {
       if (action === "save") {
         setIsSaving(true);
       } else {
+        setRunTriggered(true);
         setIsRunning(true);
       }
 
@@ -155,6 +159,9 @@ export default function WorkflowBuilderHeader() {
         );
       } catch (error) {
         console.error(error);
+        if (action === "run") {
+          setRunTriggered(false);
+        }
         appToast.error(
           action === "run"
             ? "工作流執行失敗，請稍後再試"
@@ -176,6 +183,7 @@ export default function WorkflowBuilderHeader() {
       resetBaseline,
       syncServerStatus,
       setCreatedAt,
+      setRunTriggered,
       router,
       workflowDescription,
       workflowId,

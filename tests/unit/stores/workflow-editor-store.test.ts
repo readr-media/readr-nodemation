@@ -220,6 +220,46 @@ describe("workflow editor store", () => {
     });
   });
 
+  it("clears runTriggered on hydrate and after a settled server status sync", () => {
+    const store = createWorkflowEditorStore();
+    store.getState().setRunTriggered(true);
+
+    store.getState().hydrateFromWorkflow({
+      workflowId: "workflow-123",
+      name: "文章自動分類",
+      description: "根據 AI 分類文章",
+      status: "published",
+      updatedAt: "2026-06-10T12:00:00.000Z",
+      lastRunAt: "2026-06-10T11:00:00.000Z",
+      nodes: initialNodes,
+      edges: initialEdges,
+    });
+
+    expect(store.getState().runTriggered).toBe(false);
+
+    store.getState().setRunTriggered(true);
+    store.getState().syncServerStatus({
+      status: "published",
+      updatedAt: "2026-06-10T12:00:00.000Z",
+      lastRunAt: "2026-06-10T12:00:00.000Z",
+    });
+
+    expect(store.getState().runTriggered).toBe(false);
+  });
+
+  it("keeps runTriggered while a user-initiated run is still pending", () => {
+    const store = createWorkflowEditorStore();
+    store.getState().setRunTriggered(true);
+
+    store.getState().syncServerStatus({
+      status: "published",
+      updatedAt: "2026-06-10T12:00:00.000Z",
+      lastRunAt: "2026-06-10T11:00:00.000Z",
+    });
+
+    expect(store.getState().runTriggered).toBe(true);
+  });
+
   it("uses cached graph fingerprints instead of serializing in computeIsDirty", () => {
     const source = fs.readFileSync(workflowEditorStorePath, "utf8");
     const computeIsDirtySource = source.slice(

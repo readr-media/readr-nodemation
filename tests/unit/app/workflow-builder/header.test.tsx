@@ -12,6 +12,8 @@ const workflowEditorState = vi.hoisted(() => ({
   createdAt: null as string | null,
   resetBaseline: vi.fn(),
   syncServerStatus: vi.fn(),
+  setCreatedAt: vi.fn(),
+  setRunTriggered: vi.fn(),
   setStatus: vi.fn(),
 }));
 

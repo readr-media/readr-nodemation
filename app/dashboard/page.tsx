@@ -1,4 +1,5 @@
 import { getActiveUserId } from "@/lib/active-user";
+import { formatWorkflowTimestamp } from "@/lib/format-datetime";
 import { getWorkflowTemplates } from "@/lib/workflow-templates";
 import { getUserWorkflows } from "@/lib/workflows";
 import CreateWorkflowDialog from "./_components/create-workflow-dialog";
@@ -8,19 +9,6 @@ import UserWorkflowGrid from "./_components/user-workflow-grid";
 import { WorkflowCreatingProvider } from "./_components/workflow-creating-context";
 
 export const runtime = "nodejs";
-
-const dateFormatter = new Intl.DateTimeFormat("zh-TW", {
-  year: "numeric",
-  month: "2-digit",
-  day: "2-digit",
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-  hour12: false,
-  timeZone: "Asia/Taipei",
-});
-
-const formatDate = (value: Date) => dateFormatter.format(value);
 
 export default async function Page() {
   const activeUserId = await getActiveUserId();
@@ -33,10 +21,10 @@ export default async function Page() {
     id: workflow.id,
     name: workflow.name,
     description: workflow.updatedAt
-      ? `編輯於 ${formatDate(workflow.updatedAt)}`
+      ? `編輯於 ${formatWorkflowTimestamp(workflow.updatedAt)}`
       : "尚無編輯紀錄",
     time: workflow.lastRunAt
-      ? `執行於 ${formatDate(workflow.lastRunAt)}`
+      ? `執行於 ${formatWorkflowTimestamp(workflow.lastRunAt)}`
       : "尚無執行紀錄",
     status: workflow.status,
   }));

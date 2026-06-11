@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import FlowEditor from "@/components/flow/flow-editor";
+import { useWorkflowStatusPolling } from "@/hooks/use-workflow-status-polling";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
 import WorkFlowControls from "./workflow-controls";
@@ -26,6 +27,8 @@ const WorkflowBuilder = ({
   const [loadState, setLoadState] = useState<WorkflowLoadResult["status"]>(
     workflowId || templateId ? "loading" : "idle",
   );
+
+  useWorkflowStatusPolling();
 
   useEffect(() => {
     let isActive = true;

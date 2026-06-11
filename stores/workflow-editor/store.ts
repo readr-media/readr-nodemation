@@ -28,11 +28,27 @@ type HydrateWorkflowInput = WorkflowGraphSnapshot & {
   name: string;
   description?: string | null;
   status: WorkflowStatus;
+  updatedAt?: string | null;
+  lastRunAt?: string | null;
+  createdAt?: string | null;
 };
 
 type ResetBaselineInput = WorkflowGraphSnapshot & {
   workflowId?: string | null;
   sourceWorkflowId?: string | null;
+  status?: WorkflowStatus;
+  updatedAt?: string | null;
+  lastRunAt?: string | null;
+  createdAt?: string | null;
+};
+
+// Server-owned execution metadata pushed in by polling. These never affect the
+// dirty check on their own — the baseline's status is kept in sync so a remote
+// status transition doesn't get mistaken for a local edit.
+type ServerStatusSnapshot = {
+  status: WorkflowStatus;
+  updatedAt: string | null;
+  lastRunAt: string | null;
 };
 
 export type WorkflowEditorState = WorkflowGraphSnapshot & {
@@ -41,6 +57,9 @@ export type WorkflowEditorState = WorkflowGraphSnapshot & {
   name: string;
   description: string;
   status: WorkflowStatus;
+  updatedAt: string | null;
+  lastRunAt: string | null;
+  createdAt: string | null;
   nodesFingerprint: string;
   edgesFingerprint: string;
   baseline: WorkflowEditorBaseline | null;
@@ -52,6 +71,7 @@ export type WorkflowEditorState = WorkflowGraphSnapshot & {
   setStatus: (status: WorkflowStatus) => void;
   syncGraphSnapshot: (snapshot: WorkflowGraphSnapshot) => void;
   resetBaseline: (snapshot: ResetBaselineInput) => void;
+  syncServerStatus: (snapshot: ServerStatusSnapshot) => void;
 };
 
 const serializeSnapshot = (value: unknown) => JSON.stringify(value);
@@ -125,6 +145,9 @@ const createWorkflowEditorState = (
   name: "",
   description: "",
   status: "draft",
+  updatedAt: null,
+  lastRunAt: null,
+  createdAt: null,
   nodes: [],
   edges: [],
   nodesFingerprint: serializeSnapshot([]),
@@ -152,6 +175,9 @@ const createWorkflowEditorState = (
       name: workflow.name,
       description,
       status: workflow.status,
+      updatedAt: workflow.updatedAt ?? null,
+      lastRunAt: workflow.lastRunAt ?? null,
+      createdAt: workflow.createdAt ?? null,
       nodes: workflow.nodes,
       edges: workflow.edges,
       ...graphFingerprints,
@@ -200,11 +226,19 @@ const createWorkflowEditorState = (
     set((state) => {
       const workflowId = snapshot.workflowId ?? state.workflowId;
       const sourceWorkflowId = snapshot.sourceWorkflowId ?? workflowId;
+      const status = snapshot.status ?? state.status;
+      const updatedAt =
+        snapshot.updatedAt !== undefined ? snapshot.updatedAt : state.updatedAt;
+      const lastRunAt =
+        snapshot.lastRunAt !== undefined ? snapshot.lastRunAt : state.lastRunAt;
+      const createdAt =
+        snapshot.createdAt !== undefined ? snapshot.createdAt : state.createdAt;
       const graphFingerprints = fingerprintGraphSnapshot(snapshot);
       const nextState = {
         ...state,
         workflowId,
         sourceWorkflowId,
+        status,
         nodes: snapshot.nodes,
         edges: snapshot.edges,
         ...graphFingerprints,
@@ -214,12 +248,36 @@ const createWorkflowEditorState = (
       return {
         workflowId,
         sourceWorkflowId,
+        status,
+        updatedAt,
+        lastRunAt,
+        createdAt,
         nodes: snapshot.nodes,
         edges: snapshot.edges,
         ...graphFingerprints,
         baseline,
         isDirty: false,
         isHydrating: false,
+      };
+    });
+  },
+  syncServerStatus: ({ status, updatedAt, lastRunAt }) => {
+    set((state) => {
+      // Keep the baseline's status aligned with the server so a remote status
+      // transition (e.g. published → running → published) is not flagged as a
+      // local unsaved change; the user's in-progress graph edits still drive
+      // isDirty as usual.
+      const baseline = state.baseline
+        ? { ...state.baseline, status }
+        : state.baseline;
+      const nextState = { ...state, status, baseline };
+
+      return {
+        status,
+        updatedAt,
+        lastRunAt,
+        baseline,
+        isDirty: computeIsDirty(nextState),
       };
     });
   },

@@ -45,7 +45,20 @@ export async function handleWorkflowUpdate(
       return Response.json({ error: "Workflow not found" }, { status: 404 });
     }
 
-    return Response.json({ count: updatedResult.count });
+    // Return the persisted execution metadata so the client can render the
+    // builder header's status badge and "已於 … 儲存/執行" timestamp without an
+    // extra round-trip.
+    const updated = await prisma.workflow.findFirst({
+      where: { id, user_id: userId },
+      select: {
+        status: true,
+        updated_at: true,
+        last_run_at: true,
+        created_at: true,
+      },
+    });
+
+    return Response.json({ count: updatedResult.count, ...(updated ?? {}) });
   } catch (error) {
     return Response.json(
       { error: "Failed to update workflow" },

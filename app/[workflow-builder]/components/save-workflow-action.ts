@@ -24,12 +24,20 @@ type SaveWorkflowInput = {
     sourceWorkflowId: string;
     nodes: Node[];
     edges: Edge[];
+    status?: WorkflowStatus;
+    updatedAt?: string | null;
+    lastRunAt?: string | null;
+    createdAt?: string | null;
   }) => void;
 };
 
 type SavedWorkflowResponse = {
   id?: string;
   count?: number;
+  status?: WorkflowStatus;
+  updated_at?: string | null;
+  last_run_at?: string | null;
+  created_at?: string | null;
 };
 
 const buildRequest = ({
@@ -133,6 +141,12 @@ export const saveWorkflow = async ({
     sourceWorkflowId: nextWorkflowId,
     nodes,
     edges,
+    // Prefer the server's authoritative values so the header's status badge and
+    // "已於 … 儲存/執行" timestamp reflect what was actually persisted.
+    status: savedWorkflow.status ?? status,
+    updatedAt: savedWorkflow.updated_at ?? null,
+    lastRunAt: savedWorkflow.last_run_at ?? null,
+    createdAt: savedWorkflow.created_at ?? null,
   });
 
   return {

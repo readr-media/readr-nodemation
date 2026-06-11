@@ -244,6 +244,10 @@ describe("saveWorkflow", () => {
       sourceWorkflowId: "workflow-123",
       nodes,
       edges,
+      status: "published",
+      updatedAt: null,
+      lastRunAt: null,
+      createdAt: null,
     });
     expect(result).toEqual({
       workflowId: "workflow-123",
@@ -297,6 +301,10 @@ describe("saveWorkflow", () => {
       sourceWorkflowId: "workflow-456",
       nodes,
       edges,
+      status: "draft",
+      updatedAt: null,
+      lastRunAt: null,
+      createdAt: null,
     });
     expect(result).toEqual({
       workflowId: "workflow-456",

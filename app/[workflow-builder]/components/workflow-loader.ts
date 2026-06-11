@@ -35,6 +35,9 @@ type WorkflowRecord = {
   nodes: string;
   edges: string;
   cron_expression?: string | null;
+  updated_at?: string | null;
+  last_run_at?: string | null;
+  created_at?: string | null;
 };
 
 // applyScheduleFromCron re-populates the execution-schedule store from a
@@ -73,6 +76,9 @@ type LoadWorkflowIntoStoresInput = {
     status: WorkflowStatus;
     nodes: Node[];
     edges: Edge[];
+    updatedAt?: string | null;
+    lastRunAt?: string | null;
+    createdAt?: string | null;
   }) => void;
 };
 
@@ -459,6 +465,9 @@ export const loadWorkflowIntoStores = async ({
         status: workflow.status,
         nodes: snapshot.nodes,
         edges: snapshot.edges,
+        updatedAt: workflow.updated_at ?? null,
+        lastRunAt: workflow.last_run_at ?? null,
+        createdAt: workflow.created_at ?? null,
       });
       applyScheduleFromCron(workflow.cron_expression);
 
@@ -476,6 +485,9 @@ export const loadWorkflowIntoStores = async ({
       status: "template",
       nodes: snapshot.nodes,
       edges: snapshot.edges,
+      updatedAt: null,
+      lastRunAt: null,
+      createdAt: null,
     });
     // Templates carry no schedule of their own.
     applyScheduleFromCron(null);

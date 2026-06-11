@@ -27,7 +27,10 @@ import { useFlowJSON } from "@/hooks/use-flow-json";
 import { buildPersistPayload } from "@/lib/build-persist-payload";
 import { buildSchedulePayload } from "@/lib/build-schedule-payload";
 import { hasWorkflowInputErrors } from "@/lib/workflow-node-validation";
-import { WORKFLOW_STATUS_LABELS } from "@/lib/workflow-status";
+import {
+  deriveWorkflowActivityText,
+  WORKFLOW_BUILDER_STATUS_LABELS,
+} from "@/lib/workflow-status";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import { useWorkflowEditorStore } from "@/stores/workflow-editor/store";
 
@@ -51,7 +54,15 @@ export default function WorkflowBuilderHeader() {
     (state) => state.description,
   );
   const workflowStatus = useWorkflowEditorStore((state) => state.status);
-  const setWorkflowStatus = useWorkflowEditorStore((state) => state.setStatus);
+  const workflowUpdatedAt = useWorkflowEditorStore((state) => state.updatedAt);
+  const workflowLastRunAt = useWorkflowEditorStore((state) => state.lastRunAt);
+  const workflowCreatedAt = useWorkflowEditorStore((state) => state.createdAt);
+  const activityText = deriveWorkflowActivityText({
+    status: workflowStatus,
+    updatedAt: workflowUpdatedAt,
+    lastRunAt: workflowLastRunAt,
+    createdAt: workflowCreatedAt,
+  });
   // "Save" only persists the form state, so a workflow with node errors can
   // still be saved as a draft for the user to come back and fix later.
   // "Run" sends the workflow JSON to the backend for execution, so input
@@ -130,7 +141,9 @@ export default function WorkflowBuilderHeader() {
           router.replace(`/workflow-builder?workflowId=${result.workflowId}`);
         }
 
-        setWorkflowStatus(nextStatus);
+        // The status badge + timestamp are updated by saveWorkflow's
+        // resetBaseline (using the server's authoritative response), so no
+        // separate optimistic status write is needed here.
         appToast.success(
           action === "save" ? "工作流已儲存" : "工作流已送出執行",
         );
@@ -156,7 +169,6 @@ export default function WorkflowBuilderHeader() {
       nodes,
       resetBaseline,
       router,
-      setWorkflowStatus,
       workflowDescription,
       workflowId,
       hasInputErrors,
@@ -177,19 +189,15 @@ export default function WorkflowBuilderHeader() {
           </Button>
           {/* <InlineEditableText /> */}
           <h2 className="body-1 text-gray-900 px-2">{workflowName}</h2>
-          {workflowStatus === "template" && (
-            <Badge variant={workflowStatus}>
-              {WORKFLOW_STATUS_LABELS[workflowStatus]}
-            </Badge>
-          )}
+          <Badge variant={workflowStatus}>
+            {WORKFLOW_BUILDER_STATUS_LABELS[workflowStatus]}
+          </Badge>
         </div>
 
         <div className="flex items-center gap-x-3">
-          {/* {isDirty ? (
-            <p className="body-3 text-gray-700" aria-live="polite">
-              未儲存變更
-            </p>
-          ) : null} */}
+          <p className="body-3 text-gray-700" aria-live="polite">
+            {activityText}
+          </p>
           <Button className="hover:bg-gray-300" onClick={handleExport}>
             <UploadIcon aria-hidden="true" />
             匯出

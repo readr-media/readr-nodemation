@@ -49,6 +49,10 @@ export default function WorkflowBuilderHeader() {
   );
   const workflowId = useWorkflowEditorStore((state) => state.workflowId);
   const resetBaseline = useWorkflowEditorStore((state) => state.resetBaseline);
+  const syncServerStatus = useWorkflowEditorStore(
+    (state) => state.syncServerStatus,
+  );
+  const setCreatedAt = useWorkflowEditorStore((state) => state.setCreatedAt);
   const workflowName = useWorkflowEditorStore((state) => state.name);
   const workflowDescription = useWorkflowEditorStore(
     (state) => state.description,
@@ -135,6 +139,8 @@ export default function WorkflowBuilderHeader() {
           nextRunAt,
           fetchImpl: fetch,
           resetBaseline,
+          syncServerStatus,
+          setCreatedAt,
         });
 
         if (!workflowId) {
@@ -142,7 +148,7 @@ export default function WorkflowBuilderHeader() {
         }
 
         // The status badge + timestamp are updated by saveWorkflow's
-        // resetBaseline (using the server's authoritative response), so no
+        // syncServerStatus (using the server's findFirst response), so no
         // separate optimistic status write is needed here.
         appToast.success(
           action === "save" ? "工作流已儲存" : "工作流已送出執行",
@@ -168,6 +174,8 @@ export default function WorkflowBuilderHeader() {
       edges,
       nodes,
       resetBaseline,
+      syncServerStatus,
+      setCreatedAt,
       router,
       workflowDescription,
       workflowId,

@@ -50,12 +50,7 @@ export async function handleWorkflowUpdate(
     // extra round-trip.
     const updated = await prisma.workflow.findFirst({
       where: { id, user_id: userId },
-      select: {
-        status: true,
-        updated_at: true,
-        last_run_at: true,
-        created_at: true,
-      },
+      select: { status: true, updated_at: true, last_run_at: true },
     });
 
     return Response.json({ count: updatedResult.count, ...(updated ?? {}) });

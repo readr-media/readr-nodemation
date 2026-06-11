@@ -37,15 +37,15 @@ type ResetBaselineInput = WorkflowGraphSnapshot & {
   workflowId?: string | null;
   sourceWorkflowId?: string | null;
   status?: WorkflowStatus;
-  updatedAt?: string | null;
-  lastRunAt?: string | null;
-  createdAt?: string | null;
 };
 
-// Server-owned execution metadata pushed in by polling. These never affect the
-// dirty check on their own — the baseline's status is kept in sync so a remote
-// status transition doesn't get mistaken for a local edit.
-type ServerStatusSnapshot = {
+// Server-owned metadata for the builder header (status badge + activity text).
+// Pushed in after save/run (findFirst response) or during execution polling.
+// `createdAt` is set once via hydrate or setCreatedAt — it never changes and
+// is intentionally excluded here. These fields never affect the dirty check
+// on their own; the baseline's status is kept in sync so a remote status
+// transition doesn't get mistaken for a local edit.
+export type ServerStatusSnapshot = {
   status: WorkflowStatus;
   updatedAt: string | null;
   lastRunAt: string | null;
@@ -71,6 +71,7 @@ export type WorkflowEditorState = WorkflowGraphSnapshot & {
   setStatus: (status: WorkflowStatus) => void;
   syncGraphSnapshot: (snapshot: WorkflowGraphSnapshot) => void;
   resetBaseline: (snapshot: ResetBaselineInput) => void;
+  setCreatedAt: (createdAt: string | null) => void;
   syncServerStatus: (snapshot: ServerStatusSnapshot) => void;
 };
 
@@ -222,17 +223,14 @@ const createWorkflowEditorState = (
       };
     });
   },
+  setCreatedAt: (createdAt) => {
+    set({ createdAt });
+  },
   resetBaseline: (snapshot) => {
     set((state) => {
       const workflowId = snapshot.workflowId ?? state.workflowId;
       const sourceWorkflowId = snapshot.sourceWorkflowId ?? workflowId;
       const status = snapshot.status ?? state.status;
-      const updatedAt =
-        snapshot.updatedAt !== undefined ? snapshot.updatedAt : state.updatedAt;
-      const lastRunAt =
-        snapshot.lastRunAt !== undefined ? snapshot.lastRunAt : state.lastRunAt;
-      const createdAt =
-        snapshot.createdAt !== undefined ? snapshot.createdAt : state.createdAt;
       const graphFingerprints = fingerprintGraphSnapshot(snapshot);
       const nextState = {
         ...state,
@@ -249,9 +247,6 @@ const createWorkflowEditorState = (
         workflowId,
         sourceWorkflowId,
         status,
-        updatedAt,
-        lastRunAt,
-        createdAt,
         nodes: snapshot.nodes,
         edges: snapshot.edges,
         ...graphFingerprints,

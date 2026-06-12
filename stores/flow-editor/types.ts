@@ -7,6 +7,7 @@ import type {
 } from "@xyflow/react";
 import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
 import type { AiClassifierTaggerNodeData } from "@/components/flow/nodes/ai-classifier-tagger-node";
+import type { AiPollNodeData } from "@/components/flow/nodes/ai-poll-node";
 import type { AiTitleGenerationNodeData } from "@/components/flow/nodes/ai-title-generation-node";
 import type { CmsOutputAudioNodeData } from "@/components/flow/nodes/cms-output-audio-node";
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
@@ -39,11 +40,11 @@ export type AiTitleGenerationNodeSlice = {
   ) => void;
 };
 
-export type AiVoteSuggestionNodeSlice = {
-  addAiVoteSuggestionNode: () => void;
-  updateAiVoteSuggestionNodeData: (
+export type AiPollNodeSlice = {
+  addAiPollNode: () => void;
+  updateAiPollNodeData: (
     nodeId: string,
-    data: Partial<AiCallNodeData>,
+    data: Partial<AiPollNodeData>,
   ) => void;
 };
 
@@ -104,7 +105,7 @@ export type WorkflowValidationSlice = {
 export type NodesStore = FlowSlice &
   AiNodeSlice &
   AiTitleGenerationNodeSlice &
-  AiVoteSuggestionNodeSlice &
+  AiPollNodeSlice &
   AiClassifierTaggerNodeSlice &
   CodeNodeSlice &
   CmsNodeSlice &

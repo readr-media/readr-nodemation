@@ -502,21 +502,14 @@ const demoVotingNodes = JSON.stringify([
     },
   },
   {
-    id: "voting-aiCall-node",
-    type: "aiCall",
+    id: "voting-aiPoll-node",
+    type: "aiPoll",
     position: { x: 360, y: 160 },
+    measured: { width: 240, height: 62 },
     data: {
       title: "AI 投票建議",
-      inputs: {
-        title: true,
-        content: true,
-        summary: true,
-      },
-      outputFormat: "JSON",
-      promptTemplate:
-        "請依新聞內容提出 3 個可投票選項，並附上各選項一行理由，使用 JSON 回傳。",
-      cmsField: "recommendedPoll",
-      testInput: "",
+      userPrompt: "",
+      categoryAmount: 2,
     },
   },
   {
@@ -546,13 +539,13 @@ const demoVotingNodes = JSON.stringify([
 
 const demoVotingEdges = JSON.stringify([
   {
-    id: "voting-cmsInput-node->voting-aiCall-node",
+    id: "voting-cmsInput-node->voting-aiPoll-node",
     source: "voting-cmsInput-node",
-    target: "voting-aiCall-node",
+    target: "voting-aiPoll-node",
   },
   {
-    id: "voting-aiCall-node->voting-cmsOutput-node",
-    source: "voting-aiCall-node",
+    id: "voting-aiPoll-node->voting-cmsOutput-node",
+    source: "voting-aiPoll-node",
     target: "voting-cmsOutput-node",
   },
 ]);

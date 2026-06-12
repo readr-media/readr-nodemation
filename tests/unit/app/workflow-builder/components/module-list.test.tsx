@@ -11,7 +11,9 @@ const mockModuleCardState = vi.hoisted(() => ({
 
 vi.mock("../../../../../app/[workflow-builder]/components/module-card", () => ({
   ModuleCard: ({ title, onClick }: { title: string; onClick?: () => void }) => {
-    mockModuleCardState.cardsByTitle.set(title, { onClick });
+    mockModuleCardState.cardsByTitle.set(title, {
+      onClick: onClick ?? (() => {}),
+    });
 
     return (
       <button type="button" data-title={title} onClick={onClick}>
@@ -35,7 +37,7 @@ describe("module list", () => {
       "aiClassifierTagger",
       "aiTitleGeneration",
       "podcastGeneration",
-      "aiVoteSuggestion",
+      "aiPoll",
     ]);
     expect(aiGroup?.modules.map((module) => module.title)).toEqual([
       "呼叫 AI",
@@ -69,7 +71,7 @@ describe("module list", () => {
     });
   });
 
-  it("adds an aiCall vote-suggestion node when the AI voting module is clicked", async () => {
+  it("adds an aiPoll node when the AI voting module is clicked", async () => {
     const { default: ModuleList } =
       await import("../../../../../app/[workflow-builder]/components/module-list");
 
@@ -82,10 +84,11 @@ describe("module list", () => {
     votingCard?.onClick?.();
 
     expect(useNodesStore.getState().nodes.at(-1)).toMatchObject({
-      type: "aiCall",
+      type: "aiPoll",
       data: {
         title: "AI 投票建議",
-        cmsField: "recommendedPoll",
+        userPrompt: "",
+        categoryAmount: 2,
       },
     });
   });

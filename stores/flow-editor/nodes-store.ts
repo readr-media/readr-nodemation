@@ -3,7 +3,7 @@ import { devtools } from "zustand/middleware";
 import { createAiClassifierTaggerNodeSlice } from "./slices/ai-classifier-tagger-node-slice";
 import { createAiNodeSlice } from "./slices/ai-node-slice";
 import { createAiTitleGenerationNodeSlice } from "./slices/ai-title-generation-node-slice";
-import { createAiVoteSuggestionNodeSlice } from "./slices/ai-vote-suggestion-node-slice";
+import { createAiPollNodeSlice } from "./slices/ai-poll-node-slice";
 import { createCmsNodeSlice } from "./slices/cms-node-slice";
 import { createCmsOutputAudioNodeSlice } from "./slices/cms-output-audio-node-slice";
 import { createCmsOutputNodeSlice } from "./slices/cms-output-node-slice";
@@ -19,7 +19,7 @@ export const useNodesStore = create<NodesStore>()(
       ...createFlowSlice(set, get, store),
       ...createAiNodeSlice(set, get, store),
       ...createAiTitleGenerationNodeSlice(set, get, store),
-      ...createAiVoteSuggestionNodeSlice(set, get, store),
+      ...createAiPollNodeSlice(set, get, store),
       ...createAiClassifierTaggerNodeSlice(set, get, store),
       ...createCodeNodeSlice(set, get, store),
       ...createCmsNodeSlice(set, get, store),

@@ -3,6 +3,7 @@
 import type { Edge, Node } from "@xyflow/react";
 import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
 import type { AiClassifierTaggerNodeData } from "@/components/flow/nodes/ai-classifier-tagger-node";
+import type { AiPollNodeData } from "@/components/flow/nodes/ai-poll-node";
 import type { AiTitleGenerationNodeData } from "@/components/flow/nodes/ai-title-generation-node";
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import type {
@@ -20,6 +21,7 @@ import { cronToSchedule } from "@/lib/cron-to-schedule";
 import type { WorkflowStatus } from "@/lib/workflow-status";
 import { useExecutionScheduleStore } from "@/stores/execution-schedule-store";
 import { createAiClassifierTaggerNodeData } from "@/stores/flow-editor/slices/ai-classifier-tagger-node-slice";
+import { createAiPollNodeData } from "@/stores/flow-editor/slices/ai-poll-node-slice";
 import { createAiTitleGenerationNodeData } from "@/stores/flow-editor/slices/ai-title-generation-node-slice";
 import { createCmsInputNodeData } from "@/stores/flow-editor/slices/cms-node-slice";
 import { createCmsOutputAudioNodeData } from "@/stores/flow-editor/slices/cms-output-audio-node-slice";
@@ -214,6 +216,29 @@ const normalizeAiClassifierTaggerData = (
   };
 };
 
+const normalizeAiPollData = (
+  data: Record<string, unknown>,
+): AiPollNodeData => {
+  const defaults = createAiPollNodeData();
+
+  return {
+    title:
+      typeof data.title === "string"
+        ? data.title
+        : typeof data.label === "string"
+          ? data.label
+          : defaults.title,
+    userPrompt:
+      typeof data.userPrompt === "string"
+        ? data.userPrompt
+        : defaults.userPrompt,
+    categoryAmount:
+      typeof data.categoryAmount === "number"
+        ? data.categoryAmount
+        : defaults.categoryAmount,
+  };
+};
+
 const normalizeAiTitleGenerationData = (
   data: Record<string, unknown>,
 ): AiTitleGenerationNodeData => {
@@ -402,6 +427,8 @@ const normalizeNode = (node: Node): Node => {
   switch (node.type) {
     case "aiClassifierTagger":
       return { ...node, data: normalizeAiClassifierTaggerData(data) };
+    case "aiPoll":
+      return { ...node, data: normalizeAiPollData(data) };
     case "aiTitle":
       return { ...node, data: normalizeAiTitleGenerationData(data) };
     case "cmsInput":

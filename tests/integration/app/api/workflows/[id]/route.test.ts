@@ -6,6 +6,7 @@ const { prisma, getActiveUserId } = vi.hoisted(() => ({
     workflow: {
       deleteMany: vi.fn(),
       updateMany: vi.fn(),
+      findFirst: vi.fn(),
     },
   },
   getActiveUserId: vi.fn(),

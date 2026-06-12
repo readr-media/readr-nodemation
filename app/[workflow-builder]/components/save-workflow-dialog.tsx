@@ -80,6 +80,10 @@ const SaveWorkflowDialog = ({
   );
   const workflowId = useWorkflowEditorStore((state) => state.workflowId);
   const resetBaseline = useWorkflowEditorStore((state) => state.resetBaseline);
+  const syncServerStatus = useWorkflowEditorStore(
+    (state) => state.syncServerStatus,
+  );
+  const setCreatedAt = useWorkflowEditorStore((state) => state.setCreatedAt);
   const [isOpen, setIsOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -131,6 +135,8 @@ const SaveWorkflowDialog = ({
         nextRunAt,
         fetchImpl: fetch,
         resetBaseline,
+        syncServerStatus,
+        setCreatedAt,
       });
 
       if (mode === "save-as-new") {

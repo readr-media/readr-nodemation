@@ -110,6 +110,9 @@ describe("loadWorkflowIntoStores", () => {
     expect(firstLoadedNode.data).not.toHaveProperty("author");
     expect(hydrateFromWorkflow).toHaveBeenCalledWith({
       workflowId: "workflow-123",
+      updatedAt: null,
+      lastRunAt: null,
+      createdAt: null,
       name: "文章自動分類與標記",
       description: "既有流程",
       status: "draft",
@@ -579,6 +582,9 @@ describe("loadWorkflowIntoStores", () => {
     });
     expect(hydrateFromWorkflow).toHaveBeenCalledWith({
       workflowId: "ai-classifier-workflow",
+      updatedAt: null,
+      lastRunAt: null,
+      createdAt: null,
       name: "文章自動分類與標記",
       description: "既有流程",
       status: "draft",
@@ -714,6 +720,9 @@ describe("loadWorkflowIntoStores", () => {
     });
     expect(hydrateFromWorkflow).toHaveBeenCalledWith({
       workflowId: "ai-classifier-workflow-missing-data",
+      updatedAt: null,
+      lastRunAt: null,
+      createdAt: null,
       name: "文章自動分類與標記",
       description: "既有流程",
       status: "draft",
@@ -790,8 +799,7 @@ describe("loadWorkflowIntoStores", () => {
               id: "aiClassifierTagger-node",
               type: "aiClassifierTagger",
               position: { x: 320, y: 160 },
-              data: {
-              },
+              data: {},
             },
           ]),
           edges: JSON.stringify([]),
@@ -845,6 +853,9 @@ describe("loadWorkflowIntoStores", () => {
     });
     expect(hydrateFromWorkflow).toHaveBeenCalledWith({
       workflowId: "ai-classifier-workflow-default-title",
+      updatedAt: null,
+      lastRunAt: null,
+      createdAt: null,
       name: "文章自動分類與標記",
       description: "既有流程",
       status: "draft",
@@ -1105,6 +1116,9 @@ describe("loadWorkflowIntoStores", () => {
     expect(legacyLoadedNode.data).not.toHaveProperty("author");
     expect(hydrateFromWorkflow).toHaveBeenCalledWith({
       workflowId: "legacy-cms-input-workflow",
+      updatedAt: null,
+      lastRunAt: null,
+      createdAt: null,
       name: "legacy cms input",
       description: "既有流程",
       status: "draft",
@@ -1196,6 +1210,9 @@ describe("loadWorkflowIntoStores", () => {
     });
     expect(hydrateFromWorkflow).toHaveBeenCalledWith({
       workflowId: "legacy-code-workflow",
+      updatedAt: null,
+      lastRunAt: null,
+      createdAt: null,
       name: "legacy code",
       description: "既有流程",
       status: "draft",

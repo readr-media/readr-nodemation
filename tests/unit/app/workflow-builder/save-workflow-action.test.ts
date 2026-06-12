@@ -168,13 +168,22 @@ const getNodeDataOrThrow = (
   return node.data;
 };
 
+const createSaveMocks = () => ({
+  resetBaseline: vi.fn(),
+  syncServerStatus: vi.fn(),
+  setCreatedAt: vi.fn(),
+});
+
 describe("saveWorkflow", () => {
   it("updates the original workflow with PUT and resets the baseline to the same id", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(
       new Response(
         JSON.stringify({
-          id: "workflow-123",
-          name: "更新後流程",
+          count: 1,
+          status: "published",
+          updated_at: "2026-06-10T03:00:00.000Z",
+          last_run_at: null,
+          created_at: "2026-06-01T03:00:00.000Z",
         }),
         {
           status: 200,
@@ -182,7 +191,7 @@ describe("saveWorkflow", () => {
         },
       ),
     );
-    const resetBaseline = vi.fn();
+    const { resetBaseline, syncServerStatus, setCreatedAt } = createSaveMocks();
 
     const result = await saveWorkflow({
       mode: "update",
@@ -195,6 +204,8 @@ describe("saveWorkflow", () => {
       ...unscheduledPayload,
       fetchImpl,
       resetBaseline,
+      syncServerStatus,
+      setCreatedAt,
     });
 
     expect(fetchImpl).toHaveBeenCalledWith("/api/workflows/workflow-123", {
@@ -244,7 +255,14 @@ describe("saveWorkflow", () => {
       sourceWorkflowId: "workflow-123",
       nodes,
       edges,
+      status: "published",
     });
+    expect(syncServerStatus).toHaveBeenCalledWith({
+      status: "published",
+      updatedAt: "2026-06-10T03:00:00.000Z",
+      lastRunAt: null,
+    });
+    expect(setCreatedAt).not.toHaveBeenCalled();
     expect(result).toEqual({
       workflowId: "workflow-123",
       sourceWorkflowId: "workflow-123",
@@ -257,6 +275,10 @@ describe("saveWorkflow", () => {
         JSON.stringify({
           id: "workflow-456",
           name: "另存新流程",
+          status: "draft",
+          updated_at: "2026-06-10T03:00:00.000Z",
+          last_run_at: null,
+          created_at: "2026-06-10T03:00:00.000Z",
         }),
         {
           status: 201,
@@ -264,7 +286,7 @@ describe("saveWorkflow", () => {
         },
       ),
     );
-    const resetBaseline = vi.fn();
+    const { resetBaseline, syncServerStatus, setCreatedAt } = createSaveMocks();
 
     const result = await saveWorkflow({
       mode: "save-as-new",
@@ -277,6 +299,8 @@ describe("saveWorkflow", () => {
       ...unscheduledPayload,
       fetchImpl,
       resetBaseline,
+      syncServerStatus,
+      setCreatedAt,
     });
 
     expect(fetchImpl).toHaveBeenCalledWith("/api/workflows", {
@@ -297,7 +321,14 @@ describe("saveWorkflow", () => {
       sourceWorkflowId: "workflow-456",
       nodes,
       edges,
+      status: "draft",
     });
+    expect(syncServerStatus).toHaveBeenCalledWith({
+      status: "draft",
+      updatedAt: "2026-06-10T03:00:00.000Z",
+      lastRunAt: null,
+    });
+    expect(setCreatedAt).toHaveBeenCalledWith("2026-06-10T03:00:00.000Z");
     expect(result).toEqual({
       workflowId: "workflow-456",
       sourceWorkflowId: "workflow-456",
@@ -317,7 +348,7 @@ describe("saveWorkflow", () => {
         },
       ),
     );
-    const resetBaseline = vi.fn();
+    const { resetBaseline, syncServerStatus, setCreatedAt } = createSaveMocks();
 
     await saveWorkflow({
       mode: "update",
@@ -330,6 +361,8 @@ describe("saveWorkflow", () => {
       ...unscheduledPayload,
       fetchImpl,
       resetBaseline,
+      syncServerStatus,
+      setCreatedAt,
     });
 
     const requestBody = getRequestBodyOrThrow(fetchImpl);
@@ -364,7 +397,7 @@ describe("saveWorkflow", () => {
         },
       ),
     );
-    const resetBaseline = vi.fn();
+    const { resetBaseline, syncServerStatus, setCreatedAt } = createSaveMocks();
 
     await saveWorkflow({
       mode: "update",
@@ -377,6 +410,8 @@ describe("saveWorkflow", () => {
       ...unscheduledPayload,
       fetchImpl,
       resetBaseline,
+      syncServerStatus,
+      setCreatedAt,
     });
 
     const requestBody = getRequestBodyOrThrow(fetchImpl);
@@ -423,7 +458,7 @@ describe("saveWorkflow", () => {
         },
       ),
     );
-    const resetBaseline = vi.fn();
+    const { resetBaseline, syncServerStatus, setCreatedAt } = createSaveMocks();
 
     await saveWorkflow({
       mode: "update",
@@ -436,6 +471,8 @@ describe("saveWorkflow", () => {
       ...unscheduledPayload,
       fetchImpl,
       resetBaseline,
+      syncServerStatus,
+      setCreatedAt,
     });
 
     const requestBody = getRequestBodyOrThrow(fetchImpl);

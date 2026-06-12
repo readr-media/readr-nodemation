@@ -2,6 +2,7 @@
 
 import type { Edge, Node } from "@xyflow/react";
 import type { WorkflowStatus } from "@/lib/workflow-status";
+import type { ServerStatusSnapshot } from "@/stores/workflow-editor/store";
 
 type SaveMode = "update" | "save-as-new";
 
@@ -24,12 +25,19 @@ type SaveWorkflowInput = {
     sourceWorkflowId: string;
     nodes: Node[];
     edges: Edge[];
+    status?: WorkflowStatus;
   }) => void;
+  syncServerStatus: (snapshot: ServerStatusSnapshot) => void;
+  setCreatedAt: (createdAt: string | null) => void;
 };
 
 type SavedWorkflowResponse = {
   id?: string;
   count?: number;
+  status?: WorkflowStatus;
+  updated_at?: string | null;
+  last_run_at?: string | null;
+  created_at?: string | null;
 };
 
 const buildRequest = ({
@@ -42,7 +50,10 @@ const buildRequest = ({
   edges,
   cronExpression,
   nextRunAt,
-}: Omit<SaveWorkflowInput, "fetchImpl" | "resetBaseline">) => {
+}: Omit<
+  SaveWorkflowInput,
+  "fetchImpl" | "resetBaseline" | "syncServerStatus" | "setCreatedAt"
+>) => {
   // Always send cron_expression / next_run_at. An explicit null clears a
   // previously scheduled workflow; a value sets or updates the schedule.
   const scheduleFields = {
@@ -83,6 +94,15 @@ const buildRequest = ({
   };
 };
 
+const buildServerStatusSnapshot = (
+  savedWorkflow: SavedWorkflowResponse,
+  fallbackStatus: WorkflowStatus,
+): ServerStatusSnapshot => ({
+  status: savedWorkflow.status ?? fallbackStatus,
+  updatedAt: savedWorkflow.updated_at ?? null,
+  lastRunAt: savedWorkflow.last_run_at ?? null,
+});
+
 export const saveWorkflow = async ({
   mode,
   workflowId,
@@ -95,6 +115,8 @@ export const saveWorkflow = async ({
   nextRunAt,
   fetchImpl,
   resetBaseline,
+  syncServerStatus,
+  setCreatedAt,
 }: SaveWorkflowInput) => {
   const request = buildRequest({
     mode,
@@ -128,12 +150,24 @@ export const saveWorkflow = async ({
     throw new Error("Saved workflow id is missing");
   }
 
+  const nextStatus = savedWorkflow.status ?? status;
+
   resetBaseline({
     workflowId: nextWorkflowId,
     sourceWorkflowId: nextWorkflowId,
     nodes,
     edges,
+    status: nextStatus,
   });
+
+  // PUT/PATCH responses come from findFirst; POST returns the full workflow.
+  // Prefer the server's authoritative timestamps for the header.
+  syncServerStatus(buildServerStatusSnapshot(savedWorkflow, status));
+
+  // createdAt is immutable — only set once when a new workflow is first created.
+  if (mode === "save-as-new" && savedWorkflow.created_at !== undefined) {
+    setCreatedAt(savedWorkflow.created_at);
+  }
 
   return {
     workflowId: nextWorkflowId,

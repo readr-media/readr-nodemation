@@ -5,6 +5,8 @@ import { Share2 } from "lucide-react";
 import { memo } from "react";
 
 import { cn } from "@/lib/utils";
+
+import { getNodeShellClassName } from "./node-shell-styles";
 export type CmsOutputAudioTargetField = "title" | "description" | "audioFile";
 
 export type CmsAudioFieldMapping = {
@@ -27,11 +29,14 @@ export type CmsOutputAudioNodeType = Node<CmsOutputAudioNodeData, "cmsOutputAudi
 const handleClass =
   "!h-3 !w-3 !rounded-full !border !border-[#d4d3cc] !bg-white shadow-[0px_2px_6px_rgba(0,0,0,0.1)]";
 
-const CmsOutputAudioNode = ({ data }: NodeProps<CmsOutputAudioNodeType>) => {
+const CmsOutputAudioNode = ({
+  data,
+  selected,
+}: NodeProps<CmsOutputAudioNodeType>) => {
   const title = data.title;
 
   return (
-    <div className="relative min-w-60 rounded-[14px] border border-[#0f9b81] bg-white px-5 py-3 shadow-[0_0_0_4px_rgba(0,150,125,0.2)]">
+    <div className={getNodeShellClassName(selected, "cms")}>
       <div className="flex items-center gap-3">
         <div className="flex size-9 items-center justify-center rounded-2xl bg-[#f5f5f1]">
           <Share2 className="size-4 text-[#a09d92]" strokeWidth={1.5} />

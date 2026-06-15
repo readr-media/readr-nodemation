@@ -3,11 +3,23 @@ import { describe, expect, it } from "vitest";
 import {
   hasWorkflowInputErrors,
   validateCategoryAmountInput,
+  validatePollOptionCountInput,
   validateTagAmountInput,
   validateTitleKeywordsInput,
 } from "@/lib/workflow-node-validation";
 
 describe("workflow node validation", () => {
+  it("validates ai poll option count input", () => {
+    expect(validatePollOptionCountInput("2")).toBeNull();
+    expect(validatePollOptionCountInput("10")).toBeNull();
+    expect(validatePollOptionCountInput("")).toBe("請輸入 2-10 的數字");
+    expect(validatePollOptionCountInput("abc")).toBe("請輸入 2-10 的數字");
+    expect(validatePollOptionCountInput("1.5")).toBe("請輸入 2-10 的數字");
+    expect(validatePollOptionCountInput("1")).toBe("只能產生 2-10 個投票選項");
+    expect(validatePollOptionCountInput("0")).toBe("只能產生 2-10 個投票選項");
+    expect(validatePollOptionCountInput("29")).toBe("只能產生 2-10 個投票選項");
+  });
+
   it("validates ai classifier tagger category amount input", () => {
     expect(validateCategoryAmountInput("1")).toBeNull();
     expect(validateCategoryAmountInput("3")).toBeNull();

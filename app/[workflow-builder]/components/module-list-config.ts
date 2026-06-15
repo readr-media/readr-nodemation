@@ -10,7 +10,7 @@ export type ModuleNodeType =
   | "podcastGeneration"
   | "cmsOutputAudio"
   | "aiTitleGeneration"
-  | "aiVoteSuggestion";
+  | "aiPoll";
 
 export type ModuleItem = {
   title: string;
@@ -57,7 +57,7 @@ export const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
         description: "AI 產生文章的投票建議",
         icon: Sparkles,
         accent: "ai",
-        nodeType: "aiVoteSuggestion",
+        nodeType: "aiPoll",
       },
     ],
   },

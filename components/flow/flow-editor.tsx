@@ -14,6 +14,7 @@ import { type ReactNode, useCallback, useMemo } from "react";
 import { useNodesStore } from "@/stores/flow-editor/nodes-store";
 import AiCallNode from "./nodes/ai-call-node";
 import AiClassifierTaggerNode from "./nodes/ai-classifier-tagger-node";
+import AiPollNode from "./nodes/ai-poll-node";
 import AiTitleGenerationNode from "./nodes/ai-title-generation-node";
 import CmsInputNode from "./nodes/cms-input-node";
 import CmsOutputNode from "./nodes/cms-output-node";
@@ -36,6 +37,7 @@ const FlowEditor = ({ controlsSlot }: FlowEditorProps) => {
     () => ({
       aiCall: AiCallNode,
       aiTitle: AiTitleGenerationNode,
+      aiPoll: AiPollNode,
       aiClassifierTagger: AiClassifierTaggerNode,
       codeBlock: CodeNode,
       cmsInput: CmsInputNode,

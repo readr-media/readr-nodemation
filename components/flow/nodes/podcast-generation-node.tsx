@@ -5,6 +5,8 @@ import { Sparkles } from "lucide-react";
 import { memo } from "react";
 
 import { cn } from "@/lib/utils";
+
+import { getNodeShellClassName } from "./node-shell-styles";
 import { PodcastGenerationNodeData } from "@/stores/flow-editor/slices/podcast-generation-node-slice";
 
 export type PodcastGenerationNodeType = Node<PodcastGenerationNodeData, "podcastGeneration">;
@@ -12,11 +14,14 @@ export type PodcastGenerationNodeType = Node<PodcastGenerationNodeData, "podcast
 const handleClass =
   "!h-3 !w-3 !rounded-full !border !border-[#d4d3cc] !bg-white shadow-[0px_2px_6px_rgba(0,0,0,0.1)]";
 
-const PodcastGenerationNode = ({ data }: NodeProps<PodcastGenerationNodeType>) => {
+const PodcastGenerationNode = ({
+  data,
+  selected,
+}: NodeProps<PodcastGenerationNodeType>) => {
   const title = data.title;
 
   return (
-    <div className="relative min-w-60 rounded-[14px] border border-red-500 bg-white px-5 py-3 shadow-[0_0_0_4px_rgba(255,107,74,0.2)]">
+    <div className={getNodeShellClassName(selected, "ai")}>
       <div className="flex items-center gap-3">
         <div className="flex size-9 items-center justify-center rounded-2xl bg-[#f5f5f1]">
           <Sparkles className="size-4 text-[#a09d92]" strokeWidth={1.5} />

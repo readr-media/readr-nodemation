@@ -3,11 +3,13 @@ import { createStore } from "zustand/vanilla";
 
 import { loadWorkflowIntoStores } from "@/app/[workflow-builder]/components/workflow-loader";
 import { createAiClassifierTaggerNodeSlice } from "@/stores/flow-editor/slices/ai-classifier-tagger-node-slice";
+import { createAiPollNodeSlice } from "@/stores/flow-editor/slices/ai-poll-node-slice";
 import { createAiTitleGenerationNodeSlice } from "@/stores/flow-editor/slices/ai-title-generation-node-slice";
 import { createCmsNodeSlice } from "@/stores/flow-editor/slices/cms-node-slice";
 import { createCmsOutputNodeSlice } from "@/stores/flow-editor/slices/cms-output-node-slice";
 import type {
   AiClassifierTaggerNodeSlice,
+  AiPollNodeSlice,
   AiTitleGenerationNodeSlice,
   CmsNodeSlice,
   CmsOutputNodeSlice,
@@ -216,6 +218,29 @@ describe("loadWorkflowIntoStores", () => {
           categories: "array[string]",
           tags: "array[string]",
         },
+      },
+    });
+    expect(store.getState().selectedNodeId).toBe(createdNode.id);
+  });
+
+  it("creates new aiPoll nodes with the approved defaults", () => {
+    const store = createSliceStore<AiPollNodeSlice>(
+      createAiPollNodeSlice as never,
+    );
+
+    store.getState().addAiPollNode();
+
+    const createdNode = getFirstNodeOrThrow(
+      store,
+    ) as NodesStore["nodes"][number];
+
+    expect(createdNode).toMatchObject({
+      type: "aiPoll",
+      measured: { width: 240, height: 62 },
+      data: {
+        title: "AI 投票建議",
+        userPrompt: "",
+        categoryAmount: 2,
       },
     });
     expect(store.getState().selectedNodeId).toBe(createdNode.id);
@@ -1433,6 +1458,114 @@ describe("loadWorkflowIntoStores", () => {
             titleStyle: "professional",
             titleTemperature: 0.5,
             titleKeywords: "",
+          },
+        },
+      ],
+      edges: [],
+    });
+  });
+
+  it("normalizes aiPoll workflow nodes before hydrating the stores", async () => {
+    const loadSnapshot = vi.fn();
+    const hydrateFromWorkflow = vi.fn();
+    const fetchImpl = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "ai-poll-workflow",
+          name: "AI 投票建議流程",
+          description: "既有流程",
+          status: "draft",
+          nodes: JSON.stringify([
+            {
+              id: "aiPoll-node",
+              type: "aiPoll",
+              position: { x: 360, y: 160 },
+              data: {
+                label: "舊投票節點",
+                userPrompt: "請設計支持 / 反對立場投票",
+                categoryAmount: 4,
+              },
+            },
+          ]),
+          edges: JSON.stringify([]),
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        },
+      ),
+    );
+
+    const result = await loadWorkflowIntoStores({
+      workflowId: "ai-poll-workflow",
+      templateId: null,
+      fetchImpl,
+      loadSnapshot,
+      hydrateFromWorkflow,
+    });
+
+    expect(result).toEqual({ status: "loaded" });
+    expect(loadSnapshot).toHaveBeenCalledWith({
+      nodes: [
+        {
+          id: "aiPoll-node",
+          type: "aiPoll",
+          position: { x: 360, y: 160 },
+          data: {
+            title: "舊投票節點",
+            userPrompt: "請設計支持 / 反對立場投票",
+            categoryAmount: 4,
+          },
+        },
+      ],
+      edges: [],
+    });
+  });
+
+  it("normalizes aiPoll workflow nodes when node data is missing or invalid", async () => {
+    const loadSnapshot = vi.fn();
+    const hydrateFromWorkflow = vi.fn();
+    const fetchImpl = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "ai-poll-workflow-missing-data",
+          name: "AI 投票建議流程",
+          description: "既有流程",
+          status: "draft",
+          nodes: JSON.stringify([
+            {
+              id: "aiPoll-node",
+              type: "aiPoll",
+              position: { x: 360, y: 160 },
+            },
+          ]),
+          edges: JSON.stringify([]),
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        },
+      ),
+    );
+
+    await loadWorkflowIntoStores({
+      workflowId: "ai-poll-workflow-missing-data",
+      templateId: null,
+      fetchImpl,
+      loadSnapshot,
+      hydrateFromWorkflow,
+    });
+
+    expect(loadSnapshot).toHaveBeenCalledWith({
+      nodes: [
+        {
+          id: "aiPoll-node",
+          type: "aiPoll",
+          position: { x: 360, y: 160 },
+          data: {
+            title: "AI 投票建議",
+            userPrompt: "",
+            categoryAmount: 2,
           },
         },
       ],

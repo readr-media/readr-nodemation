@@ -6,6 +6,8 @@ import { memo } from "react";
 
 import { cn } from "@/lib/utils";
 
+import { getNodeShellClassName } from "./node-shell-styles";
+
 export type AiClassifierTaggerNodeData = {
   title: string;
   inputFields: {
@@ -38,11 +40,12 @@ const handleClass =
 
 const AiClassifierTaggerNode = ({
   data,
+  selected,
 }: NodeProps<AiClassifierTaggerNodeType>) => {
   const title = data.title;
 
   return (
-    <div className="relative min-w-60 rounded-[14px] border border-red-500 bg-white px-5 py-3 shadow-[0_0_0_4px_rgba(255,107,74,0.2)]">
+    <div className={getNodeShellClassName(selected, "ai")}>
       <div className="flex items-center gap-3">
         <div className="flex size-9 items-center justify-center rounded-2xl bg-[#f5f5f1]">
           <Sparkles className="size-4 text-[#a09d92]" strokeWidth={1.5} />

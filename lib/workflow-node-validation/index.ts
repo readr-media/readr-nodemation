@@ -1,4 +1,8 @@
 export {
+  AI_POLL_FIELDS,
+  validatePollOptionCountInput,
+} from "./ai-poll";
+export {
   AI_CLASSIFIER_TAGGER_FIELDS,
   validateCategoryAmountInput,
   validateTagAmountInput,

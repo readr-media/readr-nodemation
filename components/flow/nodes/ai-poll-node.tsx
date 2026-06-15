@@ -8,24 +8,18 @@ import { cn } from "@/lib/utils";
 
 import { getNodeShellClassName } from "./node-shell-styles";
 
-export type AiCallNodeData = {
+export type AiPollNodeData = {
   title: string;
-  inputs: {
-    title: boolean;
-    content: boolean;
-    summary: boolean;
-  };
-  outputFormat: string;
-  promptTemplate: string;
-  cmsField: string;
-  testInput: string;
+  userPrompt: string;
+  categoryAmount: number;
 };
-export type AiCallNodeType = Node<AiCallNodeData, "aiCall">;
+
+export type AiPollNodeType = Node<AiPollNodeData, "aiPoll">;
 
 const handleClass =
   "!h-3 !w-3 !rounded-full !border !border-[#d4d3cc] !bg-white shadow-[0px_2px_6px_rgba(0,0,0,0.1)]";
 
-const AiCallNode = ({ data, selected }: NodeProps<AiCallNodeType>) => {
+const AiPollNode = ({ data, selected }: NodeProps<AiPollNodeType>) => {
   const title = data.title;
 
   return (
@@ -52,4 +46,4 @@ const AiCallNode = ({ data, selected }: NodeProps<AiCallNodeType>) => {
   );
 };
 
-export default memo(AiCallNode);
+export default memo(AiPollNode);

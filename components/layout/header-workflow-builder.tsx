@@ -60,16 +60,24 @@ export default function WorkflowBuilderHeader() {
   const workflowDescription = useWorkflowEditorStore(
     (state) => state.description,
   );
-  const workflowStatus = useWorkflowEditorStore((state) => state.status);
-  const workflowUpdatedAt = useWorkflowEditorStore((state) => state.updatedAt);
-  const workflowLastRunAt = useWorkflowEditorStore((state) => state.lastRunAt);
-  const workflowCreatedAt = useWorkflowEditorStore((state) => state.createdAt);
-  const runTriggered = useWorkflowEditorStore((state) => state.runTriggered);
-  const sawRunningStatus = useWorkflowEditorStore(
-    (state) => state.sawRunningStatus,
-  );
-  const lastRunAtAtTrigger = useWorkflowEditorStore(
-    (state) => state.lastRunAtAtTrigger,
+  const {
+    workflowStatus,
+    workflowUpdatedAt,
+    workflowLastRunAt,
+    workflowCreatedAt,
+    runTriggered,
+    sawRunningStatus,
+    lastRunAtAtTrigger,
+  } = useWorkflowEditorStore(
+    useShallow((state) => ({
+      workflowStatus: state.status,
+      workflowUpdatedAt: state.updatedAt,
+      workflowLastRunAt: state.lastRunAt,
+      workflowCreatedAt: state.createdAt,
+      runTriggered: state.runTriggered,
+      sawRunningStatus: state.sawRunningStatus,
+      lastRunAtAtTrigger: state.lastRunAtAtTrigger,
+    })),
   );
   const activityText = deriveWorkflowActivityText({
     status: workflowStatus,

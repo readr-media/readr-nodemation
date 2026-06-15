@@ -252,7 +252,11 @@ const createWorkflowEditorState = (
             sawRunningStatus: false,
             lastRunAtAtTrigger: state.lastRunAt,
           }
-        : { runTriggered },
+        : {
+            runTriggered,
+            sawRunningStatus: false,
+            lastRunAtAtTrigger: null,
+          },
     );
   },
   resetBaseline: (snapshot) => {

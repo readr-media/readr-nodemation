@@ -252,6 +252,34 @@ describe("workflow editor store", () => {
     expect(store.getState().runTriggered).toBe(false);
   });
 
+  it("clears run cycle fields when setRunTriggered(false) is called", () => {
+    const store = createWorkflowEditorStore();
+    store.getState().hydrateFromWorkflow({
+      workflowId: "workflow-123",
+      name: "文章自動分類",
+      description: "根據 AI 分類文章",
+      status: "published",
+      updatedAt: "2026-06-10T11:00:00.000Z",
+      lastRunAt: "2026-06-10T11:00:00.000Z",
+      nodes: initialNodes,
+      edges: initialEdges,
+    });
+    store.getState().setRunTriggered(true);
+    store.getState().syncServerStatus({
+      status: "running",
+      updatedAt: "2026-06-10T12:00:00.000Z",
+      lastRunAt: "2026-06-10T12:00:00.000Z",
+    });
+
+    store.getState().setRunTriggered(false);
+
+    expect(store.getState()).toMatchObject({
+      runTriggered: false,
+      sawRunningStatus: false,
+      lastRunAtAtTrigger: null,
+    });
+  });
+
   it("keeps runTriggered while a user-initiated run is still pending", () => {
     const store = createWorkflowEditorStore();
     store.getState().hydrateFromWorkflow({

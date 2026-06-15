@@ -4,33 +4,81 @@ import {
   isWorkflowRunCompleted,
 } from "@/lib/workflow-status";
 
+const cycle = (
+  overrides: Partial<{
+    runTriggered: boolean;
+    sawRunningStatus: boolean;
+    lastRunAt: string | null;
+    lastRunAtAtTrigger: string | null;
+  }> = {},
+) => ({
+  runTriggered: false,
+  sawRunningStatus: false,
+  lastRunAt: null,
+  lastRunAtAtTrigger: null,
+  ...overrides,
+});
+
 describe("isWorkflowRunCompleted", () => {
-  it("returns true when last_run_at is within tolerance of updated_at", () => {
+  it("returns true after published → running → published", () => {
     expect(
       isWorkflowRunCompleted(
-        "2026-06-10T12:00:05.000Z",
-        "2026-06-10T12:00:00.000Z",
+        "published",
+        cycle({ runTriggered: true, sawRunningStatus: true }),
       ),
     ).toBe(true);
   });
 
-  it("returns false when last_run_at is older than updated_at beyond tolerance", () => {
+  it("returns true when last_run_at advances past the trigger snapshot", () => {
     expect(
       isWorkflowRunCompleted(
-        "2026-06-10T12:00:10.000Z",
-        "2026-06-10T12:00:00.000Z",
+        "published",
+        cycle({
+          runTriggered: true,
+          lastRunAt: "2026-06-15T09:24:10.862Z",
+          lastRunAtAtTrigger: "2026-06-12T02:26:08.653Z",
+        }),
+      ),
+    ).toBe(true);
+  });
+
+  it("returns false while waiting for the worker to pick up the run", () => {
+    expect(
+      isWorkflowRunCompleted(
+        "published",
+        cycle({
+          runTriggered: true,
+          lastRunAt: "2026-06-12T02:26:08.653Z",
+          lastRunAtAtTrigger: "2026-06-12T02:26:08.653Z",
+        }),
       ),
     ).toBe(false);
+  });
+
+  it("does not treat a long execution gap between last_run_at and updated_at as incomplete", () => {
+    expect(
+      isWorkflowRunCompleted(
+        "published",
+        cycle({
+          runTriggered: true,
+          sawRunningStatus: true,
+          lastRunAt: "2026-06-15T09:24:10.862Z",
+          lastRunAtAtTrigger: "2026-06-12T02:26:08.653Z",
+        }),
+      ),
+    ).toBe(true);
   });
 });
 
 describe("isWorkflowExecutionPending", () => {
   const staleLastRun = "2026-06-10T11:00:00.000Z";
-  const freshUpdated = "2026-06-10T12:00:00.000Z";
 
   it("returns true for running status regardless of runTriggered", () => {
     expect(
-      isWorkflowExecutionPending("running", freshUpdated, staleLastRun, false),
+      isWorkflowExecutionPending(
+        "running",
+        cycle({ lastRunAt: staleLastRun }),
+      ),
     ).toBe(true);
   });
 
@@ -38,9 +86,7 @@ describe("isWorkflowExecutionPending", () => {
     expect(
       isWorkflowExecutionPending(
         "published",
-        freshUpdated,
-        staleLastRun,
-        false,
+        cycle({ lastRunAt: staleLastRun }),
       ),
     ).toBe(false);
   });
@@ -49,28 +95,38 @@ describe("isWorkflowExecutionPending", () => {
     expect(
       isWorkflowExecutionPending(
         "published",
-        freshUpdated,
-        staleLastRun,
-        true,
+        cycle({
+          runTriggered: true,
+          lastRunAt: staleLastRun,
+          lastRunAtAtTrigger: staleLastRun,
+        }),
       ),
     ).toBe(true);
 
     expect(
       isWorkflowExecutionPending(
         "published",
-        freshUpdated,
-        freshUpdated,
-        true,
+        cycle({
+          runTriggered: true,
+          sawRunningStatus: true,
+          lastRunAt: staleLastRun,
+        }),
       ),
     ).toBe(false);
   });
 
   it("returns false for draft and template", () => {
     expect(
-      isWorkflowExecutionPending("draft", freshUpdated, staleLastRun, true),
+      isWorkflowExecutionPending(
+        "draft",
+        cycle({ runTriggered: true, lastRunAt: staleLastRun }),
+      ),
     ).toBe(false);
     expect(
-      isWorkflowExecutionPending("template", freshUpdated, staleLastRun, true),
+      isWorkflowExecutionPending(
+        "template",
+        cycle({ runTriggered: true, lastRunAt: staleLastRun }),
+      ),
     ).toBe(false);
   });
 });

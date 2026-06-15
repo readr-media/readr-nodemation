@@ -38,13 +38,12 @@ export const WORKFLOW_BUILDER_ACTIVITY_LABELS = {
   completed: "完成執行",
 } as const;
 
-// The worker stamps `last_run_at` and `updated_at` together when a run
-// finishes, but Prisma's `@updatedAt` and the worker's explicit `last_run_at`
-// write can differ by a few milliseconds. A small tolerance window lets us
-// treat "last_run_at ≈ updated_at" as "this run has completed", while a
-// just-submitted run (whose last_run_at is still null or from a previous run)
-// stays clearly older than updated_at.
-const RUN_COMPLETION_TOLERANCE_MS = 5_000;
+export type WorkflowRunCycleState = {
+  runTriggered: boolean;
+  sawRunningStatus: boolean;
+  lastRunAt: string | null;
+  lastRunAtAtTrigger: string | null;
+};
 
 const toTime = (value: string | null | undefined): number | null => {
   if (!value) {
@@ -54,19 +53,33 @@ const toTime = (value: string | null | undefined): number | null => {
   return Number.isNaN(time) ? null : time;
 };
 
-// True when the most recent run has finished (status is published and
-// last_run_at lines up with updated_at), as opposed to a run that was just
-// submitted and is still waiting for / being processed by the worker.
+// True when a user-initiated run has finished: published again after we saw it
+// enter running, or last_run_at advanced past the value captured at Run click
+// (covers fast runs that settle before polling observes "running").
 export const isWorkflowRunCompleted = (
-  updatedAt: string | null | undefined,
-  lastRunAt: string | null | undefined,
+  status: WorkflowStatus,
+  {
+    runTriggered,
+    sawRunningStatus,
+    lastRunAt,
+    lastRunAtAtTrigger,
+  }: WorkflowRunCycleState,
 ): boolean => {
-  const updatedTime = toTime(updatedAt);
-  const lastRunTime = toTime(lastRunAt);
-  if (updatedTime === null || lastRunTime === null) {
+  if (!runTriggered || status !== "published") {
     return false;
   }
-  return lastRunTime >= updatedTime - RUN_COMPLETION_TOLERANCE_MS;
+  if (sawRunningStatus) {
+    return true;
+  }
+  const lastRunTime = toTime(lastRunAt);
+  if (lastRunTime === null) {
+    return false;
+  }
+  const triggerTime = toTime(lastRunAtAtTrigger);
+  if (triggerTime === null) {
+    return true;
+  }
+  return lastRunTime > triggerTime;
 };
 
 // True while the workflow is mid-execution-cycle (submitted/published but not
@@ -77,18 +90,13 @@ export const isWorkflowRunCompleted = (
 // that bumps updated_at without executing does not start polling.
 export const isWorkflowExecutionPending = (
   status: WorkflowStatus,
-  updatedAt: string | null | undefined,
-  lastRunAt: string | null | undefined,
-  runTriggered = false,
+  cycle: WorkflowRunCycleState,
 ): boolean => {
   if (status === "running") {
     return true;
   }
-  if (status === "published") {
-    if (!runTriggered) {
-      return false;
-    }
-    return !isWorkflowRunCompleted(updatedAt, lastRunAt);
+  if (status === "published" && cycle.runTriggered) {
+    return !isWorkflowRunCompleted(status, cycle);
   }
   return false;
 };
@@ -98,6 +106,9 @@ type WorkflowActivityInput = {
   updatedAt: string | null;
   lastRunAt: string | null;
   createdAt: string | null;
+  runTriggered?: boolean;
+  sawRunningStatus?: boolean;
+  lastRunAtAtTrigger?: string | null;
 };
 
 // Builds the grey-text string shown next to the status badge, e.g.
@@ -108,13 +119,21 @@ export const deriveWorkflowActivityText = ({
   updatedAt,
   lastRunAt,
   createdAt,
+  runTriggered = false,
+  sawRunningStatus = false,
+  lastRunAtAtTrigger = null,
 }: WorkflowActivityInput): string => {
   const timestamp = formatWorkflowTimestamp(updatedAt);
   if (status === "template" || !timestamp) {
     return "";
   }
 
-  const verb = resolveVerb(status, updatedAt, lastRunAt, createdAt);
+  const verb = resolveVerb(status, updatedAt, lastRunAt, createdAt, {
+    runTriggered,
+    sawRunningStatus,
+    lastRunAt,
+    lastRunAtAtTrigger,
+  });
   return `已於 ${timestamp} ${verb}`;
 };
 
@@ -128,12 +147,16 @@ function resolveVerb(
   updatedAt: string | null,
   lastRunAt: string | null,
   createdAt: string | null,
+  cycle: WorkflowRunCycleState,
 ): string {
   if (status === "running") {
     return WORKFLOW_BUILDER_ACTIVITY_LABELS.executed;
   }
   if (status === "published") {
-    return lastRunAt && isWorkflowRunCompleted(updatedAt, lastRunAt)
+    if (isWorkflowExecutionPending(status, cycle)) {
+      return WORKFLOW_BUILDER_ACTIVITY_LABELS.executed;
+    }
+    return lastRunAt
       ? WORKFLOW_BUILDER_ACTIVITY_LABELS.completed
       : WORKFLOW_BUILDER_ACTIVITY_LABELS.executed;
   }

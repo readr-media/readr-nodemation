@@ -60,15 +60,33 @@ export default function WorkflowBuilderHeader() {
   const workflowDescription = useWorkflowEditorStore(
     (state) => state.description,
   );
-  const workflowStatus = useWorkflowEditorStore((state) => state.status);
-  const workflowUpdatedAt = useWorkflowEditorStore((state) => state.updatedAt);
-  const workflowLastRunAt = useWorkflowEditorStore((state) => state.lastRunAt);
-  const workflowCreatedAt = useWorkflowEditorStore((state) => state.createdAt);
+  const {
+    workflowStatus,
+    workflowUpdatedAt,
+    workflowLastRunAt,
+    workflowCreatedAt,
+    runTriggered,
+    sawRunningStatus,
+    lastRunAtAtTrigger,
+  } = useWorkflowEditorStore(
+    useShallow((state) => ({
+      workflowStatus: state.status,
+      workflowUpdatedAt: state.updatedAt,
+      workflowLastRunAt: state.lastRunAt,
+      workflowCreatedAt: state.createdAt,
+      runTriggered: state.runTriggered,
+      sawRunningStatus: state.sawRunningStatus,
+      lastRunAtAtTrigger: state.lastRunAtAtTrigger,
+    })),
+  );
   const activityText = deriveWorkflowActivityText({
     status: workflowStatus,
     updatedAt: workflowUpdatedAt,
     lastRunAt: workflowLastRunAt,
     createdAt: workflowCreatedAt,
+    runTriggered,
+    sawRunningStatus,
+    lastRunAtAtTrigger,
   });
   // "Save" only persists the form state, so a workflow with node errors can
   // still be saved as a draft for the user to come back and fix later.

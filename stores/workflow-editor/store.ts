@@ -71,6 +71,11 @@ export type WorkflowEditorState = WorkflowGraphSnapshot & {
   // Set when the user explicitly clicks Run so status polling only tracks
   // in-flight runs, not saves that bump updated_at without executing.
   runTriggered: boolean;
+  // True once polling observes published → running during the current run cycle.
+  sawRunningStatus: boolean;
+  // Snapshot of lastRunAt when Run was clicked; used to detect a new run when
+  // the worker finishes before we ever poll "running".
+  lastRunAtAtTrigger: string | null;
   hydrateFromWorkflow: (workflow: HydrateWorkflowInput) => void;
   setName: (name: string) => void;
   setDescription: (description: string) => void;
@@ -164,6 +169,8 @@ const createWorkflowEditorState = (
   isDirty: false,
   isHydrating: false,
   runTriggered: false,
+  sawRunningStatus: false,
+  lastRunAtAtTrigger: null,
   hydrateFromWorkflow: (workflow) => {
     const description = workflow.description ?? "";
     const graphFingerprints = fingerprintGraphSnapshot(workflow);
@@ -194,6 +201,8 @@ const createWorkflowEditorState = (
       isDirty: false,
       isHydrating: false,
       runTriggered: false,
+      sawRunningStatus: false,
+      lastRunAtAtTrigger: null,
     });
   },
   setName: (name) => {
@@ -236,7 +245,19 @@ const createWorkflowEditorState = (
     set({ createdAt });
   },
   setRunTriggered: (runTriggered) => {
-    set({ runTriggered });
+    set((state) =>
+      runTriggered
+        ? {
+            runTriggered,
+            sawRunningStatus: false,
+            lastRunAtAtTrigger: state.lastRunAt,
+          }
+        : {
+            runTriggered,
+            sawRunningStatus: false,
+            lastRunAtAtTrigger: null,
+          },
+    );
   },
   resetBaseline: (snapshot) => {
     set((state) => {
@@ -277,15 +298,23 @@ const createWorkflowEditorState = (
       const baseline = state.baseline
         ? { ...state.baseline, status }
         : state.baseline;
-      const nextState = { ...state, status, baseline };
-      const runTriggered = isWorkflowExecutionPending(
-        status,
-        updatedAt,
+      const sawRunningStatus =
+        status === "running" ? true : state.sawRunningStatus;
+      const cycle = {
+        runTriggered: state.runTriggered,
+        sawRunningStatus,
         lastRunAt,
-        state.runTriggered,
-      )
+        lastRunAtAtTrigger: state.lastRunAtAtTrigger,
+      };
+      const runTriggered = isWorkflowExecutionPending(status, cycle)
         ? state.runTriggered
         : false;
+      const nextState = {
+        ...state,
+        status,
+        baseline,
+        sawRunningStatus: runTriggered ? sawRunningStatus : false,
+      };
 
       return {
         status,
@@ -293,6 +322,7 @@ const createWorkflowEditorState = (
         lastRunAt,
         baseline,
         runTriggered,
+        sawRunningStatus: nextState.sawRunningStatus,
         isDirty: computeIsDirty(nextState),
       };
     });

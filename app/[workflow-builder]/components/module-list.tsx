@@ -10,7 +10,7 @@ const ModuleList = () => {
     addAiClassifierTaggerNode,
     addAiTitleGenerationNode,
     addAiPollNode,
-    addCodeNode,
+    addEarthquakeInputNode,
     addCmsNode,
     addCmsOutputAudioNode,
     addCmsOutputNode,
@@ -42,8 +42,8 @@ const ModuleList = () => {
                   if (nodeType === "aiPoll") {
                     addAiPollNode();
                   }
-                  if (nodeType === "codeBlock") {
-                    addCodeNode();
+                  if (nodeType === "earthquakeInput") {
+                    addEarthquakeInputNode();
                   }
                   if (nodeType === "cmsInput") {
                     addCmsNode();

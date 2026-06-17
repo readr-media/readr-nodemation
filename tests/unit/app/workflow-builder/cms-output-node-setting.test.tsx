@@ -68,9 +68,8 @@ const findButtonByLabel = (
 
 describe("cms output node setting", () => {
   it("renders the approved cmsOutput settings UI", async () => {
-    const { default: CmsOutputNodeSetting } = await import(
-      "@/app/[workflow-builder]/components/node-settings/cms-output-node-setting"
-    );
+    const { default: CmsOutputNodeSetting } =
+      await import("@/app/[workflow-builder]/components/node-settings/cms-output-node-setting");
 
     const markup = renderToStaticMarkup(
       <CmsOutputNodeSetting
@@ -92,7 +91,7 @@ describe("cms output node setting", () => {
     );
 
     expect(markup).toContain('value="Readr CMS"');
-    expect(markup).toContain(">Posts<");
+    expect(markup).toContain(">Post<");
     expect(markup).toContain("disabled");
     expect(markup).toContain("回寫欄位");
     expect(markup).toContain("標題");
@@ -110,9 +109,8 @@ describe("cms output node setting", () => {
   });
 
   it("checking categories creates the ai.categories mapping", async () => {
-    const { toggleCmsOutputFieldMapping } = await import(
-      "@/app/[workflow-builder]/components/node-settings/cms-output-node-setting"
-    );
+    const { toggleCmsOutputFieldMapping } =
+      await import("@/app/[workflow-builder]/components/node-settings/cms-output-node-setting");
 
     const mappings = toggleCmsOutputFieldMapping([], "categories", true);
 
@@ -126,9 +124,8 @@ describe("cms output node setting", () => {
   });
 
   it("checking tags creates the ai.tags mapping", async () => {
-    const { toggleCmsOutputFieldMapping } = await import(
-      "@/app/[workflow-builder]/components/node-settings/cms-output-node-setting"
-    );
+    const { toggleCmsOutputFieldMapping } =
+      await import("@/app/[workflow-builder]/components/node-settings/cms-output-node-setting");
 
     const mappings = toggleCmsOutputFieldMapping([], "tags", true);
 
@@ -142,9 +139,8 @@ describe("cms output node setting", () => {
   });
 
   it("unchecking a selected field removes its mapping", async () => {
-    const { toggleCmsOutputFieldMapping } = await import(
-      "@/app/[workflow-builder]/components/node-settings/cms-output-node-setting"
-    );
+    const { toggleCmsOutputFieldMapping } =
+      await import("@/app/[workflow-builder]/components/node-settings/cms-output-node-setting");
 
     const mappings = toggleCmsOutputFieldMapping(
       [
@@ -172,12 +168,41 @@ describe("cms output node setting", () => {
     ]);
   });
 
-  it("disabled fields do not create mappings", async () => {
-    const { toggleCmsOutputFieldMapping } = await import(
-      "@/app/[workflow-builder]/components/node-settings/cms-output-node-setting"
-    );
+  it("checking title creates the ai.title mapping", async () => {
+    const { toggleCmsOutputFieldMapping } =
+      await import("@/app/[workflow-builder]/components/node-settings/cms-output-node-setting");
 
     const mappings = toggleCmsOutputFieldMapping([], "title", true);
+
+    expect(mappings).toMatchObject([
+      {
+        id: expect.any(String),
+        sourceField: "{{ ai.title }}",
+        targetField: "title",
+      },
+    ]);
+  });
+
+  it("checking content creates the ai.content mapping", async () => {
+    const { toggleCmsOutputFieldMapping } =
+      await import("@/app/[workflow-builder]/components/node-settings/cms-output-node-setting");
+
+    const mappings = toggleCmsOutputFieldMapping([], "content", true);
+
+    expect(mappings).toMatchObject([
+      {
+        id: expect.any(String),
+        sourceField: "{{ ai.content }}",
+        targetField: "content",
+      },
+    ]);
+  });
+
+  it("fields without mapping templates do not create mappings", async () => {
+    const { toggleCmsOutputFieldMapping } =
+      await import("@/app/[workflow-builder]/components/node-settings/cms-output-node-setting");
+
+    const mappings = toggleCmsOutputFieldMapping([], "recommendedTitle", true);
 
     expect(mappings).toEqual([]);
   });
@@ -185,9 +210,8 @@ describe("cms output node setting", () => {
   it("clicking categories updates the node data with the derived mapping", async () => {
     updateCmsOutputNodeData.mockClear();
 
-    const { default: CmsOutputNodeSetting } = await import(
-      "@/app/[workflow-builder]/components/node-settings/cms-output-node-setting"
-    );
+    const { default: CmsOutputNodeSetting } =
+      await import("@/app/[workflow-builder]/components/node-settings/cms-output-node-setting");
 
     const tree = CmsOutputNodeSetting({
       nodeId: "cmsOutput-node",

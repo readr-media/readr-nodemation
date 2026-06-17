@@ -1026,15 +1026,7 @@ describe("loadWorkflowIntoStores", () => {
           position: { x: 360, y: 160 },
           data: {
             title: "AI 分類與標記",
-            inputs: {
-              title: true,
-              content: true,
-              summary: false,
-            },
-            outputFormat: "JSON",
-            promptTemplate: "legacy prompt",
-            cmsField: "{{ cms.article.content }}",
-            testInput: "",
+            userPrompt: "legacy prompt",
           },
         },
         {
@@ -1172,84 +1164,6 @@ describe("loadWorkflowIntoStores", () => {
               tags: "array[string]",
             },
             outputFormat: "json",
-          },
-        },
-      ],
-      edges: [],
-    });
-  });
-
-  it("falls back to the current codeBlock defaults when language is missing", async () => {
-    const loadSnapshot = vi.fn();
-    const hydrateFromWorkflow = vi.fn();
-    const fetchImpl = vi.fn().mockResolvedValue(
-      new Response(
-        JSON.stringify({
-          id: "legacy-code-workflow",
-          name: "legacy code",
-          description: "既有流程",
-          status: "draft",
-          nodes: JSON.stringify([
-            {
-              id: "codeBlock-node",
-              type: "codeBlock",
-              position: { x: 120, y: 160 },
-              data: {
-                title: "撰寫程式碼",
-                code: "console.log('hello');",
-              },
-            },
-          ]),
-          edges: JSON.stringify([]),
-        }),
-        {
-          status: 200,
-          headers: { "content-type": "application/json" },
-        },
-      ),
-    );
-
-    const result = await loadWorkflowIntoStores({
-      workflowId: "legacy-code-workflow",
-      templateId: null,
-      fetchImpl,
-      loadSnapshot,
-      hydrateFromWorkflow,
-    });
-
-    expect(result).toEqual({ status: "loaded" });
-    expect(loadSnapshot).toHaveBeenCalledWith({
-      nodes: [
-        {
-          id: "codeBlock-node",
-          type: "codeBlock",
-          position: { x: 120, y: 160 },
-          data: {
-            title: "撰寫程式碼",
-            language: "JavaScript",
-            code: "console.log('hello');",
-          },
-        },
-      ],
-      edges: [],
-    });
-    expect(hydrateFromWorkflow).toHaveBeenCalledWith({
-      workflowId: "legacy-code-workflow",
-      updatedAt: null,
-      lastRunAt: null,
-      createdAt: null,
-      name: "legacy code",
-      description: "既有流程",
-      status: "draft",
-      nodes: [
-        {
-          id: "codeBlock-node",
-          type: "codeBlock",
-          position: { x: 120, y: 160 },
-          data: {
-            title: "撰寫程式碼",
-            language: "JavaScript",
-            code: "console.log('hello');",
           },
         },
       ],
@@ -1566,6 +1480,118 @@ describe("loadWorkflowIntoStores", () => {
             title: "AI 投票建議",
             userPrompt: "",
             categoryAmount: 2,
+          },
+        },
+      ],
+      edges: [],
+    });
+  });
+});
+
+describe("earthquake workflow node normalization", () => {
+  it("normalizes earthquakeInput workflow nodes before hydrating the stores", async () => {
+    const loadSnapshot = vi.fn();
+    const hydrateFromWorkflow = vi.fn();
+    const fetchImpl = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "earthquake-workflow",
+          name: "自動地震文",
+          description: "既有流程",
+          status: "draft",
+          nodes: JSON.stringify([
+            {
+              id: "earthquakeInput-node",
+              type: "earthquakeInput",
+              position: { x: 80, y: 160 },
+              data: {
+                label: "舊地震輸入",
+                dataSource: "中央氣象署",
+                triggerCondition: "最低規模 4.0 以上地震",
+                updateMethod: "每3分鐘自動監測",
+              },
+            },
+          ]),
+          edges: JSON.stringify([]),
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        },
+      ),
+    );
+
+    const result = await loadWorkflowIntoStores({
+      workflowId: "earthquake-workflow",
+      templateId: null,
+      fetchImpl,
+      loadSnapshot,
+      hydrateFromWorkflow,
+    });
+
+    expect(result).toEqual({ status: "loaded" });
+    expect(loadSnapshot).toHaveBeenCalledWith({
+      nodes: [
+        {
+          id: "earthquakeInput-node",
+          type: "earthquakeInput",
+          position: { x: 80, y: 160 },
+          data: {
+            title: "舊地震輸入",
+          },
+        },
+      ],
+      edges: [],
+    });
+  });
+
+  it("normalizes aiCall nodes to title and userPrompt only", async () => {
+    const loadSnapshot = vi.fn();
+    const hydrateFromWorkflow = vi.fn();
+    const fetchImpl = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "earthquake-ai-workflow",
+          name: "自動地震文",
+          description: "既有流程",
+          status: "draft",
+          nodes: JSON.stringify([
+            {
+              id: "aiCall-node",
+              type: "aiCall",
+              position: { x: 360, y: 160 },
+              data: {
+                title: "呼叫 AI",
+                userPrompt: "",
+              },
+            },
+          ]),
+          edges: JSON.stringify([]),
+        }),
+        {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        },
+      ),
+    );
+
+    await loadWorkflowIntoStores({
+      workflowId: "earthquake-ai-workflow",
+      templateId: null,
+      fetchImpl,
+      loadSnapshot,
+      hydrateFromWorkflow,
+    });
+
+    expect(loadSnapshot).toHaveBeenCalledWith({
+      nodes: [
+        {
+          id: "aiCall-node",
+          type: "aiCall",
+          position: { x: 360, y: 160 },
+          data: {
+            title: "呼叫 AI",
+            userPrompt: "",
           },
         },
       ],

@@ -10,15 +10,7 @@ import { getNodeShellClassName } from "./node-shell-styles";
 
 export type AiCallNodeData = {
   title: string;
-  inputs: {
-    title: boolean;
-    content: boolean;
-    summary: boolean;
-  };
-  outputFormat: string;
-  promptTemplate: string;
-  cmsField: string;
-  testInput: string;
+  userPrompt: string;
 };
 export type AiCallNodeType = Node<AiCallNodeData, "aiCall">;
 

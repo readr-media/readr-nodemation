@@ -1,35 +1,33 @@
 import type { Node } from "@xyflow/react";
 import type { StateCreator } from "zustand";
-import type { AiCallNodeData } from "@/components/flow/nodes/ai-call-node";
+import type { EarthquakeInputNodeData } from "@/components/flow/nodes/earthquake-input-node";
 import { generateId } from "@/utils/generate-id";
 import { NODE_OFFSET_STEP } from "../constants";
-import type { AiNodeSlice, NodesStore } from "../types";
-import { EARTHQUAKE_USER_PROMPT } from "@/lib/earthquake-workflow";
+import type { EarthquakeInputNodeSlice, NodesStore } from "../types";
 
-export const createAiCallNodeData = (): AiCallNodeData => ({
-  title: "呼叫 AI",
-  userPrompt: EARTHQUAKE_USER_PROMPT,
+export const createEarthquakeInputNodeData = (): EarthquakeInputNodeData => ({
+  title: "取得地震資訊",
 });
 
-const createAiCallNode = (
+const createEarthquakeInputNode = (
   positionOffset: number,
-): Node<AiCallNodeData, "aiCall"> => ({
+): Node<EarthquakeInputNodeData, "earthquakeInput"> => ({
   id: generateId(),
-  type: "aiCall",
+  type: "earthquakeInput",
   position: { x: positionOffset, y: positionOffset },
-  data: createAiCallNodeData(),
+  data: createEarthquakeInputNodeData(),
 });
 
-export const createAiNodeSlice: StateCreator<
+export const createEarthquakeInputNodeSlice: StateCreator<
   NodesStore,
   [["zustand/devtools", never]],
   [],
-  AiNodeSlice
+  EarthquakeInputNodeSlice
 > = (set) => ({
-  addAiNode: () => {
+  addEarthquakeInputNode: () => {
     set((state) => {
       const positionOffset = state.nodes.length * NODE_OFFSET_STEP;
-      const newNode = createAiCallNode(positionOffset);
+      const newNode = createEarthquakeInputNode(positionOffset);
 
       return {
         nodes: [...state.nodes, newNode],
@@ -37,14 +35,14 @@ export const createAiNodeSlice: StateCreator<
       };
     });
   },
-  updateNodeData: (nodeId, data) => {
+  updateEarthquakeInputNodeData: (nodeId, data) => {
     set((state) => ({
       nodes: state.nodes.map((node) =>
         node.id === nodeId
           ? {
               ...node,
               data: {
-                ...(node.data as AiCallNodeData),
+                ...(node.data as EarthquakeInputNodeData),
                 ...data,
               },
             }

@@ -8,17 +8,21 @@ import { cn } from "@/lib/utils";
 
 import { getNodeShellClassName } from "./node-shell-styles";
 
-export type CodeNodeData = {
+export type EarthquakeInputNodeData = {
   title: string;
-  language: string;
-  code: string;
 };
-export type CodeNodeType = Node<CodeNodeData, "codeBlock">;
+export type EarthquakeInputNodeType = Node<
+  EarthquakeInputNodeData,
+  "earthquakeInput"
+>;
 
 const handleClass =
   "!h-3 !w-3 !rounded-full !border !border-[#d4d3cc] !bg-white shadow-[0px_2px_6px_rgba(0,0,0,0.1)]";
 
-const CodeNode = ({ data, selected }: NodeProps<CodeNodeType>) => {
+const EarthquakeInputNode = ({
+  data,
+  selected,
+}: NodeProps<EarthquakeInputNodeType>) => {
   const title = data.title;
 
   return (
@@ -32,11 +36,6 @@ const CodeNode = ({ data, selected }: NodeProps<CodeNodeType>) => {
         </p>
       </div>
       <Handle
-        type="target"
-        position={Position.Left}
-        className={cn(handleClass, "-left-3 top-1/2 -translate-y-1/2")}
-      />
-      <Handle
         type="source"
         position={Position.Right}
         className={cn(handleClass, "-right-3 top-1/2 -translate-y-1/2")}
@@ -45,4 +44,4 @@ const CodeNode = ({ data, selected }: NodeProps<CodeNodeType>) => {
   );
 };
 
-export default memo(CodeNode);
+export default memo(EarthquakeInputNode);

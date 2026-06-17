@@ -18,7 +18,7 @@ import AiPollNode from "./nodes/ai-poll-node";
 import AiTitleGenerationNode from "./nodes/ai-title-generation-node";
 import CmsInputNode from "./nodes/cms-input-node";
 import CmsOutputNode from "./nodes/cms-output-node";
-import CodeNode from "./nodes/code-node";
+import EarthquakeInputNode from "./nodes/earthquake-input-node";
 import PodcastGenerationNode from "./nodes/podcast-generation-node";
 import CmsOutputAudioNode from "./nodes/cms-output-audio-node";
 
@@ -39,7 +39,7 @@ const FlowEditor = ({ controlsSlot }: FlowEditorProps) => {
       aiTitle: AiTitleGenerationNode,
       aiPoll: AiPollNode,
       aiClassifierTagger: AiClassifierTaggerNode,
-      codeBlock: CodeNode,
+      earthquakeInput: EarthquakeInputNode,
       cmsInput: CmsInputNode,
       cmsOutput: CmsOutputNode,
       cmsOutputAudio: CmsOutputAudioNode,

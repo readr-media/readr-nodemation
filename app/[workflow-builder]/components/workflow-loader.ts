@@ -16,7 +16,7 @@ import type {
   CmsOutputNodeData,
   CmsOutputTargetField,
 } from "@/components/flow/nodes/cms-output-node";
-import type { CodeNodeData } from "@/components/flow/nodes/code-node";
+import type { EarthquakeInputNodeData } from "@/components/flow/nodes/earthquake-input-node";
 import { cronToSchedule } from "@/lib/cron-to-schedule";
 import type { WorkflowStatus } from "@/lib/workflow-status";
 import { useExecutionScheduleStore } from "@/stores/execution-schedule-store";
@@ -26,6 +26,7 @@ import { createAiTitleGenerationNodeData } from "@/stores/flow-editor/slices/ai-
 import { createCmsInputNodeData } from "@/stores/flow-editor/slices/cms-node-slice";
 import { createCmsOutputAudioNodeData } from "@/stores/flow-editor/slices/cms-output-audio-node-slice";
 import { createCmsOutputNodeData } from "@/stores/flow-editor/slices/cms-output-node-slice";
+import { createEarthquakeInputNodeData } from "@/stores/flow-editor/slices/earthquake-input-node-slice";
 import type { PodcastGenerationNodeData } from "@/stores/flow-editor/slices/podcast-generation-node-slice";
 import { generateId } from "@/utils/generate-id";
 
@@ -132,42 +133,21 @@ const normalizeCmsInputData = (
   };
 };
 
-const normalizeAiCallData = (
-  data: Record<string, unknown>,
-): AiCallNodeData => ({
+const normalizeAiCallData = (data: Record<string, unknown>): AiCallNodeData => ({
   title:
     typeof data.title === "string"
       ? data.title
       : typeof data.label === "string"
         ? data.label
         : "呼叫 AI",
-  inputs:
-    typeof data.inputs === "object" && data.inputs !== null
-      ? {
-          title: Boolean((data.inputs as Record<string, unknown>).title),
-          content: Boolean((data.inputs as Record<string, unknown>).content),
-          summary: Boolean((data.inputs as Record<string, unknown>).summary),
-        }
-      : {
-          title: true,
-          content: true,
-          summary: false,
-        },
-  outputFormat:
-    typeof data.outputFormat === "string" ? data.outputFormat : "JSON",
-  promptTemplate:
-    typeof data.promptTemplate === "string"
-      ? data.promptTemplate
-      : typeof data.prompt === "string"
-        ? data.prompt
-        : "",
-  cmsField:
-    typeof data.cmsField === "string"
-      ? data.cmsField
-      : typeof data.targetField === "string"
-        ? data.targetField
-        : "",
-  testInput: typeof data.testInput === "string" ? data.testInput : "",
+  userPrompt:
+    typeof data.userPrompt === "string"
+      ? data.userPrompt
+      : typeof data.promptTemplate === "string"
+        ? data.promptTemplate
+        : typeof data.prompt === "string"
+          ? data.prompt
+          : "",
 });
 
 const normalizeAiClassifierTaggerData = (
@@ -216,9 +196,7 @@ const normalizeAiClassifierTaggerData = (
   };
 };
 
-const normalizeAiPollData = (
-  data: Record<string, unknown>,
-): AiPollNodeData => {
+const normalizeAiPollData = (data: Record<string, unknown>): AiPollNodeData => {
   const defaults = createAiPollNodeData();
 
   return {
@@ -383,16 +361,20 @@ const normalizeCmsOutputAudioData = (
   };
 };
 
-const normalizeCodeData = (data: Record<string, unknown>): CodeNodeData => ({
-  title:
-    typeof data.title === "string"
-      ? data.title
-      : typeof data.label === "string"
-        ? data.label
-        : "撰寫程式碼",
-  language: typeof data.language === "string" ? data.language : "JavaScript",
-  code: typeof data.code === "string" ? data.code : "",
-});
+const normalizeEarthquakeInputData = (
+  data: Record<string, unknown>,
+): EarthquakeInputNodeData => {
+  const defaults = createEarthquakeInputNodeData();
+
+  return {
+    title:
+      typeof data.title === "string"
+        ? data.title
+        : typeof data.label === "string"
+          ? data.label
+          : defaults.title,
+  };
+};
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
@@ -439,8 +421,8 @@ const normalizeNode = (node: Node): Node => {
       return { ...node, data: normalizeCmsOutputData(data) };
     case "cmsOutputAudio":
       return { ...node, data: normalizeCmsOutputAudioData(data) };
-    case "codeBlock":
-      return { ...node, data: normalizeCodeData(data) };
+    case "earthquakeInput":
+      return { ...node, data: normalizeEarthquakeInputData(data) };
     case "podcastGeneration":
       return { ...node, data: normalizePodcastGenerationData(data) };
     default:

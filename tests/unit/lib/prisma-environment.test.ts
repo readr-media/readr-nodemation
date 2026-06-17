@@ -3,8 +3,7 @@ import { resolveDatabaseUrl } from "@/lib/prisma-environment";
 
 describe("resolveDatabaseUrl", () => {
   it("returns DATABASE_URL when it is set", () => {
-    const url =
-      "postgresql://ndx:ndx@localhost:5433/workflow?schema=public";
+    const url = "postgresql://ndx:ndx@localhost:5433/workflow?schema=public";
     expect(resolveDatabaseUrl({ DATABASE_URL: url })).toBe(url);
   });
 

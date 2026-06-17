@@ -7,7 +7,7 @@ import { createAiPollNodeSlice } from "./slices/ai-poll-node-slice";
 import { createCmsNodeSlice } from "./slices/cms-node-slice";
 import { createCmsOutputAudioNodeSlice } from "./slices/cms-output-audio-node-slice";
 import { createCmsOutputNodeSlice } from "./slices/cms-output-node-slice";
-import { createCodeNodeSlice } from "./slices/code-node-slice";
+import { createEarthquakeInputNodeSlice } from "./slices/earthquake-input-node-slice";
 import { createFlowSlice } from "./slices/flow-slice";
 import { createPodcastGenerationNodeSlice } from "./slices/podcast-generation-node-slice";
 import { createWorkflowValidationSlice } from "./slices/workflow-validation-slice";
@@ -21,7 +21,7 @@ export const useNodesStore = create<NodesStore>()(
       ...createAiTitleGenerationNodeSlice(set, get, store),
       ...createAiPollNodeSlice(set, get, store),
       ...createAiClassifierTaggerNodeSlice(set, get, store),
-      ...createCodeNodeSlice(set, get, store),
+      ...createEarthquakeInputNodeSlice(set, get, store),
       ...createCmsNodeSlice(set, get, store),
       ...createCmsOutputNodeSlice(set, get, store),
       ...createCmsOutputAudioNodeSlice(set, get, store),

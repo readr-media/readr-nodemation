@@ -110,4 +110,25 @@ describe("module list", () => {
       type: "aiClassifierTagger",
     });
   });
+
+  it("adds an earthquakeInput node when the earthquake module is clicked", async () => {
+    const { default: ModuleList } =
+      await import("../../../../../app/[workflow-builder]/components/module-list");
+
+    renderToStaticMarkup(<ModuleList />);
+
+    const earthquakeCard =
+      mockModuleCardState.cardsByTitle.get("取得地震資訊");
+
+    expect(earthquakeCard).toBeDefined();
+
+    earthquakeCard?.onClick?.();
+
+    expect(useNodesStore.getState().nodes.at(-1)).toMatchObject({
+      type: "earthquakeInput",
+      data: {
+        title: "取得地震資訊",
+      },
+    });
+  });
 });

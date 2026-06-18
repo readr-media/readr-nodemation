@@ -9,12 +9,7 @@ const labelClass =
 const readOnlyTextareaClass =
   "min-h-[280px] rounded-[10px] border-module-border bg-gray-400 text-sm leading-6 text-module-title";
 
-const AiNodeSettings = ({
-  data,
-}: {
-  nodeId: string;
-  data: AiCallNodeData;
-}) => {
+const AiNodeSettings = ({ data }: { nodeId: string; data: AiCallNodeData }) => {
   return (
     <div className="flex flex-1 flex-col overflow-y-auto p-4">
       <div className="space-y-6">
@@ -23,7 +18,6 @@ const AiNodeSettings = ({
           <Textarea
             value={data.userPrompt}
             disabled
-            readOnly
             className={readOnlyTextareaClass}
           />
         </section>

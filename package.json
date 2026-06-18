@@ -5,6 +5,7 @@
   "packageManager": "pnpm@10.33.2",
   "scripts": {
     "dev": "concurrently \"next dev --webpack\" \"graphql-codegen -w\"",
+    "db:proxy": "cloud-sql-proxy mirrorlearning-161006:asia-east1:ndx-workflow --port 5434",
     "typecheck": "tsc --noEmit",
     "typecheck:test": "tsc --noEmit -p tsconfig.test.json",
     "typecheck:all": "pnpm typecheck && pnpm typecheck:test",

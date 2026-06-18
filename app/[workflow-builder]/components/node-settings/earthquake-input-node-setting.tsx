@@ -26,10 +26,8 @@ const EarthquakeInputNodeSetting = ({
         <section className="space-y-2">
           <p className={labelClass}>資料來源</p>
           <Input
-            value=""
-            placeholder={EARTHQUAKE_DATA_SOURCE}
+            value={EARTHQUAKE_DATA_SOURCE}
             disabled
-            readOnly
             className={readOnlyInputClass}
           />
         </section>
@@ -37,10 +35,8 @@ const EarthquakeInputNodeSetting = ({
         <section className="space-y-2">
           <p className={labelClass}>觸發條件</p>
           <Input
-            value=""
-            placeholder={EARTHQUAKE_TRIGGER_CONDITION}
+            value={EARTHQUAKE_TRIGGER_CONDITION}
             disabled
-            readOnly
             className={readOnlyInputClass}
           />
         </section>
@@ -48,10 +44,8 @@ const EarthquakeInputNodeSetting = ({
         <section className="space-y-2">
           <p className={labelClass}>更新方式</p>
           <Input
-            value=""
-            placeholder={EARTHQUAKE_UPDATE_METHOD}
+            value={EARTHQUAKE_UPDATE_METHOD}
             disabled
-            readOnly
             className={readOnlyInputClass}
           />
         </section>

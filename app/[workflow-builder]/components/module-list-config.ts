@@ -66,7 +66,7 @@ export const moduleGroups: Array<{ title: string; modules: ModuleItem[] }> = [
     modules: [
       {
         title: "取得地震資訊",
-        description: "輸入程式碼來處理資料",
+        description: "自動監測並取得中央氣象局最新地震資訊",
         icon: Code2,
         accent: "code",
         nodeType: "earthquakeInput",

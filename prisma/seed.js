@@ -1,5 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
-const { EARTHQUAKE_USER_PROMPT } = require("../lib/earthquake-workflow.constants.js");
+const {
+  EARTHQUAKE_USER_PROMPT,
+} = require("../lib/earthquake-workflow.constants.js");
 
 const prisma = new PrismaClient();
 
@@ -33,7 +35,7 @@ const moduleSeed = [
       {
         action: "取得地震資訊",
         action_code: "earthquake_input",
-        description: "輸入程式碼來處理資料",
+        description: "自動監測並取得中央氣象局最新地震資訊",
         active: true,
         icon_key: "Code2",
         sort_order: 2,

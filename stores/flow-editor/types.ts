@@ -12,7 +12,7 @@ import type { AiTitleGenerationNodeData } from "@/components/flow/nodes/ai-title
 import type { CmsOutputAudioNodeData } from "@/components/flow/nodes/cms-output-audio-node";
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
-import type { CodeNodeData } from "@/components/flow/nodes/code-node";
+import type { EarthquakeInputNodeData } from "@/components/flow/nodes/earthquake-input-node";
 import type { PodcastGenerationNodeData } from "./slices/podcast-generation-node-slice";
 
 export type FlowSlice = {
@@ -56,9 +56,12 @@ export type AiClassifierTaggerNodeSlice = {
   ) => void;
 };
 
-export type CodeNodeSlice = {
-  addCodeNode: () => void;
-  updateCodeNodeData: (nodeId: string, data: Partial<CodeNodeData>) => void;
+export type EarthquakeInputNodeSlice = {
+  addEarthquakeInputNode: () => void;
+  updateEarthquakeInputNodeData: (
+    nodeId: string,
+    data: Partial<EarthquakeInputNodeData>,
+  ) => void;
 };
 
 export type CmsNodeSlice = {
@@ -107,7 +110,7 @@ export type NodesStore = FlowSlice &
   AiTitleGenerationNodeSlice &
   AiPollNodeSlice &
   AiClassifierTaggerNodeSlice &
-  CodeNodeSlice &
+  EarthquakeInputNodeSlice &
   CmsNodeSlice &
   CmsOutputNodeSlice &
   CmsOutputAudioNodeSlice &

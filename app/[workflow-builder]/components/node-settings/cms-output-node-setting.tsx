@@ -39,6 +39,8 @@ const cmsOutputFieldOptions: Array<{
 
 const cmsOutputMappingTemplates: Partial<Record<CmsOutputTargetField, string>> =
   {
+    title: "{{ ai.title }}",
+    content: "{{ ai.content }}",
     categories: "{{ ai.categories }}",
     tags: "{{ ai.tags }}",
   };
@@ -197,7 +199,7 @@ const CmsOutputNodeSetting = ({
             disabled
             className="h-10 w-full cursor-not-allowed rounded-lg border border-module-border bg-gray-400 px-3 text-sm text-module-title shadow-[0_1px_3px_rgba(0,0,0,0.05)] outline-none opacity-50"
           >
-            <option value="Posts">Posts</option>
+            <option value="Post">Post</option>
           </select>
         </section>
 

@@ -3,6 +3,8 @@ import path from "node:path";
 import vm from "node:vm";
 import { describe, expect, it } from "vitest";
 
+import { EARTHQUAKE_USER_PROMPT } from "@/lib/earthquake-workflow";
+
 type SeedWorkflow = {
   id: string;
   name: string;
@@ -56,6 +58,10 @@ const loadSeedExports = (): SeedExports => {
             $disconnect = async () => undefined;
           },
         };
+      }
+
+      if (specifier === "../lib/earthquake-workflow.constants.js") {
+        return require(path.join(repoRoot, "lib/earthquake-workflow.constants.js"));
       }
 
       throw new Error(`Unexpected dependency in seed loader: ${specifier}`);
@@ -294,5 +300,83 @@ describe("demo podcast workflow seed", () => {
     expect(podcastData).not.toHaveProperty("model");
     expect(podcastData).not.toHaveProperty("promptTemplate");
     expect(podcastData).not.toHaveProperty("prompt");
+  });
+});
+
+describe("demo earthquake workflow seed", () => {
+  it("stores a complete earthquakeInput to aiCall to cmsOutput graph snapshot", () => {
+    const { templateGraphSeedByName } = loadSeedExports();
+    const graph = templateGraphSeedByName?.["自動地震文"];
+
+    expect(graph).toBeDefined();
+    if (!graph) {
+      throw new Error("Expected templateGraphSeedByName to include 自動地震文");
+    }
+
+    const nodes = JSON.parse(graph.nodes) as WorkflowNodeSnapshot[];
+    const edges = JSON.parse(graph.edges) as Array<{
+      source: string;
+      target: string;
+    }>;
+
+    expect(nodes).toHaveLength(3);
+    expect(nodes.map((node) => node.type)).toEqual([
+      "earthquakeInput",
+      "aiCall",
+      "cmsOutput",
+    ]);
+    expect(edges).toHaveLength(2);
+    expect(edges.map((edge) => [edge.source, edge.target])).toEqual([
+      ["earthquakeInput-node", "aiCall-node"],
+      ["aiCall-node", "earthquake-cmsOutput-node"],
+    ]);
+
+    const earthquakeInputNode = getNodeOrThrow(nodes, 0);
+    const aiCallNode = getNodeOrThrow(nodes, 1);
+    const cmsOutputNode = getNodeOrThrow(nodes, 2);
+    const earthquakeInputData = getNodeDataOrThrow(earthquakeInputNode);
+    const aiCallData = getNodeDataOrThrow(aiCallNode);
+    const cmsOutputData = getNodeDataOrThrow(cmsOutputNode);
+
+    expect(earthquakeInputNode.id).toBe("earthquakeInput-node");
+    expect(earthquakeInputData).toMatchObject({
+      title: "取得地震資訊",
+    });
+    expect(earthquakeInputData).not.toHaveProperty("dataSource");
+    expect(earthquakeInputData).not.toHaveProperty("triggerCondition");
+    expect(earthquakeInputData).not.toHaveProperty("updateMethod");
+
+    expect(aiCallNode.id).toBe("aiCall-node");
+    expect(aiCallNode.measured).toEqual({ width: 240, height: 62 });
+    expect(aiCallData).toMatchObject({
+      title: "呼叫 AI",
+      userPrompt: EARTHQUAKE_USER_PROMPT,
+    });
+
+    expect(cmsOutputNode.measured).toEqual({ width: 240, height: 62 });
+    expect(cmsOutputData).toMatchObject({
+      title: "輸出文字到 CMS",
+      cmsName: "Readr CMS",
+      cmsList: "Post",
+      mappings: [
+        {
+          id: "earthquake-title",
+          sourceField: "{{ ai.title }}",
+          targetField: "title",
+        },
+        {
+          id: "earthquake-content",
+          sourceField: "{{ ai.content }}",
+          targetField: "content",
+        },
+        {
+          id: "earthquake-categories",
+          sourceField: "{{ ai.categories }}",
+          targetField: "categories",
+        },
+      ],
+      mode: "overwrite",
+      postStatus: "draft",
+    });
   });
 });

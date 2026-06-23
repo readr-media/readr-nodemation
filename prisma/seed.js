@@ -1,4 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
+const {
+  EARTHQUAKE_USER_PROMPT,
+} = require("../lib/earthquake-workflow.constants.js");
 
 const prisma = new PrismaClient();
 
@@ -30,12 +33,12 @@ const moduleSeed = [
     sort_order: 2,
     units: [
       {
-        action: "撰寫程式碼",
-        action_code: "code",
-        description: "輸入程式碼來處理資料",
-        active: false,
+        action: "取得地震資訊",
+        action_code: "earthquake_input",
+        description: "自動監測並取得中央氣象局最新地震資訊",
+        active: true,
         icon_key: "Code2",
-        sort_order: 1,
+        sort_order: 2,
       },
     ],
   },
@@ -305,47 +308,21 @@ const demoTitleGenerationEdges = JSON.stringify([
 
 const demoEarthquakeNodes = JSON.stringify([
   {
-    id: "earthquake-cmsInput-node",
-    type: "cmsInput",
+    id: "earthquakeInput-node",
+    type: "earthquakeInput",
     position: { x: 80, y: 160 },
     data: {
-      title: "從 CMS 輸入文章",
-      cmsConfigId: "",
-      cmsName: "Readr CMS",
-      cmsList: "Posts",
-      cmsPostIds: "",
-      cmsPostSlugs: "",
-      sourceFields: {
-        title: true,
-        category: false,
-        content: true,
-        tags: false,
-      },
-      outputFields: {
-        title: "string",
-        categories: "array[string]",
-        content: "string",
-        tags: "array[string]",
-      },
-      outputFormat: "json",
+      title: "取得地震資訊",
     },
   },
   {
-    id: "earthquake-aiCall-node",
+    id: "aiCall-node",
     type: "aiCall",
     position: { x: 360, y: 160 },
+    measured: { width: 240, height: 62 },
     data: {
-      title: "自動地震文",
-      inputs: {
-        title: true,
-        content: true,
-        summary: true,
-      },
-      outputFormat: "JSON",
-      promptTemplate:
-        "請依地震資訊撰寫速報稿，內容需包含地點、規模、時間與提醒事項。",
-      cmsField: "content",
-      testInput: "",
+      title: "呼叫 AI",
+      userPrompt: EARTHQUAKE_USER_PROMPT,
     },
   },
   {
@@ -357,19 +334,24 @@ const demoEarthquakeNodes = JSON.stringify([
       title: "輸出文字到 CMS",
       cmsConfigId: "",
       cmsName: "Readr CMS",
-      cmsList: "Posts",
+      cmsList: "Post",
       cmsPostIds: "",
       cmsPostSlugs: "",
       mappings: [
         {
-          id: "earthquake-ai-output-to-title",
-          sourceField: "{{ ai.output }}",
+          id: "earthquake-title",
+          sourceField: "{{ ai.title }}",
           targetField: "title",
         },
         {
-          id: "earthquake-ai-output-to-content",
-          sourceField: "{{ ai.output }}",
+          id: "earthquake-content",
+          sourceField: "{{ ai.content }}",
           targetField: "content",
+        },
+        {
+          id: "earthquake-categories",
+          sourceField: "{{ ai.categories }}",
+          targetField: "categories",
         },
       ],
       mode: "overwrite",
@@ -380,13 +362,13 @@ const demoEarthquakeNodes = JSON.stringify([
 
 const demoEarthquakeEdges = JSON.stringify([
   {
-    id: "earthquake-cmsInput-node->earthquake-aiCall-node",
-    source: "earthquake-cmsInput-node",
-    target: "earthquake-aiCall-node",
+    id: "earthquakeInput-node->aiCall-node",
+    source: "earthquakeInput-node",
+    target: "aiCall-node",
   },
   {
-    id: "earthquake-aiCall-node->earthquake-cmsOutput-node",
-    source: "earthquake-aiCall-node",
+    id: "aiCall-node->earthquake-cmsOutput-node",
+    source: "aiCall-node",
     target: "earthquake-cmsOutput-node",
   },
 ]);

@@ -11,7 +11,7 @@ import type { AiTitleGenerationNodeData } from "@/components/flow/nodes/ai-title
 import type { CmsInputNodeData } from "@/components/flow/nodes/cms-input-node";
 import type { CmsOutputAudioNodeData } from "@/components/flow/nodes/cms-output-audio-node";
 import type { CmsOutputNodeData } from "@/components/flow/nodes/cms-output-node";
-import type { CodeNodeData } from "@/components/flow/nodes/code-node";
+import type { EarthquakeInputNodeData } from "@/components/flow/nodes/earthquake-input-node";
 import {
   Sidebar,
   SidebarContent,
@@ -30,7 +30,7 @@ import AiTitleGenerationNodeSetting from "./node-settings/ai-title-generation-no
 import CmsNodeSetting from "./node-settings/cms-node-setting";
 import CmsOutputAudioNodeSetting from "./node-settings/cms-output-audio-node-setting";
 import CmsOutputNodeSetting from "./node-settings/cms-output-node-setting";
-import CodeNodeSetting from "./node-settings/code-node-setting";
+import EarthquakeInputNodeSetting from "./node-settings/earthquake-input-node-setting";
 import PodcastGenerationNodeSetting from "./node-settings/podcast-generation-node-setting";
 
 const EmptyState = () => (
@@ -99,11 +99,11 @@ const NodeSettingSidebar = () => {
         />
       );
       break;
-    case "codeBlock":
+    case "earthquakeInput":
       content = (
-        <CodeNodeSetting
+        <EarthquakeInputNodeSetting
           nodeId={selectedNode.id}
-          data={selectedNode.data as CodeNodeData}
+          data={selectedNode.data as EarthquakeInputNodeData}
         />
       );
       break;
@@ -147,7 +147,7 @@ const NodeSettingSidebar = () => {
     <Sidebar
       side="right"
       className="border-l border-module-border bg-white md:top-16 md:h-[calc(100svh-4rem)]"
-      style={{ "--sidebar-width": "18rem" } as CSSProperties}
+      style={{ "--sidebar-width": "20rem" } as CSSProperties}
     >
       <SidebarHeader className="node-settings-header p-4">
         <h2 className="text-lg font-medium text-module-title">

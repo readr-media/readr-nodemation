@@ -354,7 +354,7 @@ const demoEarthquakeNodes = JSON.stringify([
           targetField: "categories",
         },
       ],
-      mode: "overwrite",
+      mode: "create",
       postStatus: "draft",
     },
   },

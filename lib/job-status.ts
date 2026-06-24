@@ -1,10 +1,5 @@
 import type { LucideIcon } from "lucide-react";
-import {
-  CircleCheckIcon,
-  CircleDashedIcon,
-  Loader2Icon,
-  XCircleIcon,
-} from "lucide-react";
+import { CircleCheckIcon, XCircleIcon } from "lucide-react";
 
 export const JOB_STATUS_VALUES = ["completed", "failed"] as const;
 

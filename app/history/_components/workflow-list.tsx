@@ -20,7 +20,7 @@ import {
   MoreVerticalIcon,
 } from "lucide-react";
 import { Fragment, useCallback, useEffect, useState } from "react";
-import { useDebounceCallback, useCopyToClipboard } from "usehooks-ts";
+import { useCopyToClipboard } from "usehooks-ts";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -45,10 +45,7 @@ function StatusBadge({ status }: { status: string }) {
 
   return (
     <Badge variant={config.variant} className="flex items-center gap-1">
-      <config.Icon
-        size={16}
-        className={status === "running" ? "animate-spin" : ""}
-      />
+      <config.Icon size={16} />
       {config.label}
     </Badge>
   );
@@ -82,65 +79,87 @@ export default function WorkflowList({
   const [, copyToClipboard] = useCopyToClipboard();
   const [isCopyActive, setIsCopyActive] = useState(false);
 
-  const copySnapshot = useDebounceCallback(async (snapshot: unknown | null) => {
-    if (isCopyActive) return;
+  const copySnapshot = useCallback(
+    async (snapshot: unknown | null) => {
+      if (isCopyActive) return;
 
-    const text = formatSnapshotText(snapshot);
-    if (!text) {
-      toast.error("沒有可複製的 JSON 內容");
-      return;
-    }
-
-    try {
-      await copyToClipboard(text);
-      setIsCopyActive(true);
-      window.setTimeout(() => {
-        setIsCopyActive(false);
-      }, 1000);
-      toast.success("已複製到剪貼簿");
-    } catch {
-      toast.error("複製失敗，請稍後再試");
-    }
-  }, 500);
-
-  const fetchJobs = useCallback(async () => {
-    if (!userId) {
-      setJobs([]);
-      setTotal(0);
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const params = new URLSearchParams({
-        timeRange,
-        status,
-        page: String(currentPage),
-        pageSize: String(PAGE_SIZE),
-      });
-      const response = await fetch(`/api/jobs?${params.toString()}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch jobs");
+      const text = formatSnapshotText(snapshot);
+      if (!text) {
+        toast.error("沒有可複製的 JSON 內容");
+        return;
       }
 
-      const result = (await response.json()) as JobsApiResponse;
-      setJobs(result.items ?? []);
-      setTotal(result.total ?? 0);
-    } catch (fetchError) {
-      console.error(fetchError);
-      setJobs([]);
-      setTotal(0);
-      setError("載入執行紀錄失敗，請稍後再試");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [userId, timeRange, status, currentPage]);
+      try {
+        await copyToClipboard(text);
+        setIsCopyActive(true);
+        window.setTimeout(() => {
+          setIsCopyActive(false);
+        }, 1000);
+        toast.success("已複製到剪貼簿");
+      } catch {
+        toast.error("複製失敗，請稍後再試");
+      }
+    },
+    [isCopyActive, copyToClipboard],
+  );
 
   useEffect(() => {
-    void fetchJobs();
-  }, [fetchJobs]);
+    let active = true;
+    const controller = new AbortController();
+
+    const doFetch = async () => {
+      if (!userId) {
+        setJobs([]);
+        setTotal(0);
+        return;
+      }
+
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const params = new URLSearchParams({
+          timeRange,
+          status,
+          page: String(currentPage),
+          pageSize: String(PAGE_SIZE),
+        });
+        const response = await fetch(`/api/jobs?${params.toString()}`, {
+          signal: controller.signal,
+        });
+        if (!response.ok) {
+          throw new Error("Failed to fetch jobs");
+        }
+
+        const result = (await response.json()) as JobsApiResponse;
+        if (active) {
+          setJobs(result.items ?? []);
+          setTotal(result.total ?? 0);
+        }
+      } catch (fetchError) {
+        if (fetchError instanceof Error && fetchError.name === "AbortError") {
+          return;
+        }
+        console.error(fetchError);
+        if (active) {
+          setJobs([]);
+          setTotal(0);
+          setError("載入執行紀錄失敗，請稍後再試");
+        }
+      } finally {
+        if (active) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    void doFetch();
+
+    return () => {
+      active = false;
+      controller.abort();
+    };
+  }, [userId, timeRange, status, currentPage]);
 
   useEffect(() => {
     setCurrentPage(1);

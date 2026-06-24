@@ -119,12 +119,19 @@ function DashboardHeader() {
         </div>
 
         <div className="flex items-center gap-x-3">
-          <Button asChild disabled={!activeUserId || isLoadingActiveUser}>
-            <Link href={activeUserId ? `/history/${activeUserId}` : "#"}>
+          {!activeUserId || isLoadingActiveUser ? (
+            <Button disabled>
               <ClockIcon />
               查看紀錄
-            </Link>
-          </Button>
+            </Button>
+          ) : (
+            <Button asChild>
+              <Link href={`/history/${activeUserId}`}>
+                <ClockIcon />
+                查看紀錄
+              </Link>
+            </Button>
+          )}
           <Button asChild>
             <Link href="/module-management">
               <SparklesIcon />

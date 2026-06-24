@@ -27,13 +27,26 @@ export type JobListResult = {
 
 const TAIPEI_TIME_ZONE = "Asia/Taipei";
 
+const taipeiDatePartsFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: TAIPEI_TIME_ZONE,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+const taipeiUtcFormatter = new Intl.DateTimeFormat("en-US", {
+  timeZone: TAIPEI_TIME_ZONE,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hourCycle: "h23",
+});
+
 function getTaipeiDateParts(date: Date) {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: TAIPEI_TIME_ZONE,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(date);
+  const parts = taipeiDatePartsFormatter.formatToParts(date);
 
   const lookup = (type: Intl.DateTimeFormatPartTypes) =>
     parts.find((part) => part.type === type)?.value ?? "";
@@ -54,19 +67,17 @@ function toUtcDateFromTaipei(
   second: number,
   millisecond: number,
 ): Date {
-  const utcGuess = Date.UTC(year, month - 1, day, hour, minute, second, millisecond);
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: TAIPEI_TIME_ZONE,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hourCycle: "h23",
-  });
+  const utcGuess = Date.UTC(
+    year,
+    month - 1,
+    day,
+    hour,
+    minute,
+    second,
+    millisecond,
+  );
 
-  const parts = formatter.formatToParts(new Date(utcGuess));
+  const parts = taipeiUtcFormatter.formatToParts(new Date(utcGuess));
   const lookup = (type: Intl.DateTimeFormatPartTypes) =>
     Number(parts.find((part) => part.type === type)?.value ?? "0");
 
@@ -130,13 +141,12 @@ export function buildJobStartedAtFilter(
   };
 }
 
-function parseWorkflowSnapshot(value: string | null): unknown | null {
-  if (!value) {
-    return null;
+function parseWorkflowSnapshot(value: unknown): unknown {
+  if (typeof value !== "string") {
+    return value;
   }
-
   try {
-    return JSON.parse(value) as unknown;
+    return JSON.parse(value);
   } catch {
     return value;
   }

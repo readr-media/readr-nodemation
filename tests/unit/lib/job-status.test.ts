@@ -10,6 +10,7 @@ describe("job-status", () => {
   it("recognizes valid job statuses", () => {
     expect(isJobStatus("completed")).toBe(true);
     expect(isJobStatus("failed")).toBe(true);
+    expect(isJobStatus("running")).toBe(false);
     expect(isJobStatus("success")).toBe(false);
   });
 

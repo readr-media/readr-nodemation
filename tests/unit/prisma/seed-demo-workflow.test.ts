@@ -375,7 +375,7 @@ describe("demo earthquake workflow seed", () => {
           targetField: "categories",
         },
       ],
-      mode: "overwrite",
+      mode: "create",
       postStatus: "draft",
     });
   });

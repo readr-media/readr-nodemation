@@ -119,8 +119,8 @@ function DashboardHeader() {
         </div>
 
         <div className="flex items-center gap-x-3">
-          <Button asChild>
-            <Link href="/history/1">
+          {!activeUserId || isLoadingActiveUser ? (
+            <Button disabled>
               <ClockIcon />
               查看紀錄
             </Link>

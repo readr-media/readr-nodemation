@@ -18,7 +18,7 @@ const timeFilters = [
 
 const statusFilters = [
   { label: "全部", value: "all" },
-  { label: "成功", value: "success" },
+  { label: "成功", value: "completed" },
   { label: "失敗", value: "failed" },
 ];
 
@@ -41,6 +41,7 @@ export default function WorkflowSearchBar({
             <InputGroupInput
               className="body-2 text-module-text placeholder:text-module-placeholder"
               placeholder="搜尋工作流名稱..."
+              disabled
             />
             <InputGroupAddon>
               <SearchIcon className="size-4 text-module-placeholder" />

@@ -199,7 +199,7 @@ export async function getUserJobs(
   return {
     items: jobs.map((job) => ({
       id: job.id,
-      name: job.name ?? job.workflow.name ?? "未命名工作流",
+      name: resolveJobDisplayName(job.name, job.workflow?.name),
       startedAt: job.started_at?.toISOString() ?? null,
       status: job.status,
       workflowSnapshot: parseWorkflowSnapshot(job.workflow_snapshot),

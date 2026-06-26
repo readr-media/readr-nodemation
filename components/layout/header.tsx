@@ -123,8 +123,15 @@ function DashboardHeader() {
             <Button disabled>
               <ClockIcon />
               查看紀錄
-            </Link>
-          </Button>
+            </Button>
+          ) : (
+            <Button asChild>
+              <Link href={`/history/${activeUserId}`}>
+                <ClockIcon />
+                查看紀錄
+              </Link>
+            </Button>
+          )}
           {/* <Button asChild>
             <Link href="/module-management">
               <SparklesIcon />

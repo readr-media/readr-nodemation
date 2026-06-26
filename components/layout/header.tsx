@@ -123,21 +123,14 @@ function DashboardHeader() {
             <Button disabled>
               <ClockIcon />
               查看紀錄
-            </Button>
-          ) : (
-            <Button asChild>
-              <Link href={`/history/${activeUserId}`}>
-                <ClockIcon />
-                查看紀錄
-              </Link>
-            </Button>
-          )}
-          <Button asChild>
+            </Link>
+          </Button>
+          {/* <Button asChild>
             <Link href="/module-management">
               <SparklesIcon />
               查看模組
             </Link>
-          </Button>
+          </Button> */}
           <Button
             disabled={!activeUserId || isLoadingActiveUser}
             onClick={() => setIsImportDialogOpen(true)}
@@ -205,8 +198,8 @@ export default function HeaderSwitcher() {
     if (pathname.startsWith("/workflow-builder"))
       return <WorkflowBuilderHeader />;
 
-    if (pathname.startsWith("/module-management"))
-      return <ModuleManagementHeader />;
+    // if (pathname.startsWith("/module-management"))
+    //   return <ModuleManagementHeader />;
 
     if (pathname.startsWith("/history")) return <HistoryHeader />;
 

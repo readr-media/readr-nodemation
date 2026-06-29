@@ -31,7 +31,7 @@ export type CmsOutputNodeData = {
   cmsPostIds: string;
   cmsPostSlugs: string;
   mappings: CmsFieldMapping[];
-  mode: "overwrite" | "append";
+  mode: "create" | "overwrite" | "append";
   postStatus: "draft" | "published";
 };
 export type CmsOutputNodeType = Node<CmsOutputNodeData, "cmsOutput">;

@@ -150,6 +150,66 @@ describe("loadWorkflowIntoStores", () => {
     });
   });
 
+  it("preserves the cmsOutput create mode (earthquake template) on load", async () => {
+    const loadSnapshot = vi.fn();
+    const hydrateFromWorkflow = vi.fn();
+    const fetchImpl = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "workflow-eq",
+          name: "自動地震文（副本）",
+          description: "使用 AI 產生地震文",
+          status: "draft",
+          nodes:
+            '[{"id":"cmsOutput-node","type":"cmsOutput","position":{"x":0,"y":0},"data":{"title":"輸出文字到 CMS","mode":"create","cmsList":"Post"}}]',
+          edges: "[]",
+        }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      ),
+    );
+
+    await loadWorkflowIntoStores({
+      workflowId: "workflow-eq",
+      templateId: null,
+      fetchImpl,
+      loadSnapshot,
+      hydrateFromWorkflow,
+    });
+
+    const loadedNode = loadSnapshot.mock.calls[0]?.[0]?.nodes[0];
+    expect(loadedNode.data.mode).toBe("create");
+  });
+
+  it("falls back to the default mode for an unknown cmsOutput mode", async () => {
+    const loadSnapshot = vi.fn();
+    const hydrateFromWorkflow = vi.fn();
+    const fetchImpl = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          id: "workflow-bad",
+          name: "壞模式",
+          description: "",
+          status: "draft",
+          nodes:
+            '[{"id":"cmsOutput-node","type":"cmsOutput","position":{"x":0,"y":0},"data":{"title":"輸出文字到 CMS","mode":"bogus"}}]',
+          edges: "[]",
+        }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      ),
+    );
+
+    await loadWorkflowIntoStores({
+      workflowId: "workflow-bad",
+      templateId: null,
+      fetchImpl,
+      loadSnapshot,
+      hydrateFromWorkflow,
+    });
+
+    const loadedNode = loadSnapshot.mock.calls[0]?.[0]?.nodes[0];
+    expect(loadedNode.data.mode).toBe("overwrite");
+  });
+
   it("creates new cmsInput nodes with the approved defaults", () => {
     const store = createSliceStore<CmsNodeSlice>(createCmsNodeSlice as never);
 

@@ -304,7 +304,9 @@ const normalizeCmsOutputData = (
         : defaults.cmsPostSlugs,
     mappings,
     mode:
-      data.mode === "overwrite" || data.mode === "append"
+      data.mode === "create" ||
+      data.mode === "overwrite" ||
+      data.mode === "append"
         ? data.mode
         : defaults.mode,
     postStatus:

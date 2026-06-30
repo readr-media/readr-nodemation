@@ -49,7 +49,7 @@ model Job {
   created_at        DateTime @default(now()) @db.Timestamptz(3)
   started_at        DateTime? @db.Timestamptz(3)
   completed_at      DateTime? @db.Timestamptz(3)
-  workflow          Workflow @relation(fields: [workflow_id], references: [id])
+  workflow          Workflow @relation(fields: [workflow_id], references: [id], onDelete: Cascade)
   logs              JobLog[]
 
   @@index([workflow_id])
@@ -65,7 +65,7 @@ model JobLog {
   message   String
   data      String?
   timestamp DateTime @db.Timestamptz(3)
-  job       Job      @relation(fields: [job_id], references: [id])
+  job       Job      @relation(fields: [job_id], references: [id], onDelete: Cascade)
 
   @@index([job_id])
   @@index([timestamp])

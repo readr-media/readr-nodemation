@@ -15,6 +15,38 @@ steps:
         "$_AR_HOSTNAME/$PROJECT_ID/$_AR_REPO_NAME/$_IMAGE_NAME:$COMMIT_SHA",
       ]
 
+  # Apply pending Prisma migrations to Cloud SQL before deploying the new
+  # revision. Connects through the Cloud SQL Auth Proxy over a unix socket whose
+  # path matches the runtime's --set-cloudsql-instances mount, so the same
+  # database-url-fe secret works unchanged. `migrate deploy` only applies pending
+  # migrations (never generate/reset) and is a no-op when nothing is pending. A
+  # failed migration aborts the build, so the deploy step below never runs.
+  - name: "node:22"
+    id: "migrate"
+    entrypoint: "bash"
+    secretEnv: ["DATABASE_URL"]
+    args:
+      - "-c"
+      - |
+        set -euo pipefail
+        INSTANCE="$PROJECT_ID:asia-east1:ndx-workflow"
+        SOCKET="/cloudsql/$$INSTANCE/.s.PGSQL.5432"
+        curl -fsSL -o /usr/local/bin/cloud-sql-proxy \
+          https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.14.3/cloud-sql-proxy.linux.amd64
+        chmod +x /usr/local/bin/cloud-sql-proxy
+        mkdir -p /cloudsql
+        cloud-sql-proxy --unix-socket /cloudsql "$$INSTANCE" &
+        PROXY_PID=$$!
+        for _ in $$(seq 1 30); do
+          [ -S "$$SOCKET" ] && break
+          sleep 1
+        done
+        [ -S "$$SOCKET" ] || { echo "Cloud SQL proxy socket not ready" >&2; exit 1; }
+        corepack enable
+        pnpm install --frozen-lockfile
+        pnpm exec prisma migrate deploy
+        kill "$$PROXY_PID"
+
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     entrypoint: gcloud
     args:
@@ -33,6 +65,11 @@ steps:
 
 images:
   - "$_AR_HOSTNAME/$PROJECT_ID/$_AR_REPO_NAME/$_IMAGE_NAME:$COMMIT_SHA"
+
+availableSecrets:
+  secretManager:
+    - versionName: projects/$PROJECT_ID/secrets/database-url-fe/versions/latest
+      env: "DATABASE_URL"
 
 options:
   logging: CLOUD_LOGGING_ONLY

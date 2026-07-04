@@ -39,13 +39,14 @@ steps:
         PROXY_PID=$$!
         for _ in $$(seq 1 30); do
           [ -S "$$SOCKET" ] && break
+          kill -0 "$$PROXY_PID" 2>/dev/null || { echo "Cloud SQL proxy process died unexpectedly" >&2; exit 1; }
           sleep 1
         done
         [ -S "$$SOCKET" ] || { echo "Cloud SQL proxy socket not ready" >&2; exit 1; }
         corepack enable
         pnpm install --frozen-lockfile
         pnpm exec prisma migrate deploy
-        kill "$$PROXY_PID"
+        kill "$$PROXY_PID" 2>/dev/null || true
 
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
     entrypoint: gcloud

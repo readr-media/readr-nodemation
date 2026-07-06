@@ -29,12 +29,17 @@ model Workflow {
   last_run_at     DateTime? @db.Timestamptz(3)
   created_at      DateTime @default(now()) @db.Timestamptz(3)
   updated_at      DateTime @updatedAt @db.Timestamptz(3)
+  // Soft delete: when set, the workflow is hidden from all listings and the
+  // scheduler, but its rows (and cascade-linked Job/JobLog history) are kept so
+  // past execution logs remain queryable. NULL means the workflow is live.
+  deleted_at      DateTime? @db.Timestamptz(3)
   user_id         String?
   user            User?    @relation(fields: [user_id], references: [id])
   jobs            Job[]
 
   @@index([next_run_at])
   @@index([status, next_run_at])
+  @@index([user_id, deleted_at])
 }
 
 model Job {

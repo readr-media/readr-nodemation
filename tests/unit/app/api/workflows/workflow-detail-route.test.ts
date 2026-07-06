@@ -51,7 +51,7 @@ describe("workflow detail route", () => {
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual(workflow);
     expect(prismaMock.workflow.findFirst).toHaveBeenCalledWith({
-      where: { id: "workflow-123", user_id: "user-test-123" },
+      where: { id: "workflow-123", user_id: "user-test-123", deleted_at: null },
     });
   });
 
@@ -132,7 +132,7 @@ describe("workflow detail route", () => {
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({ count: 1 });
     expect(prismaMock.workflow.updateMany).toHaveBeenCalledWith({
-      where: { id: "workflow-123", user_id: "user-test-123" },
+      where: { id: "workflow-123", user_id: "user-test-123", deleted_at: null },
       data: {
         name: "更新後流程",
         description: "更新後說明",
@@ -170,7 +170,7 @@ describe("workflow detail route", () => {
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toEqual({ count: 1 });
     expect(prismaMock.workflow.updateMany).toHaveBeenCalledWith({
-      where: { id: "workflow-123", user_id: "user-test-123" },
+      where: { id: "workflow-123", user_id: "user-test-123", deleted_at: null },
       data: {
         name: "更新後流程",
         description: "更新後說明",

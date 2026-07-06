@@ -37,7 +37,8 @@ export async function handleWorkflowUpdate(
 
   try {
     const updatedResult = await prisma.workflow.updateMany({
-      where: { id, user_id: userId },
+      // deleted_at: null so a soft-deleted workflow can no longer be edited.
+      where: { id, user_id: userId, deleted_at: null },
       data: buildWorkflowUpdateData(parsed.data, mode),
     });
 
@@ -49,7 +50,7 @@ export async function handleWorkflowUpdate(
     // builder header's status badge and "已於 … 儲存/執行" timestamp without an
     // extra round-trip.
     const updated = await prisma.workflow.findFirst({
-      where: { id, user_id: userId },
+      where: { id, user_id: userId, deleted_at: null },
       select: { status: true, updated_at: true, last_run_at: true },
     });
 

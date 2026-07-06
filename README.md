@@ -63,6 +63,15 @@ If you change the Prisma schema, regenerate the Prisma client:
 pnpm prisma generate
 ```
 
+#### Migrations on the dev environment
+
+You do not apply migrations to the dev Cloud SQL database by hand. The Cloud
+Build pipeline (`cloudbuild.yaml`) runs `prisma migrate deploy` after building
+the image and before deploying to Cloud Run, so merging a schema PR to `main`
+brings the dev database to the new schema automatically. If the migration
+fails, the build stops and the previous revision keeps serving. See
+`docs/plans/2026-07-01-cicd-prisma-migrate-design.md` for details.
+
 ### Start Development
 
 ```bash

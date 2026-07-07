@@ -43,6 +43,7 @@ const cmsOutputMappingTemplates: Partial<Record<CmsOutputTargetField, string>> =
     content: "{{ ai.content }}",
     categories: "{{ ai.categories }}",
     tags: "{{ ai.tags }}",
+    recommendedPoll: "{{ ai.output }}",
   };
 
 const postStatusOptions: Array<{

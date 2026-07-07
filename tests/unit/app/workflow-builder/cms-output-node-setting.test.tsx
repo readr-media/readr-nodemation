@@ -198,6 +198,21 @@ describe("cms output node setting", () => {
     ]);
   });
 
+  it("checking recommendedPoll creates the ai.output mapping", async () => {
+    const { toggleCmsOutputFieldMapping } =
+      await import("@/app/[workflow-builder]/components/node-settings/cms-output-node-setting");
+
+    const mappings = toggleCmsOutputFieldMapping([], "recommendedPoll", true);
+
+    expect(mappings).toMatchObject([
+      {
+        id: expect.any(String),
+        sourceField: "{{ ai.output }}",
+        targetField: "recommendedPoll",
+      },
+    ]);
+  });
+
   it("fields without mapping templates do not create mappings", async () => {
     const { toggleCmsOutputFieldMapping } =
       await import("@/app/[workflow-builder]/components/node-settings/cms-output-node-setting");

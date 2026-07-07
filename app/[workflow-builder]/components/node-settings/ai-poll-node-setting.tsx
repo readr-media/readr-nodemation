@@ -60,7 +60,6 @@ const AiPollNodeSetting = ({ nodeId, data }: AiPollNodeSettingProps) => {
         <section className="space-y-2">
           <p className={fieldLabelClass}>進階指令（User Prompt）</p>
           <Textarea
-            disabled
             placeholder={USER_PROMPT_PLACEHOLDER}
             className="min-h-[140px] rounded-[10px] border-module-border bg-white text-sm leading-6 text-module-title"
             value={data.userPrompt ?? ""}

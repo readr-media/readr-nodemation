@@ -14,7 +14,7 @@ export async function GET() {
     }
 
     const workflows = await prisma.workflow.findMany({
-      where: { user_id: activeUserId },
+      where: { user_id: activeUserId, deleted_at: null },
       orderBy: { created_at: "desc" },
     });
     return NextResponse.json(workflows);

@@ -22,10 +22,23 @@ export async function DELETE(
       );
     }
 
-    const deletedResult = await prisma.workflow.deleteMany({
+    // Soft delete: stamp deleted_at instead of removing the row. This hides the
+    // workflow from every listing and the scheduler (all reads filter
+    // deleted_at IS NULL) while preserving its Job/JobLog execution history so
+    // past run logs stay queryable. The deleted_at: null guard makes a repeat
+    // delete a no-op that reports 404.
+    const deletedResult = await prisma.workflow.updateMany({
       where: {
         id,
         user_id: activeUserId,
+        deleted_at: null,
+      },
+      data: {
+        deleted_at: new Date(),
+        // Unschedule it too, so the worker's (status, next_run_at) poll index
+        // never even scans a deleted workflow (the deleted_at IS NULL filter is
+        // still there as the authoritative guard).
+        next_run_at: null,
       },
     });
     if (deletedResult.count === 0) {
@@ -68,6 +81,7 @@ export async function GET(_request: Request, context: RouteContext) {
       where: {
         id,
         user_id: activeUserId,
+        deleted_at: null,
       },
     });
 

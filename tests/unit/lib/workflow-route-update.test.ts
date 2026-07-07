@@ -38,7 +38,7 @@ describe("handleWorkflowUpdate", () => {
     );
 
     expect(prisma.workflow.updateMany).toHaveBeenCalledWith({
-      where: { id: "wf-1", user_id: "user-1" },
+      where: { id: "wf-1", user_id: "user-1", deleted_at: null },
       data: {
         name: "Updated workflow",
         description: null,
@@ -79,7 +79,7 @@ describe("handleWorkflowUpdate", () => {
     );
 
     expect(prisma.workflow.findFirst).toHaveBeenCalledWith({
-      where: { id: "wf-1", user_id: "user-1" },
+      where: { id: "wf-1", user_id: "user-1", deleted_at: null },
       select: { status: true, updated_at: true, last_run_at: true },
     });
     expect(response.status).toBe(200);
@@ -110,7 +110,7 @@ describe("handleWorkflowUpdate", () => {
     );
 
     expect(prisma.workflow.updateMany).toHaveBeenCalledWith({
-      where: { id: "wf-1", user_id: "user-1" },
+      where: { id: "wf-1", user_id: "user-1", deleted_at: null },
       data: {
         name: "Renamed",
         status: "published",

@@ -4,7 +4,6 @@ import { DELETE, PATCH, PUT } from "@/app/api/workflows/[id]/route";
 const { prisma, getActiveUserId } = vi.hoisted(() => ({
   prisma: {
     workflow: {
-      deleteMany: vi.fn(),
       updateMany: vi.fn(),
       findFirst: vi.fn(),
     },
@@ -17,14 +16,13 @@ vi.mock("@/lib/active-user", () => ({ getActiveUserId }));
 
 describe("workflow resource route", () => {
   beforeEach(() => {
-    prisma.workflow.deleteMany.mockReset();
     prisma.workflow.updateMany.mockReset();
     getActiveUserId.mockReset();
     getActiveUserId.mockResolvedValue("user-1");
   });
 
-  it("returns 404 when deleting a workflow that does not exist", async () => {
-    prisma.workflow.deleteMany.mockResolvedValueOnce({ count: 0 });
+  it("returns 404 when soft-deleting a workflow that does not exist", async () => {
+    prisma.workflow.updateMany.mockResolvedValueOnce({ count: 0 });
 
     const response = await DELETE(
       new Request("http://localhost/api/workflows/missing", {
@@ -39,8 +37,8 @@ describe("workflow resource route", () => {
     });
   });
 
-  it("returns 200 with deleted workflow id when deletion succeeds", async () => {
-    prisma.workflow.deleteMany.mockResolvedValueOnce({ count: 1 });
+  it("soft-deletes the workflow by stamping deleted_at, preserving its rows", async () => {
+    prisma.workflow.updateMany.mockResolvedValueOnce({ count: 1 });
 
     const response = await DELETE(
       new Request("http://localhost/api/workflows/wf-1", {
@@ -49,8 +47,11 @@ describe("workflow resource route", () => {
       { params: Promise.resolve({ id: "wf-1" }) },
     );
 
-    expect(prisma.workflow.deleteMany).toHaveBeenCalledWith({
-      where: { id: "wf-1", user_id: "user-1" },
+    // Soft delete: stamp deleted_at on a still-live row (deleted_at: null guard),
+    // never a hard delete — Job/JobLog history must survive.
+    expect(prisma.workflow.updateMany).toHaveBeenCalledWith({
+      where: { id: "wf-1", user_id: "user-1", deleted_at: null },
+      data: { deleted_at: expect.any(Date), next_run_at: null },
     });
     expect(response.status).toBe(200);
     await expect(response.json()).resolves.toMatchObject({
@@ -79,7 +80,7 @@ describe("workflow resource route", () => {
     );
 
     expect(prisma.workflow.updateMany).toHaveBeenCalledWith({
-      where: { id: "wf-1", user_id: "user-1" },
+      where: { id: "wf-1", user_id: "user-1", deleted_at: null },
       data: {
         name: "Updated workflow",
         description: "Updated description",
@@ -128,7 +129,7 @@ describe("workflow resource route", () => {
     );
 
     expect(prisma.workflow.updateMany).toHaveBeenCalledWith({
-      where: { id: "wf-1", user_id: "user-1" },
+      where: { id: "wf-1", user_id: "user-1", deleted_at: null },
       data: {
         name: "Updated workflow",
         description: null,
@@ -236,7 +237,7 @@ describe("workflow resource route", () => {
     const response = await responsePromise;
 
     expect(prisma.workflow.updateMany).toHaveBeenCalledWith({
-      where: { id: "wf-async", user_id: "user-1" },
+      where: { id: "wf-async", user_id: "user-1", deleted_at: null },
       data: {
         name: "Updated workflow",
         description: null,
@@ -266,7 +267,7 @@ describe("workflow resource route", () => {
     );
 
     expect(prisma.workflow.updateMany).toHaveBeenCalledWith({
-      where: { id: "wf-1", user_id: "user-1" },
+      where: { id: "wf-1", user_id: "user-1", deleted_at: null },
       data: {
         name: "Renamed",
         status: "draft",
@@ -305,7 +306,7 @@ describe("workflow resource route", () => {
     );
 
     expect(prisma.workflow.updateMany).toHaveBeenCalledWith({
-      where: { id: "wf-1", user_id: "user-1" },
+      where: { id: "wf-1", user_id: "user-1", deleted_at: null },
       data: { next_run_at: null, updated_at: expect.any(Date) },
     });
     expect(response.status).toBe(200);
@@ -324,7 +325,7 @@ describe("workflow resource route", () => {
     );
 
     expect(prisma.workflow.updateMany).toHaveBeenCalledWith({
-      where: { id: "wf-1", user_id: "user-1" },
+      where: { id: "wf-1", user_id: "user-1", deleted_at: null },
       data: { last_run_at: null, updated_at: expect.any(Date) },
     });
     expect(response.status).toBe(200);
@@ -403,7 +404,7 @@ describe("workflow resource route", () => {
     );
 
     expect(prisma.workflow.updateMany).toHaveBeenCalledWith({
-      where: { id: "wf-1", user_id: "user-1" },
+      where: { id: "wf-1", user_id: "user-1", deleted_at: null },
       data: {
         nodes: '[{"id":"n1"}]',
         edges: '[{"id":"e1","source":"n1","target":"n2"}]',

@@ -21,7 +21,7 @@ steps:
   # database-url-fe secret works unchanged. `migrate deploy` only applies pending
   # migrations (never generate/reset) and is a no-op when nothing is pending. A
   # failed migration aborts the build, so the deploy step below never runs.
-  - name: "node:22"
+  - name: "node:24"
     id: "migrate"
     entrypoint: "bash"
     secretEnv: ["DATABASE_URL"]
